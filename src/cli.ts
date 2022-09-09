@@ -137,18 +137,22 @@ const cli = async () => {
 
       const config: IConfiguration = {
         connectionString: process.env.MIGRATE_CONNECTION_STRING ||
+          process.env.migrateConnectionString ||
           options.connectionString ||
           null,
         templatePath: process.env.MIGRATE_TEMPLATE_PATH ||
+          process.env.migrateTemplatePath ||
           options.templatePath ||
           null,
         migrationsPath: process.env.MIGRATE_MIGRATIONS_PATH ||
+          process.env.migrateMigrationsPath ||
           options.migrationsPath ||
           'migrations',
         collection: process.env.MIGRATE_COLLECTION ||
+          process.env.migrateCollection ||
           options.collection ||
           'migrations',
-        autosync: Boolean(process.env.MIGRATE_AUTOSYNC) ||
+        autosync: Boolean(process.env.MIGRATE_AUTOSYNC || process.env.migrateAutosync) ||
           options.autosync ||
           false
       }
