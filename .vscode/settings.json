@@ -1,0 +1,25 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "[javascript]": {
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  "eslint.options": {
+    "extensions": [
+      ".js",
+      ".ts"
+    ]
+  },
+  "eslint.validate": [
+    "javascript"
+  ],
+  "cSpell.words": [
+    "autosync",
+    "linebreak",
+    "nargs",
+    "parens",
+    "virtuals"
+  ]
+}

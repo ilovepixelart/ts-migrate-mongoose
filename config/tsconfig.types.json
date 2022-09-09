@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig",
+  "compilerOptions": {
+    "rootDir": "../src",
+    "outDir": "../dist/types",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+  }
+}

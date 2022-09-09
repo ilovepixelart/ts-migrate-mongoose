@@ -1,0 +1,15 @@
+# Dependency directory
+node_modules
+dist
+
+# npm debug logs
+npm-debug.log
+
+# Webstorm
+.idea
+.env
+
+/migrations
+/migrate.ts
+/migrate.js
+/migrate.json

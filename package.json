@@ -1,0 +1,76 @@
+{
+  "name": "ts-migrate-mongoose",
+  "version": "1.0.0",
+  "description": "A node/typescript based migration framework for mongoose",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.js",
+  "scripts": {
+    "prepublish": "scripts/prepublish.sh",
+    "test": "echo 'Error: no test specified'",
+    "lint": "yarn eslint ./{src,examples} --fix . --ext .js,.ts",
+    "build": "npm run build:cjs && npm run build:esm && npm run build:types",
+    "build:cjs": "node tools/cleanup cjs && tsc -p config/tsconfig.cjs.json",
+    "build:esm": "node tools/cleanup esm && tsc -p config/tsconfig.esm.json",
+    "build:types": "node tools/cleanup types && tsc -p config/tsconfig.types.json",
+    "package": "npm run build && npm pack",
+    "migrate": "ts-node-dev ./src/cli.ts"
+  },
+  "bin": {
+    "migrate": "dist/cjs/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "migrate",
+    "migration",
+    "mongoose",
+    "schema",
+    "mongodb",
+    "db",
+    "nosql",
+    "typescript"
+  ],
+  "author": "Alex Eagle",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ilovepixelart/ts-migrate-mongoose.git"
+  },
+  "dependencies": {
+    "colors": "^1.4.0",
+    "dotenv": "^16.0.2",
+    "inquirer": "^8.2.3",
+    "mkdirp": "^1.0.4",
+    "mongoose": "^6.6.0",
+    "yargs": "^17.5.1"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^8.2.3",
+    "@types/lodash": "^4.14.184",
+    "@types/mkdirp": "^1.0.2",
+    "@types/node": "^18.7.16",
+    "@types/yargs": "^17.0.12",
+    "@typescript-eslint/eslint-plugin": "^5.36.2",
+    "@typescript-eslint/parser": "^5.36.2",
+    "eslint": "^8.23.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^27.0.2",
+    "eslint-plugin-jest-formatting": "^3.1.0",
+    "eslint-plugin-n": "^15.2.5",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.0.1",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.8.3"
+  },
+  "bugs": {
+    "url": "https://github.com/ilovepixelart/ts-migrate-mongoose/issues"
+  },
+  "homepage": "https://github.com/ilovepixelart/ts-migrate-mongoose#readme",
+  "directories": {
+    "example": "examples"
+  }
+}
