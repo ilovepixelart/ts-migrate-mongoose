@@ -1,13 +1,13 @@
 {
   "name": "ts-migrate-mongoose",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A node/typescript based migration framework for mongoose",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/types/index.d.js",
   "scripts": {
     "prepublish": "scripts/prepublish.sh",
-    "test": "echo 'Error: no test specified'",
+    "test": "echo 'no test specified'",
     "lint": "yarn eslint ./{src,examples} --fix . --ext .js,.ts",
     "build": "npm run build:cjs && npm run build:esm && npm run build:types",
     "build:cjs": "node tools/cleanup cjs && tsc -p config/tsconfig.cjs.json",
@@ -36,7 +36,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ilovepixelart/ts-migrate-mongoose.git"
+    "url": "git://github.com/ilovepixelart/ts-migrate-mongoose.git"
   },
   "dependencies": {
     "colors": "^1.4.0",

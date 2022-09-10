@@ -152,7 +152,8 @@ const cli = async () => {
           process.env.migrateCollection ||
           options.collection ||
           'migrations',
-        autosync: Boolean(process.env.MIGRATE_AUTOSYNC || process.env.migrateAutosync) ||
+        autosync: Boolean(process.env.MIGRATE_AUTOSYNC) ||
+          Boolean(process.env.migrateAutosync) ||
           options.autosync ||
           false
       }
