@@ -2,6 +2,10 @@
 
 A node/typescript based migration framework for mongoose
 
+[![NPM version](https://badge.fury.io/js/ts-migrate-mongoose.svg)](http://badge.fury.io/js/ts-migrate-mongoose)
+
+[![npm](https://nodei.co/npm/ts-migrate-mongoose.png)](https://www.npmjs.com/package/ts-migrate-mongoose)
+
 ## Motivation
 
 ts-migrate-mongoose is a migration framework for projects which are already using mongoose.
@@ -24,24 +28,28 @@ ts-migrate-mongoose is a migration framework for projects which are already usin
 
 ### Getting Started with the CLI
 
-You can install it locally in your project
+Install ts-migrate-mongoose locally in you project
 
 ```bash
- npm install ts-migrate-mongoose
+npm install ts-migrate-mongoose
+# or
+yarn add ts-migrate-mongoose
 ```
 
-and then run
+And then run
 
 ```bash
-./node_modules/.bin/migrate [command] [options]
+yarn migrate [command] [options]
+# or
+npm exec migrate [command] [options]
 ```
-
-#### OR
 
 Install it globally
 
 ```bash
- npm install -g ts-migrate-mongoose
+npm install -g ts-migrate-mongoose
+# or
+yarn global add ts-migrate-mongoose
 ```
 
 and then run
@@ -50,44 +58,34 @@ and then run
 migrate [command] [options]
 ```
 
-### Usage
+Full details about commands and options can be found by running
 
 ```bash
-Usage: migrate -d <mongo-uri> [[create|up|down<migration-name>]|list|prune] [optional options]
+# yarn
+yarn migrate help
 
-Commands:
-  list                     Lists all migrations and their current state.
-  create <migration-name>  Creates a new migration file.
-  up [migration-name]      Migrates all the migration files that have not yet
-                           been run in chronological order. Not including
-                           [migration-name] will run up on all migrations that
-                           are in a down state.
-  down <migration-name>    Rolls back all migrations down to given name (if down
-                           function was provided)
-  prune                    Allows you to delete extraneous migrations by
-                           removing extraneous local migration files/database
-                           migrations.
- 
- 
-Options:
-  -d, --connectionString   The URI of the database connection                           [string] [required]
-  --collection            The mongo collection name to use for migrations [string] [default: "migrations"]
-  --md, --migrations-dir  The path to the migration files               [string] [default: "./migrations"]
-  -t, --template-file     The template file to use when creating a migration                      [string]
-  -c, --change-dir        Change current working directory before running  anything               [string]
-  --autosync              Automatically add any migrations on filesystem but not in db to db     [boolean]
-                          rather than asking interactively (use in scripts)
-  -h, --help              Show help                                                              [boolean]
+# npm
+npm exec migrate help
+```
 
- 
- 
-Examples:
-  node_modules/.bin/migrate list -d mongodb://localhost/migrations
-  node_modules/.bin/migrate create add_users -d mongodb://localhost/migrations
-  node_modules/.bin/migrate up add_user -d mongodb://localhost/migrations
-  node_modules/.bin/migrate down delete_names -d mongodb://localhost/migrations
-  node_modules/.bin/migrate prune -d mongodb://localhost/migrations
-  node_modules/.bin/migrate list --config settings.json
+### Examples
+
+```bash
+# yarn
+yarn migrate list -d mongodb://localhost/my-db
+yarn migrate create add_users -d mongodb://localhost/my-db
+yarn migrate up add_user -d mongodb://localhost/my-db
+yarn migrate down delete_names -d mongodb://localhost/my-db
+yarn migrate prune -d mongodb://localhost/my-db
+yarn migrate list --config settings.json
+
+# npm
+npm exec migrate list -d mongodb://localhost/my-db
+npm exec migrate create add_users -d mongodb://localhost/my-db
+npm exec migrate up add_user -d mongodb://localhost/my-db
+npm exec migrate down delete_names -d mongodb://localhost/my-db
+npm exec migrate prune -d mongodb://localhost/my-db
+npm exec migrate list --config settings.json
 ```
 
 ### Setting Options Automatically
@@ -99,7 +97,7 @@ If you want to not provide the options such as `--connectionString` to the progr
 - UPPERCASE
 
   ```bash
-  export MIGRATE_CONNECTION_STRING=mongodb://localhost/migrations
+  export MIGRATE_CONNECTION_STRING=mongodb://localhost/my-db
   export MIGRATE_TEMPLATE_PATH=migrations/template.ts
   export MIGRATE_MIGRATIONS_PATH=migrations
   export MIGRATE_COLLECTION=migrations
@@ -109,7 +107,7 @@ If you want to not provide the options such as `--connectionString` to the progr
 - camelCase
 
   ```bash
-  export migrateConnectionString=mongodb://localhost/migrations
+  export migrateConnectionString=mongodb://localhost/my-db
   export migrateTemplatePath=migrations/template.ts
   export migrateMigrationsPath=migrations
   export migrateCollection=migrations
@@ -121,7 +119,7 @@ If you want to not provide the options such as `--connectionString` to the progr
 - UPPERCASE
 
   ```bash
-  MIGRATE_CONNECTION_STRING=mongodb://localhost/migrations
+  MIGRATE_CONNECTION_STRING=mongodb://localhost/my-db
   MIGRATE_TEMPLATE_PATH=migrations/template.ts
   MIGRATE_MIGRATIONS_PATH=migrations
   MIGRATE_COLLECTION=migrations
@@ -131,7 +129,7 @@ If you want to not provide the options such as `--connectionString` to the progr
 - camelCase
 
   ```bash
-  migrateConnectionString=mongodb://localhost/migrations
+  migrateConnectionString=mongodb://localhost/my-db
   migrateTemplatePath=migrations/template.ts
   migrateMigrationsPath=migrations
   migrateCollection=migrations
@@ -141,11 +139,15 @@ If you want to not provide the options such as `--connectionString` to the progr
 #### 2. Provide a config file (defaults to *migrate.json* or *migrate.ts*)
 
 ```bash
-# If you have migrate.ts/migrate.json in the directory, you don't need to do anything
-migrate list
+# If you have migrate.ts or migrate.json in the directory, you don't need to do anything
+yarn migrate list
+
+npm exec migrate list
  
 # Otherwise you can provide a config file
-migrate list --config somePath/myCustomConfigFile[.json]
+yarn migrate list --config somePath/myCustomConfigFile[.json]
+
+npm exec migrate list --config somePath/myCustomConfigFile[.json]
 ```
 
 #### Options Override Order
@@ -193,12 +195,18 @@ import { Schema, model } from 'mongoose'
 
 interface IUser {
   firstName: string
-  lastName: string
+  lastName?: string
 }
 
 const UserSchema = new Schema<IUser>({
-  firstName: String,
-  lastName: String
+  firstName: {
+    type: String,
+    required: true
+  },
+  lastName: {
+    type: String,
+    required: false
+  }
 })
 
 export default model<IUser>('user', UserSchema)
@@ -209,7 +217,7 @@ export default model<IUser>('user', UserSchema)
 ```typescript
 import User from '../models/User'
 
-await async function up() {
+export async function up() {
   // Then you can use it in the migration like so  
   await User.create({ firstName: 'Ada', lastName: 'Lovelace' });
   
@@ -236,8 +244,6 @@ Currently, the **-d**/**connectionString**  must include the database to use for
 example: `-d mongodb://localhost:27017/development` .
 
 If you don't want to pass it in every time feel free to use the `migrate.json` config file or an environment variable
-
-### Examples
 
 Feel Free to check out the examples in the project to get a better idea of usage
 

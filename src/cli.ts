@@ -6,25 +6,13 @@ import dotenv from 'dotenv'
 import path from 'path'
 import yargs, { ArgumentsCamelCase, CommandModule } from 'yargs'
 
+import { registerOptions } from './options'
 import IConfiguration from './interfaces/IConfig'
 import Migrator from '.'
 
 dotenv.config()
 colors.enable()
-register({
-  transpileOnly: true,
-  compilerOptions: {
-    declaration: true,
-    declarationMap: true,
-    sourceMap: true,
-    allowJs: true,
-    allowSyntheticDefaultImports: true,
-    forceConsistentCasingInFileNames: true,
-    esModuleInterop: true,
-    importHelpers: true,
-    removeComments: true
-  }
-})
+register(registerOptions)
 
 interface IArgs extends ArgumentsCamelCase {
   md: string
