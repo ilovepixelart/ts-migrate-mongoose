@@ -1,6 +1,6 @@
 {
   "name": "ts-migrate-mongoose",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A node/typescript based migration framework for mongoose",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
