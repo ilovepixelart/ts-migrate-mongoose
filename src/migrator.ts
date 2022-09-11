@@ -1,16 +1,19 @@
-import fs from 'fs'
-import path from 'path'
-
-import { register } from 'ts-node'
-import colors from 'colors'
 import _ from 'lodash'
-import ask from 'inquirer'
+import fs from 'fs'
+import inquirer from 'inquirer'
+import path from 'path'
+import colors from 'colors'
+import { register } from 'ts-node'
+
 import mongoose, { Connection, FilterQuery, HydratedDocument, LeanDocument, Model } from 'mongoose'
+
+import IArgs from './interfaces/ArgumentsCamelCase'
+import IFileError from './interfaces/IFileError'
+import IMigration from './interfaces/IMigration'
+import IMigratorOptions from './interfaces/IMigratorOptions'
 
 import { registerOptions } from './options'
 import { getMigrationModel } from './model'
-import IMigration from './interfaces/IMigration'
-import IMigratorOptions from './interfaces/IMigratorOptions'
 
 colors.enable()
 register(registerOptions)
@@ -59,11 +62,17 @@ class Migrator {
     }
   }
 
+  fileError (error: IFileError): void {
+    if (error && error.code === 'ENOENT') {
+      throw new ReferenceError(`Could not find any files at path '${error.path}'`)
+    }
+  }
+
   /**
    * Use your own Mongoose connection object (so you can use this('modelname')
    * @param {mongoose.connection} connection - Mongoose connection
    */
-  setMongooseConnection (connection: Connection) {
+  setMongooseConnection (connection: Connection): Migrator {
     this.migrationModel = getMigrationModel(this.collection, connection)
     return this
   }
@@ -104,7 +113,7 @@ class Migrator {
       return migrationCreated
     } catch (error) {
       this.log(error.stack)
-      fileRequired(error)
+      this.fileError(error)
     }
   }
 
@@ -113,7 +122,7 @@ class Migrator {
    * @param migrationName
    * @param direction
    */
-  async run (direction = 'up', migrationName?: string, ...args) {
+  async run (direction = 'up', migrationName?: string, ...args: IArgs[]): Promise<LeanDocument<IMigration>[]> {
     await this.sync()
 
     if (direction !== 'up' && direction !== 'down') {
@@ -169,7 +178,7 @@ class Migrator {
         await new Promise((resolve, reject) => {
           const callPromise = migrationFunctions[direction].call(
             this.connection.model.bind(this.connection),
-            function callback (err) {
+            function callback (err: Error) {
               if (err) return reject(err)
               resolve(null)
             },
@@ -203,7 +212,7 @@ class Migrator {
    *
    * This functionality is opposite of prune()
    */
-  async sync () {
+  async sync (): Promise<LeanDocument<IMigration>[]> {
     try {
       const filesInMigrationFolder = fs.readdirSync(this.migrationPath)
       const migrationsInDatabase = await this.migrationModel.find({})
@@ -219,15 +228,11 @@ class Migrator {
       let migrationsToImport = filesNotInDb
       this.log('Synchronizing database with file system migrations...')
       if (!this.autosync && migrationsToImport.length) {
-        const answers: { migrationsToImport: string[] } = await new Promise(function (resolve) {
-          ask.prompt({
-            type: 'checkbox',
-            message: 'The following migrations exist in the migrations folder but not in the database. Select the ones you want to import into the database',
-            name: 'migrationsToImport',
-            choices: filesNotInDb
-          }, (answers) => {
-            resolve(answers)
-          })
+        const answers: { migrationsToImport: string[] } = await inquirer.prompt({
+          type: 'checkbox',
+          message: 'The following migrations exist in the migrations folder but not in the database. Select the ones you want to import into the database',
+          name: 'migrationsToImport',
+          choices: filesNotInDb
         })
 
         migrationsToImport = answers.migrationsToImport
@@ -277,30 +282,21 @@ class Migrator {
       let migrationsToDelete = dbMigrationsNotOnFs.map((m) => m.name)
 
       if (!this.autosync && migrationsToDelete.length) {
-        const answers: { migrationsToDelete: string[] } = await new Promise(function (resolve) {
-          ask.prompt({
-            type: 'checkbox',
-            message: 'The following migrations exist in the database but not in the migrations folder. Select the ones you want to remove from the file system.',
-            name: 'migrationsToDelete',
-            choices: migrationsToDelete
-          }, (answers) => {
-            resolve(answers)
-          })
+        const answers: { migrationsToDelete: string[] } = await inquirer.prompt({
+          type: 'checkbox',
+          message: 'The following migrations exist in the database but not in the migrations folder. Select the ones you want to remove from the file system.',
+          name: 'migrationsToDelete',
+          choices: migrationsToDelete
         })
 
         migrationsToDelete = answers.migrationsToDelete
       }
 
-      const migrationsToDeleteDocs = await this.migrationModel
-        .find({
-          name: { $in: migrationsToDelete }
-        }).lean()
+      const migrationsToDeleteDocs = await this.migrationModel.find({ name: { $in: migrationsToDelete } }).lean()
 
       if (migrationsToDelete.length) {
         this.log(`Removing migration(s) from database: \n${migrationsToDelete.join('\n, ').cyan} `)
-        await this.migrationModel.deleteMany({
-          name: { $in: migrationsToDelete }
-        })
+        await this.migrationModel.deleteMany({ name: { $in: migrationsToDelete } })
       }
 
       return migrationsToDeleteDocs
@@ -317,7 +313,7 @@ class Migrator {
    *    { name: 'add-cows', filename: '149213223453_add-cows.ts', state: 'down' }
    *   ]
    */
-  async list () {
+  async list (): Promise<LeanDocument<IMigration>[]> {
     await this.sync()
     const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
     if (!migrations.length) this.log('There are no migrations to list.'.yellow)
@@ -327,12 +323,6 @@ class Migrator {
       )
       return migration.toJSON()
     })
-  }
-}
-
-function fileRequired (error) {
-  if (error && error.code === 'ENOENT') {
-    throw new ReferenceError(`Could not find any files at path '${error.path}'`)
   }
 }
 
