@@ -1,9 +1,7 @@
-#! /usr/bin/env node
-
-import { register } from 'ts-node'
-import colors from 'colors'
-import dotenv from 'dotenv'
 import path from 'path'
+import dotenv from 'dotenv'
+import colors from 'colors'
+import { register } from 'ts-node'
 import yargs, { CommandModule } from 'yargs'
 
 import IArgs from './interfaces/ArgumentsCamelCase'
