@@ -1,6 +1,7 @@
 # Dependency directory
 node_modules
 dist
+coverage
 
 # npm debug logs
 npm-debug.log
@@ -13,3 +14,4 @@ npm-debug.log
 /migrate.ts
 /migrate.js
 /migrate.json
+/globalConfig.json
