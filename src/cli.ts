@@ -4,26 +4,19 @@ import { register } from 'ts-node'
 import colors from 'colors'
 import dotenv from 'dotenv'
 import path from 'path'
-import yargs, { ArgumentsCamelCase, CommandModule } from 'yargs'
+import yargs, { CommandModule } from 'yargs'
+
+import IArgs from './interfaces/ArgumentsCamelCase'
+import IConfiguration from './interfaces/IConfig'
 
 import { registerOptions } from './options'
-import IConfiguration from './interfaces/IConfig'
-import Migrator from '.'
+import Migrator from './migrator'
 
 dotenv.config()
 colors.enable()
 register(registerOptions)
 
-interface IArgs extends ArgumentsCamelCase {
-  md: string
-  t: string
-  d: string
-  collection: string
-  autosync: boolean
-  migrationName: string
-}
-
-const getMigrator = async (args: IArgs): Promise<Migrator> => {
+export const getMigrator = async (args: IArgs): Promise<Migrator> => {
   if (!args.d && !args.connectionString) {
     console.error('You need to provide the Mongo URI to persist migration status.\nUse option --connectionString / -d to provide the URI.'.red)
     process.exit(1)
@@ -46,7 +39,7 @@ const getMigrator = async (args: IArgs): Promise<Migrator> => {
   return migrator
 }
 
-const listCmd: CommandModule = {
+export const listCmd: CommandModule = {
   command: 'list',
   aliases: ['list', 'ls'],
   describe: 'Lists all migrations and their current state.',
@@ -56,7 +49,7 @@ const listCmd: CommandModule = {
   }
 }
 
-const createCmd: CommandModule = {
+export const createCmd: CommandModule = {
   command: 'create <migration-name>',
   aliases: ['create', 'touch'],
   describe: 'Creates a new migration file.',
@@ -71,7 +64,7 @@ const createCmd: CommandModule = {
   }
 }
 
-const upCmd: CommandModule = {
+export const upCmd: CommandModule = {
   command: 'up [migration-name]',
   aliases: ['up'],
   describe: 'Migrates all the migration files that have not yet been run in chronological order. ' +
@@ -86,7 +79,7 @@ const upCmd: CommandModule = {
   }
 }
 
-const downCmd: CommandModule = {
+export const downCmd: CommandModule = {
   command: 'down <migration-name>',
   aliases: ['down'],
   describe: 'Rolls back migrations down to given name (if down function was provided)',
@@ -100,7 +93,7 @@ const downCmd: CommandModule = {
   }
 }
 
-const pruneCmd: CommandModule = {
+export const pruneCmd: CommandModule = {
   command: 'prune',
   aliases: ['prune'],
   describe: 'Allows you to delete extraneous migrations by removing extraneous local migration files/database migrations.',
@@ -110,9 +103,8 @@ const pruneCmd: CommandModule = {
   }
 }
 
-const cli = async () => {
-  await yargs
-    .usage('Usage: migrate -d <mongo-uri> [[create|up|down <migration-name>]|list] [optional options]')
+export const cli = async () => {
+  await yargs.usage('Usage: migrate -d <mongo-uri> [[create|up|down <migration-name>]|list] [optional options]')
     .default('config', 'migrate')
     .config('config', 'filepath to an options configuration json file', (pathToConfigFile: string) => {
       let options: IConfiguration
@@ -203,5 +195,3 @@ const cli = async () => {
 
   process.exit(0)
 }
-
-export default cli()

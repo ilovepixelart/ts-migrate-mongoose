@@ -5,8 +5,7 @@ import { register } from 'ts-node'
 import colors from 'colors'
 import _ from 'lodash'
 import ask from 'inquirer'
-import mkdirp from 'mkdirp'
-import mongoose, { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
+import mongoose, { Connection, FilterQuery, HydratedDocument, LeanDocument, Model } from 'mongoose'
 
 import { registerOptions } from './options'
 import { getMigrationModel } from './model'
@@ -48,9 +47,13 @@ class Migrator {
     this.autosync = options.autosync || false
     this.cli = options.cli
     this.migrationModel = getMigrationModel(this.collection, this.connection)
+
+    if (!fs.existsSync(this.migrationPath)) {
+      fs.mkdirSync(this.migrationPath, { recursive: true })
+    }
   }
 
-  log (logString, force = false) {
+  log (logString: string, force = false) {
     if (force || this.cli) {
       console.log(logString)
     }
@@ -69,8 +72,10 @@ class Migrator {
    * Close the underlying connection to mongo
    * @returns {Promise<void>} A promise that resolves when connection is closed
    */
-  close (): Promise<void> {
-    return this.connection ? this.connection.close() : Promise.resolve()
+  async close (): Promise<void> {
+    if (this.connection) {
+      await this.connection.close()
+    }
   }
 
   /**
@@ -78,7 +83,7 @@ class Migrator {
    * @param {string} migrationName
    * @returns {Promise<Object>} A promise of the Migration created
    */
-  async create (migrationName: string) {
+  async create (migrationName: string): Promise<HydratedDocument<IMigration>> {
     try {
       const existingMigration = await this.migrationModel.findOne({ name: migrationName })
       if (existingMigration) {
@@ -88,7 +93,6 @@ class Migrator {
       await this.sync()
       const now = Date.now()
       const newMigrationFile = `${now}-${migrationName}.ts`
-      mkdirp.sync(this.migrationPath)
       fs.writeFileSync(path.join(this.migrationPath, newMigrationFile), this.template)
       // create instance in db
       await this.connection.asPromise()
@@ -150,7 +154,7 @@ class Migrator {
     }
 
     let numMigrationsRan = 0
-    const migrationsRan = []
+    const migrationsRan: LeanDocument<IMigration>[] = []
 
     for (const migration of migrationsToRun) {
       const migrationFilePath = path.join(this.migrationPath, migration.filename)
@@ -272,7 +276,7 @@ class Migrator {
 
       let migrationsToDelete = dbMigrationsNotOnFs.map((m) => m.name)
 
-      if (!this.autosync && !!migrationsToDelete.length) {
+      if (!this.autosync && migrationsToDelete.length) {
         const answers: { migrationsToDelete: string[] } = await new Promise(function (resolve) {
           ask.prompt({
             type: 'checkbox',

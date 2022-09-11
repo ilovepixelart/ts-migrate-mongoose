@@ -1,7 +1,7 @@
 # Example of using the library programmatically
 
 ```typescript
-import migrateMongoose from 'ts-migrate-mongoose'
+import Migrator from 'ts-migrate-mongoose'
 
 // Define all your variables
 const migrationsDir = '/path/to/migrations/'
@@ -10,7 +10,7 @@ const dbUrl = 'mongodb://localhost/db'
 const collection = 'myMigrations'
 const autosync = true
 
-const migrator = new migrateMongoose({
+const migrator = new Migrator({
   migrationsPath:  migrationsDir, // Path to migrations directory
   templatePath: templatePath, // The template to use when creating migrations needs up and down functions exposed
   connectionString: dbUrl, // mongo url
@@ -19,18 +19,18 @@ const migrator = new migrateMongoose({
 });
 
 
-const migrationName = 'myNewMigration', promise;
+const migrationName = 'my-migration';
 
 // Create a new migration
-migrator.create(migrationName).then(() => {
+await migrator.create(migrationName).then(() => {
   console.log(`Migration created. Run `+ `mongoose-migrate up ${migrationName}`.cyan + ` to apply the migration.`);
 });
 
 // Migrate Up
-promise = migrator.run('up', migrationName);
+await migrator.run('up', migrationName);
 
 // Migrate Down
-promise = migrator.run('down', migrationName);
+await migrator.run('down', migrationName);
 
 // List Migrations
 /*
@@ -43,11 +43,11 @@ Promise which resolves with
 ]
 
 */
-promise = migrator.list();
+await migrator.list();
 
 
 // Prune extraneous migrations from file system
-promise = migrator.prune();
+await migrator.prune();
 
 // Synchronize DB with latest migrations from file system
 /*
@@ -56,5 +56,5 @@ on the file system but missing in the database into the database
 
 This functionality is opposite of prune()
 */
-promise = migrator.sync();
+await migrator.sync();
 ```
