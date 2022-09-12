@@ -3,8 +3,9 @@ import dotenv from 'dotenv'
 import colors from 'colors'
 import { register } from 'ts-node'
 import yargs, { CommandModule } from 'yargs'
+import { hideBin } from 'yargs/helpers'
 
-import IArgs from './interfaces/ArgumentsCamelCase'
+import IArgs from './interfaces/IArgs'
 import IConfiguration from './interfaces/IConfig'
 
 import { registerOptions } from './options'
@@ -39,7 +40,7 @@ export const getMigrator = async (args: IArgs): Promise<Migrator> => {
 
 export const listCmd: CommandModule = {
   command: 'list',
-  aliases: ['list', 'ls'],
+  aliases: ['ls'],
   describe: 'Lists all migrations and their current state.',
   handler: async (args: IArgs) => {
     const migrator = await getMigrator(args)
@@ -49,7 +50,7 @@ export const listCmd: CommandModule = {
 
 export const createCmd: CommandModule = {
   command: 'create <migration-name>',
-  aliases: ['create', 'touch'],
+  aliases: ['touch'],
   describe: 'Creates a new migration file.',
   builder: (yargs) => yargs.positional('migration-name', {
     describe: 'The name of the migration to create',
@@ -64,7 +65,6 @@ export const createCmd: CommandModule = {
 
 export const upCmd: CommandModule = {
   command: 'up [migration-name]',
-  aliases: ['up'],
   describe: 'Migrates all the migration files that have not yet been run in chronological order. ' +
     'Not including [migration-name] will run up on all migrations that are in a down state.',
   builder: (yargs) => yargs.positional('migration-name', {
@@ -79,7 +79,6 @@ export const upCmd: CommandModule = {
 
 export const downCmd: CommandModule = {
   command: 'down <migration-name>',
-  aliases: ['down'],
   describe: 'Rolls back migrations down to given name (if down function was provided)',
   builder: (yargs) => yargs.positional('migration-name', {
     describe: 'The name of the migration to create',
@@ -93,7 +92,6 @@ export const downCmd: CommandModule = {
 
 export const pruneCmd: CommandModule = {
   command: 'prune',
-  aliases: ['prune'],
   describe: 'Allows you to delete extraneous migrations by removing extraneous local migration files/database migrations.',
   handler: async (args: IArgs) => {
     const migrator = await getMigrator(args)
@@ -102,7 +100,7 @@ export const pruneCmd: CommandModule = {
 }
 
 export const cli = async () => {
-  await yargs.usage('Usage: migrate -d <mongo-uri> [[create|up|down <migration-name>]|list] [optional options]')
+  await yargs(hideBin(process.argv)).usage('Usage: migrate -d <mongo-uri> [[create|up|down <migration-name>]|list] [optional options]')
     .default('config', 'migrate')
     .config('config', 'filepath to an options configuration json file', (pathToConfigFile: string) => {
       let options: IConfiguration
@@ -144,11 +142,11 @@ export const cli = async () => {
         autosync: config.autosync
       }
     })
-    .command(listCmd).example('migrate list', 'Lists all migrations and their current state.')
-    .command(createCmd).example('migrate create add_users', 'Creates a new migration file.')
-    .command(upCmd).example('migrate up add_user', 'Runs up on the add_user migration.')
-    .command(downCmd).example('migrate down delete_names', 'Runs down on the delete_names migration.')
-    .command(pruneCmd).example('migrate prune', 'Deletes extraneous migrations.')
+    .command(listCmd).example('migrate list'.cyan, 'Lists all migrations and their current state.')
+    .command(createCmd).example('migrate create add_users'.cyan, 'Creates a new migration file.')
+    .command(upCmd).example('migrate up add_user'.cyan, 'Runs up on the add_user migration.')
+    .command(downCmd).example('migrate down delete_names'.cyan, 'Runs down on the delete_names migration.')
+    .command(pruneCmd).example('migrate prune'.cyan, 'Deletes extraneous migrations.')
     .option('collection', {
       description: 'The collection to use for the migrations',
       type: 'string',

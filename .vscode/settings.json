@@ -1,4 +1,5 @@
 {
+  "jestrunner.jestCommand": "npm run test --detectOpenHandles",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
