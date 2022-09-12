@@ -15,7 +15,9 @@ describe('library', () => {
   })
 
   afterAll(async () => {
-    await connection.close()
+    if (connection.readyState !== 0) {
+      await connection.close()
+    }
   })
 
   it('should insert a doc into collection with migrator', async () => {
@@ -59,5 +61,6 @@ describe('library', () => {
 
     // Close the underlying connection to mongo
     await migrator.close()
+    expect(migrator.connection.readyState).toEqual(0)
   })
 })

@@ -7,7 +7,7 @@ import { register } from 'ts-node'
 
 import mongoose, { Connection, FilterQuery, HydratedDocument, LeanDocument, Model } from 'mongoose'
 
-import IArgs from './interfaces/ArgumentsCamelCase'
+import IArgs from './interfaces/IArgs'
 import IFileError from './interfaces/IFileError'
 import IMigration from './interfaces/IMigration'
 import IMigratorOptions from './interfaces/IMigratorOptions'
