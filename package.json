@@ -35,10 +35,9 @@
   "module": "dist/esm/migrator.js",
   "types": "dist/types/migrator.d.js",
   "scripts": {
-    "prepublish": "scripts/prepublish.sh",
     "lint": "eslint ./{src,examples} . --ext .js,.ts",
     "lint:fix": "eslint ./{src,examples} --fix . --ext .js,.ts",
-    "build": "npm run build:cjs && npm run build:esm && npm run build:types",
+    "build": "npm run build:cjs && npm run build:esm && npm run build:types && scripts/prepublish.sh",
     "build:cjs": "node tools/cleanup cjs && tsc -p config/tsconfig.cjs.json",
     "build:esm": "node tools/cleanup esm && tsc -p config/tsconfig.esm.json",
     "build:types": "node tools/cleanup types && tsc -p config/tsconfig.types.json",
