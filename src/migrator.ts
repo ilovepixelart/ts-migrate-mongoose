@@ -94,7 +94,7 @@ class Migrator {
    */
   async create (migrationName: string): Promise<HydratedDocument<IMigration>> {
     try {
-      const existingMigration = await this.migrationModel.findOne({ name: migrationName })
+      const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
       if (existingMigration) {
         throw new Error(`There is already a migration with name '${migrationName}' in the database`.red)
       }
@@ -130,8 +130,8 @@ class Migrator {
     }
 
     const untilMigration = migrationName
-      ? await this.migrationModel.findOne({ name: migrationName })
-      : await this.migrationModel.findOne().sort({ createdAt: direction === 'up' ? -1 : 1 })
+      ? await this.migrationModel.findOne({ name: migrationName }).exec()
+      : await this.migrationModel.findOne().sort({ createdAt: direction === 'up' ? -1 : 1 }).exec()
 
     if (!untilMigration) {
       if (migrationName) throw new ReferenceError('Could not find that migration in the database')
@@ -151,8 +151,7 @@ class Migrator {
     }
 
     const sortDirection = direction === 'up' ? 1 : -1
-    const migrationsToRun = await this.migrationModel.find(query)
-      .sort({ createdAt: sortDirection })
+    const migrationsToRun = await this.migrationModel.find(query).sort({ createdAt: sortDirection }).exec()
 
     if (!migrationsToRun.length) {
       if (this.cli) {
@@ -192,7 +191,7 @@ class Migrator {
 
         this.log(`${direction.toUpperCase()}:   `[direction === 'up' ? 'green' : 'red'] + ` ${migration.filename} `)
 
-        await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } })
+        await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
         migrationsRan.push(migration.toJSON())
         numMigrationsRan++
       } catch (err) {
@@ -215,7 +214,7 @@ class Migrator {
   async sync (): Promise<LeanDocument<IMigration>[]> {
     try {
       const filesInMigrationFolder = fs.readdirSync(this.migrationPath)
-      const migrationsInDatabase = await this.migrationModel.find({})
+      const migrationsInDatabase = await this.migrationModel.find({}).exec()
       // Go over migrations in folder and delete any files not in DB
       const migrationsInFolder = _.filter(filesInMigrationFolder, (file) => /\d{13,}-.+.ts$/.test(file))
         .map((filename) => {
@@ -266,7 +265,7 @@ class Migrator {
   async prune () {
     try {
       const filesInMigrationFolder = fs.readdirSync(this.migrationPath)
-      const migrationsInDatabase = await this.migrationModel.find({})
+      const migrationsInDatabase = await this.migrationModel.find({}).exec()
       // Go over migrations in folder and delete any files not in DB
       const migrationsInFolder = _.filter(filesInMigrationFolder, (file) => /\d{13,}-.+.ts/.test(file))
         .map((filename) => {
@@ -292,11 +291,11 @@ class Migrator {
         migrationsToDelete = answers.migrationsToDelete
       }
 
-      const migrationsToDeleteDocs = await this.migrationModel.find({ name: { $in: migrationsToDelete } }).lean()
+      const migrationsToDeleteDocs = await this.migrationModel.find({ name: { $in: migrationsToDelete } }).lean().exec()
 
       if (migrationsToDelete.length) {
         this.log(`Removing migration(s) from database: \n${migrationsToDelete.join('\n, ').cyan} `)
-        await this.migrationModel.deleteMany({ name: { $in: migrationsToDelete } })
+        await this.migrationModel.deleteMany({ name: { $in: migrationsToDelete } }).exec()
       }
 
       return migrationsToDeleteDocs
