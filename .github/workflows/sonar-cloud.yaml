@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 16
       - name: Dependencies
-        run: npm ci
+        run: npm install
       - name: Lint
         run: npm run lint
       - name: Tests coverage
