@@ -1,14 +1,16 @@
 name: Analyze with SonarCloud
+
 on:
   workflow_dispatch:
-  # Trigger analysis when pushing in master or pull requests, and when creating
-  # a pull request.
+  # Trigger analysis when pushing in master or pull requests,
+  # and when creating a pull request.
   push:
     branches:
       - master
       - feature*
   pull_request:
       types: [opened, synchronize, reopened]
+      
 jobs:
   sonarcloud:
     runs-on: ubuntu-latest
@@ -23,7 +25,7 @@ jobs:
         with:
           node-version: 16
       - name: Dependencies
-        run: npm install
+        run: npm ci
       - name: Lint
         run: npm run lint
       - name: Coverage
