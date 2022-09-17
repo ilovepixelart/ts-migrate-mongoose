@@ -49,7 +49,7 @@ class Migrator {
     this.collection = options.collection || 'migrations'
     this.autosync = options.autosync || false
     this.cli = options.cli
-    this.migrationModel = getMigrationModel(this.collection, this.connection)
+    this.migrationModel = getMigrationModel(this.connection, this.collection)
 
     if (!fs.existsSync(this.migrationPath)) {
       fs.mkdirSync(this.migrationPath, { recursive: true })
@@ -73,7 +73,7 @@ class Migrator {
    * @param {mongoose.connection} connection - Mongoose connection
    */
   setMongooseConnection (connection: Connection): Migrator {
-    this.migrationModel = getMigrationModel(this.collection, connection)
+    this.migrationModel = getMigrationModel(connection, this.collection)
     return this
   }
 

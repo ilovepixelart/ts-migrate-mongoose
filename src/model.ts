@@ -2,7 +2,7 @@ import { Schema, Connection, MongooseError } from 'mongoose'
 
 import IMigration from './interfaces/IMigration'
 
-export const getMigrationModel = (collection = 'migrations', connection: Connection) => {
+export const getMigrationModel = (connection: Connection, collection = 'migrations') => {
   connection.on('error', (err: MongooseError) => {
     console.error(`MongoDB Connection Error: ${err}`)
   })
