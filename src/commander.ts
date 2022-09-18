@@ -102,7 +102,11 @@ program
   })
 
 export const cli = async (): Promise<void> => {
-  await program.parseAsync(process.argv).catch((err) => {
-    program.error(err.message, { exitCode: 1 })
-  })
+  await program.parseAsync(process.argv)
+    .then(() => {
+      process.exit(0)
+    })
+    .catch((err) => {
+      program.error(err.message, { exitCode: 1 })
+    })
 }
