@@ -3,7 +3,7 @@ import { Connection } from 'mongoose'
 interface IMigratorOptions {
   templatePath?: string
   migrationsPath?: string
-  connectionString: string
+  uri: string
   collection?: string
   autosync: boolean
   cli?: boolean

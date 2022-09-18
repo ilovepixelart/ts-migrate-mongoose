@@ -1,11 +1,11 @@
 import mongoose, { Connection } from 'mongoose'
 
 describe('mongoose', () => {
-  const connectionString = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
+  const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
   let connection: Connection
 
   beforeAll(async () => {
-    connection = await mongoose.createConnection(connectionString).asPromise()
+    connection = await mongoose.createConnection(uri).asPromise()
   })
 
   afterAll(async () => {
