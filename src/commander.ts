@@ -73,14 +73,14 @@ export class Migrate {
     this.program = new Command()
     this.program
       .name('migrate')
-      .description('A cli based migration tool for mongoose')
-      .option('-f, --config-path <path>', 'Path to the config file', 'migrate')
-      .option('-d, --uri <string>', 'MongoDB connection string URI')
-      .option('-c, --collection <string>', 'The collection to use for the migrations', 'migrations')
-      .option('-a, --autosync <boolean>', 'Automatically add new migrations in the migrations folder to the database instead of asking interactively', false)
-      .option('-m, --migrations-path <path>', 'The path to the migration files', './migrations')
-      .option('-t, --template-path <path>', 'The template file to use when creating a migration')
-      .option('-cd, --change-dir <path>', 'Change current working directory before running anything')
+      .description('CLI migration tool for mongoose'.cyan)
+      .option('-f, --config-path <path>', 'path to the config file', 'migrate')
+      .option('-d, --uri <string>', 'mongo connection string'.yellow)
+      .option('-c, --collection <string>', 'collection name to use for the migrations', 'migrations')
+      .option('-a, --autosync <boolean>', 'automatically sync new migrations without prompt', false)
+      .option('-m, --migrations-path <path>', 'path to the migration files', './migrations')
+      .option('-t, --template-path <path>', 'template file to use when creating a migration')
+      .option('-cd, --change-dir <path>', 'change current working directory before running anything')
       .hook('preAction', async () => {
         const opts = this.program.opts()
         this.migrator = await getMigrator(opts)
@@ -88,7 +88,7 @@ export class Migrate {
 
     this.program
       .command('list')
-      .description('List all migrations')
+      .description('list all migrations')
       .action(async () => {
         console.log('Listing migrations'.cyan)
         await this.migrator.list()
@@ -96,7 +96,7 @@ export class Migrate {
 
     this.program
       .command('create <migration-name>')
-      .description('Creates a new migration file')
+      .description('create a new migration file')
       .action(async (migrationName) => {
         await this.migrator.create(migrationName)
         console.log('Migration created. Run ' + `migrate up ${migrationName}`.cyan + ' to apply the migration')
@@ -104,21 +104,21 @@ export class Migrate {
 
     this.program
       .command('up [migration-name]')
-      .description('Run all migrations or a specific migration')
+      .description('run all migrations or a specific migration if name provided')
       .action(async (migrationName) => {
         await this.migrator.run('up', migrationName)
       })
 
     this.program
       .command('down <migration-name>')
-      .description('Rolls back migrations down to given name (if down function was provided)')
+      .description('roll back migrations down to given name')
       .action(async (migrationName) => {
         await this.migrator.run('down', migrationName)
       })
 
     this.program
       .command('prune')
-      .description('Allows you to delete extraneous migrations by removing extraneous local migration files/database migrations')
+      .description('delete extraneous migrations from migration folder or database')
       .action(async () => {
         await this.migrator.prune()
       })

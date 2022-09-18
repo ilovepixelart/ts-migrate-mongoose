@@ -60,6 +60,28 @@ yarn migrate help
 npm exec migrate help
 ```
 
+```text
+CLI migration tool for mongoose
+
+Options:
+  -f, --config-path <path>      path to the config file (default: "migrate")
+  -d, --uri <string>            mongo connection string
+  -c, --collection <string>     collection name to use for the migrations (default: "migrations")
+  -a, --autosync <boolean>      automatically sync new migrations without prompt (default: false)
+  -m, --migrations-path <path>  path to the migration files (default: "./migrations")
+  -t, --template-path <path>    template file to use when creating a migration
+  -cd, --change-dir <path>      change current working directory before running anything
+  -h, --help                    display help for command
+
+Commands:
+  list                          list all migrations
+  create <migration-name>       create a new migration file
+  up [migration-name]           run all migrations or a specific migration if name provided
+  down <migration-name>         roll back migrations down to given name
+  prune                         delete extraneous migrations from migration folder or database
+  help [command]                display help for command
+```
+
 - More examples
 
 ```bash
