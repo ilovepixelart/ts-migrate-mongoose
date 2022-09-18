@@ -103,7 +103,8 @@ program
 
 export const cli = async (): Promise<void> => {
   await program.parseAsync(process.argv)
-    .then(() => {
+    .then(async () => {
+      await migrator.close()
       process.exit(0)
     })
     .catch((err) => {
