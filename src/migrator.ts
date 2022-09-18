@@ -55,6 +55,10 @@ class Migrator {
     }
   }
 
+  async connected (): Promise<void> {
+    await this.connection.asPromise()
+  }
+
   log (logString: string, force = false) {
     if (force || this.cli) {
       console.log(logString)
@@ -92,6 +96,7 @@ class Migrator {
    * @returns {Promise<Object>} A promise of the Migration created
    */
   async create (migrationName: string): Promise<HydratedDocument<IMigration>> {
+    await this.connected()
     const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     if (existingMigration) {
       throw new Error(`There is already a migration with name '${migrationName}' in the database`.red)
@@ -102,7 +107,7 @@ class Migrator {
     const newMigrationFile = `${now}-${migrationName}.ts`
     fs.writeFileSync(path.join(this.migrationPath, newMigrationFile), this.template)
     // create instance in db
-    await this.connection.asPromise()
+    await this.connected()
     const migrationCreated = await this.migrationModel.create({
       name: migrationName,
       createdAt: now
@@ -117,6 +122,7 @@ class Migrator {
    * @param direction
    */
   async run (direction = 'up', migrationName?: string, ...args): Promise<LeanDocument<IMigration>[]> {
+    await this.connected()
     await this.sync()
 
     if (direction !== 'up' && direction !== 'down') {
@@ -129,7 +135,7 @@ class Migrator {
 
     if (!untilMigration) {
       if (migrationName) throw new ReferenceError('Could not find that migration in the database')
-      else throw new Error('There are no pending migrations.')
+      else throw new Error('There are no pending migrations')
     }
 
     let query: FilterQuery<IMigration> = {
@@ -206,6 +212,7 @@ class Migrator {
    * This functionality is opposite of prune()
    */
   async sync (): Promise<LeanDocument<IMigration>[]> {
+    await this.connected()
     try {
       const filesInMigrationFolder = fs.readdirSync(this.migrationPath)
       const migrationsInDatabase = await this.migrationModel.find({}).exec()
@@ -223,7 +230,7 @@ class Migrator {
       if (!this.autosync && migrationsToImport.length) {
         const answers: { migrationsToImport: string[] } = await inquirer.prompt({
           type: 'checkbox',
-          message: 'The following migrations exist in the migrations folder but not in the database. Select the ones you want to import into the database',
+          message: 'The following migrations exist in the migrations folder but not in the database.\nSelect the ones you want to import into the database',
           name: 'migrationsToImport',
           choices: filesNotInDb
         })
@@ -257,6 +264,7 @@ class Migrator {
    * Removes files in migration directory which don't exist in database.
    */
   async prune () {
+    await this.connected()
     try {
       const filesInMigrationFolder = fs.readdirSync(this.migrationPath)
       const migrationsInDatabase = await this.migrationModel.find({}).exec()
@@ -307,6 +315,7 @@ class Migrator {
    *   ]
    */
   async list (): Promise<LeanDocument<IMigration>[]> {
+    await this.connected()
     await this.sync()
     const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
     if (!migrations.length) this.log('There are no migrations to list'.yellow)

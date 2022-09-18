@@ -3,6 +3,7 @@ import mongoose, { Connection, Types } from 'mongoose'
 
 import Migrator from '../src/migrator'
 import IMigratorOptions from '../src/interfaces/IMigratorOptions'
+import { clearDirectory } from '../utils/filesystem'
 
 colors.enable()
 
@@ -11,6 +12,7 @@ describe('library', () => {
   let connection: Connection
 
   beforeAll(async () => {
+    clearDirectory('migrations')
     connection = await mongoose.createConnection(uri).asPromise()
   })
 

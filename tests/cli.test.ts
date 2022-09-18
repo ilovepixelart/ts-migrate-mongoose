@@ -1,22 +1,14 @@
 import colors from 'colors'
 import mongoose, { Connection } from 'mongoose'
-import { getMigrator, program } from '../src/commander'
-
-import fs from 'fs'
-import path from 'path'
+import { getMigrator, Migrate } from '../src/commander'
+import { clearDirectory } from '../utils/filesystem'
 
 colors.enable()
 
-const clearDirectory = (directory: string) => {
-  fs.readdir(directory, (err, files) => {
-    if (err) throw err
-
-    for (const file of files) {
-      fs.unlink(path.join(directory, file), (err) => {
-        if (err) throw err
-      })
-    }
-  })
+const exec = (...args: string[]) => {
+  const migrate = new Migrate(false)
+  process.argv = ['node', 'migrate', ...args]
+  return migrate.run()
 }
 
 describe('cli', () => {
@@ -48,52 +40,48 @@ describe('cli', () => {
 
   it('should run list command', async () => {
     const consoleSpy = jest.spyOn(console, 'log')
-    const cli = await program.parseAsync(['node', 'test', 'list', '-d', uri])
-    const opts = cli.opts()
-    expect(opts.configPath).toBe('migrate')
-    expect(opts.uri).toBe(uri)
-    expect(opts.collection).toBe('migrations')
-    expect(opts.autosync).toBe(false)
-    expect(opts.migrationsPath).toBe('./migrations')
+    const opts = await exec('list', '-d', uri)
+    expect(opts?.configPath).toBe('migrate')
+    expect(opts?.uri).toBe(uri)
+    expect(opts?.collection).toBe('migrations')
+    expect(opts?.autosync).toBe(false)
+    expect(opts?.migrationsPath).toBe('./migrations')
     expect(consoleSpy).toBeCalledWith('Listing migrations'.cyan)
     expect(consoleSpy).toBeCalledWith('There are no migrations to list'.yellow)
   })
 
   it('should run create command', async () => {
     const consoleSpy = jest.spyOn(console, 'log')
-    const cli = await program.parseAsync(['node', 'test', 'create', 'migration-name-test', '-d', uri])
-    const opts = cli.opts()
-    expect(opts.configPath).toBe('migrate')
-    expect(opts.uri).toBe(uri)
-    expect(opts.collection).toBe('migrations')
-    expect(opts.autosync).toBe(false)
-    expect(opts.migrationsPath).toBe('./migrations')
+    const opts = await exec('create', 'migration-name-test', '-d', uri)
+    expect(opts?.configPath).toBe('migrate')
+    expect(opts?.uri).toBe(uri)
+    expect(opts?.collection).toBe('migrations')
+    expect(opts?.autosync).toBe(false)
+    expect(opts?.migrationsPath).toBe('./migrations')
     expect(consoleSpy).toBeCalledWith(expect.stringMatching(/^Created migration migration-name-test in/))
     expect(consoleSpy).toBeCalledWith(expect.stringMatching(/^Migration created/))
   })
 
   it('should run up command', async () => {
     const consoleSpy = jest.spyOn(console, 'log')
-    const cli = await program.parseAsync(['node', 'test', 'up', '-d', uri])
-    const opts = cli.opts()
-    expect(opts.configPath).toBe('migrate')
-    expect(opts.uri).toBe(uri)
-    expect(opts.collection).toBe('migrations')
-    expect(opts.autosync).toBe(false)
-    expect(opts.migrationsPath).toBe('./migrations')
+    const opts = await exec('up', '-d', uri)
+    expect(opts?.configPath).toBe('migrate')
+    expect(opts?.uri).toBe(uri)
+    expect(opts?.collection).toBe('migrations')
+    expect(opts?.autosync).toBe(false)
+    expect(opts?.migrationsPath).toBe('./migrations')
     expect(consoleSpy).toBeCalledWith(expect.stringMatching(/^up:/) && expect.stringMatching(/migration-name-test/))
     expect(consoleSpy).toBeCalledWith('All migrations finished successfully'.green)
   })
 
   it('should run down command', async () => {
     const consoleSpy = jest.spyOn(console, 'log')
-    const cli = await program.parseAsync(['node', 'test', 'down', 'migration-name-test', '-d', uri])
-    const opts = cli.opts()
-    expect(opts.configPath).toBe('migrate')
-    expect(opts.uri).toBe(uri)
-    expect(opts.collection).toBe('migrations')
-    expect(opts.autosync).toBe(false)
-    expect(opts.migrationsPath).toBe('./migrations')
+    const opts = await exec('down', 'migration-name-test', '-d', uri)
+    expect(opts?.configPath).toBe('migrate')
+    expect(opts?.uri).toBe(uri)
+    expect(opts?.collection).toBe('migrations')
+    expect(opts?.autosync).toBe(false)
+    expect(opts?.migrationsPath).toBe('./migrations')
     expect(consoleSpy).toBeCalledWith(expect.stringMatching(/^down:/) && expect.stringMatching(/migration-name-test/))
     expect(consoleSpy).toBeCalledWith('All migrations finished successfully'.green)
   })
