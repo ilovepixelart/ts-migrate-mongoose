@@ -10,9 +10,9 @@ Directory in this example is **not** the default `./migrations` but `./my-custom
 
 ```bash
 # If you use yarn
-yarn migrate --migrationsDir my-custom/migrations -d mongodb://localhost/my-db create my_new_migration
+yarn migrate --migrations-path my-custom/migrations -d mongodb://localhost/my-db create my_new_migration
 # If you use npm
-npm exec migrate --migrationsDir my-custom/migrations -d mongodb://localhost/my-db create my_new_migration
+npm exec migrate --migrations-path my-custom/migrations -d mongodb://localhost/my-db create my_new_migration
 ```
 
 We can simply run

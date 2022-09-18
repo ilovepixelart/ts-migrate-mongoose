@@ -84,7 +84,6 @@ If you don't want to provide `-d --uri` to the program every time you have 2 opt
 
 ### 1. Set the options using environment variables in two formats
 
-
   ```bash
   export MIGRATE_MONGO_URI=mongodb://localhost/my-db
   export MIGRATE_MONGO_COLLECTION=migrations
