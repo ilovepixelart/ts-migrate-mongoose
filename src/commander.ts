@@ -23,9 +23,9 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   }
 
   const uri = options.uri ||
-  process.env.MIGRATE_MONGO_URI ||
-  process.env.migrateMongoUri ||
-  fileOptions.uri
+    process.env.MIGRATE_MONGO_URI ||
+    process.env.migrateMongoUri ||
+    fileOptions.uri
 
   const collection = options.collection ||
     process.env.MIGRATE_MONGO_COLLECTION ||
