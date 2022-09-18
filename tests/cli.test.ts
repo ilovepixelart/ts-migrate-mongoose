@@ -16,7 +16,7 @@ describe('cli', () => {
   let connection: Connection
 
   beforeAll(async () => {
-    clearDirectory('migrations')
+    clearDirectory('./migrations')
     connection = await mongoose.createConnection(uri).asPromise()
   })
 
