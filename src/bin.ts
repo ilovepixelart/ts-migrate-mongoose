@@ -1,4 +1,4 @@
 #! /usr/bin/env node
-import { cli } from './cli'
+import { migrate } from './commander'
 
-export default cli()
+export default migrate.run()

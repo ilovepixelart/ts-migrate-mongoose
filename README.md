@@ -1,6 +1,6 @@
 # ts-migrate-mongoose
 
-A node/typescript based migration framework for mongoose
+A node, typescript based migration framework for mongoose
 
 [![NPM version](https://badge.fury.io/js/ts-migrate-mongoose.svg)](http://badge.fury.io/js/ts-migrate-mongoose)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ilovepixelart_ts-migrate-mongoose&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=ilovepixelart_ts-migrate-mongoose)
@@ -12,7 +12,7 @@ A node/typescript based migration framework for mongoose
 
 ## Motivation
 
-ts-migrate-mongoose is a migration framework for projects which are already using mongoose.
+ts-migrate-mongoose is a migration framework for projects which are already using mongoose
 
 **Most other migration frameworks:**
 
@@ -25,65 +25,73 @@ ts-migrate-mongoose is a migration framework for projects which are already usin
 - Stores migration state in MongoDB
 - Provides plenty of features such as
   - Access to mongoose models in migrations
-  - Use of promises or standard callbacks
-  - custom config files or env variables for migration options
-  - ability to delete unused migrations
+  - Use of promises
+  - Custom config files `migrate.json` / `migrate.ts` or `.env` file for migration options
+  - Ability to delete unused migrations
 - Relies on a simple *GLOBAL* state of whether or not each migration has been called
 
-### Getting Started with the CLI
+## Getting Started with the CLI
 
-Install ts-migrate-mongoose locally in you project
+- Locally inside your project
 
 ```bash
 npm install ts-migrate-mongoose
+npm exec migrate [command] [options]
 # or
 yarn add ts-migrate-mongoose
-```
-
-And then run
-
-```bash
 yarn migrate [command] [options]
-# or
-npm exec migrate [command] [options]
 ```
 
-Install it globally
+- Install it globally
 
 ```bash
 npm install -g ts-migrate-mongoose
+migrate [command] [options]
 # or
 yarn global add ts-migrate-mongoose
-```
-
-and then run
-
-```bash
 migrate [command] [options]
 ```
 
-Full details about commands and options can be found by running
+- Full details about commands and options can be found by running
 
 ```bash
-# yarn
 yarn migrate help
-
-# npm
+# or
 npm exec migrate help
 ```
 
-### Examples
+```text
+CLI migration tool for mongoose
+
+Options:
+  -f, --config-path <path>      path to the config file (default: "migrate")
+  -d, --uri <string>            mongo connection string
+  -c, --collection <string>     collection name to use for the migrations (default: "migrations")
+  -a, --autosync <boolean>      automatically sync new migrations without prompt (default: false)
+  -m, --migrations-path <path>  path to the migration files (default: "./migrations")
+  -t, --template-path <path>    template file to use when creating a migration
+  -cd, --change-dir <path>      change current working directory before running anything
+  -h, --help                    display help for command
+
+Commands:
+  list                          list all migrations
+  create <migration-name>       create a new migration file
+  up [migration-name]           run all migrations or a specific migration if name provided
+  down <migration-name>         roll back migrations down to given name
+  prune                         delete extraneous migrations from migration folder or database
+  help [command]                display help for command
+```
+
+- More examples
 
 ```bash
-# yarn
 yarn migrate list -d mongodb://localhost/my-db
 yarn migrate create add_users -d mongodb://localhost/my-db
 yarn migrate up add_user -d mongodb://localhost/my-db
 yarn migrate down delete_names -d mongodb://localhost/my-db
 yarn migrate prune -d mongodb://localhost/my-db
 yarn migrate list --config settings.json
-
-# npm
+# or 
 npm exec migrate list -d mongodb://localhost/my-db
 npm exec migrate create add_users -d mongodb://localhost/my-db
 npm exec migrate up add_user -d mongodb://localhost/my-db
@@ -92,81 +100,63 @@ npm exec migrate prune -d mongodb://localhost/my-db
 npm exec migrate list --config settings.json
 ```
 
-### Setting Options Automatically
+## Setting Options Automatically
 
-If you want to not provide the options such as `--connectionString` to the program every time you have 2 options.
+If you don't want to provide `-d --uri` to the program every time you have 2 options.
 
-#### 1. Set the option as an Environment Variable in two formats
-
-- UPPERCASE
+### 1. Set the options using environment variables in two formats
 
   ```bash
-  export MIGRATE_CONNECTION_STRING=mongodb://localhost/my-db
-  export MIGRATE_TEMPLATE_PATH=migrations/template.ts
+  export MIGRATE_MONGO_URI=mongodb://localhost/my-db
+  export MIGRATE_MONGO_COLLECTION=migrations
   export MIGRATE_MIGRATIONS_PATH=migrations
-  export MIGRATE_COLLECTION=migrations
+  export MIGRATE_TEMPLATE_PATH=migrations/template.ts
   export MIGRATE_AUTOSYNC=true
-  ```
-
-- camelCase
-
-  ```bash
-  export migrateConnectionString=mongodb://localhost/my-db
-  export migrateTemplatePath=migrations/template.ts
+  # or 
+  export migrateMongoUri=mongodb://localhost/my-db
+  export migrateMongoCollection=migrations
   export migrateMigrationsPath=migrations
-  export migrateCollection=migrations
+  export migrateTemplatePath=migrations/template.ts
   export migrateAutosync=true
   ```
 
-#### 2. Environment `.env` files are also supported. All variables will be read from the `.env` file and set by ts-migrate-mongoose
-
-- UPPERCASE
+### 2. Environment `.env` files are also supported. All variables will be read from the `.env` file and set by ts-migrate-mongoose
 
   ```bash
-  MIGRATE_CONNECTION_STRING=mongodb://localhost/my-db
-  MIGRATE_TEMPLATE_PATH=migrations/template.ts
-  MIGRATE_MIGRATIONS_PATH=migrations
-  MIGRATE_COLLECTION=migrations
-  MIGRATE_AUTOSYNC=true
+  MIGRATE_MONGO_URI=mongodb://localhost/my-db
+  ...
+  # or 
+  migrateMongoUri=mongodb://localhost/my-db
+  ...
   ```
 
-- camelCase
-
-  ```bash
-  migrateConnectionString=mongodb://localhost/my-db
-  migrateTemplatePath=migrations/template.ts
-  migrateMigrationsPath=migrations
-  migrateCollection=migrations
-  migrateAutosync=true
-  ```
-
-#### 2. Provide a config file (defaults to *migrate.json* or *migrate.ts*)
+### 3. Provide a config file (defaults to *migrate.json* or *migrate.ts*)
 
 ```bash
 # If you have migrate.ts or migrate.json in the directory, you don't need to do anything
 yarn migrate list
-
+# or
 npm exec migrate list
  
 # Otherwise you can provide a config file
 yarn migrate list --config somePath/myCustomConfigFile[.json]
-
+# or
 npm exec migrate list --config somePath/myCustomConfigFile[.json]
 ```
 
-#### Options Override Order
+## Options Override Order
 
 Command line args *beat* Env vars *beats* Config File
 
 Just make sure you don't have aliases of the same option with 2 different values between env vars and config file
 
-### Migration Files
+## Migration Files
 
 By default, ts-migrate-mongoose assumes your migration folder exists.
 
 Here's an example of a migration created using `migrate create some-migration-name` . This example demonstrates how you can access your `mongoose` models and handle errors in your migrations
 
-#### 1662715725041-first-migration-demo.ts
+- 1662715725041-first-migration-demo.ts
 
 ```typescript
 /**
@@ -184,7 +174,7 @@ export async function down () {
 }
 ```
 
-### Access to mongoose models in your migrations
+## Access to mongoose models in your migrations
 
 Just go about your business as usual, importing your models and making changes to your database.
 
@@ -192,7 +182,7 @@ ts-migrate-mongoose makes an independent connection to MongoDB to fetch and writ
 
 Below is an example of a typical setup in a mongoose project
 
-#### models/User.ts
+- models/User.ts
 
 ```typescript
 import { Schema, model } from 'mongoose'
@@ -216,17 +206,17 @@ const UserSchema = new Schema<IUser>({
 export default model<IUser>('user', UserSchema)
 ```
 
-#### Back to migration file 1662715725041-first-migration-demo.ts
+- 1662715725041-first-migration-demo.ts
 
 ```typescript
 import User from '../models/User'
 
 export async function up() {
   // Then you can use it in the migration like so  
-  await User.create({ firstName: 'Ada', lastName: 'Lovelace' });
+  await User.create({ firstName: 'Ada', lastName: 'Lovelace' })
   
   // Or do something such as
-  const users = await User.find();
+  const users = await User.find()
   /* Do something with users */
 }
 ```
@@ -237,13 +227,13 @@ If you're using the package programmatically. You can access your models using t
 export async function up() {
   // "this('user')"  is the same as calling "connection.model('user')"
   // using the connection you passed to the Migrator constructor.
-  await this('user').create({ firstName: 'Ada', lastName: 'Lovelace' });
+  await this('user').create({ firstName: 'Ada', lastName: 'Lovelace' })
 }
 ```
 
-### Notes
+## Notes
 
-Currently, the **-d**/**connectionString**  must include the database to use for migrations in the uri.
+Currently, the **-d**/**uri**  must include the database to use for migrations in the uri.
 
 example: `-d mongodb://localhost:27017/development` .
 
@@ -251,7 +241,7 @@ If you don't want to pass it in every time feel free to use the `migrate.json` c
 
 Feel Free to check out the examples in the project to get a better idea of usage
 
-### How to contribute
+## How to contribute
 
 1. Start an issue. We will discuss the best approach
 2. Make a pull request. I'll review it and comment until we are both confident about it

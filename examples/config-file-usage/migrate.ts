@@ -1,4 +1,4 @@
 export default {
-  connectionString: 'mongodb://localhost/my-db',
-  migrationsDir: 'migrations'
+  uri: 'mongodb://localhost/my-db',
+  migrationsPath: 'migrations'
 }

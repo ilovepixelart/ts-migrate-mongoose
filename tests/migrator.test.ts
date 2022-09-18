@@ -3,15 +3,17 @@ import mongoose, { Connection, Types } from 'mongoose'
 
 import Migrator from '../src/migrator'
 import IMigratorOptions from '../src/interfaces/IMigratorOptions'
+import { clearDirectory } from '../utils/filesystem'
 
 colors.enable()
 
 describe('library', () => {
-  const connectionString = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
+  const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
   let connection: Connection
 
   beforeAll(async () => {
-    connection = await mongoose.createConnection(connectionString).asPromise()
+    clearDirectory('migrations')
+    connection = await mongoose.createConnection(uri).asPromise()
   })
 
   afterAll(async () => {
@@ -22,8 +24,7 @@ describe('library', () => {
 
   it('should insert a doc into collection with migrator', async () => {
     const options: IMigratorOptions = {
-      connectionString,
-      // connection,
+      uri,
       autosync: true
     }
     const migrator = new Migrator(options)

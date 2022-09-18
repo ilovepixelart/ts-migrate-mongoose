@@ -7,8 +7,6 @@ import { register } from 'ts-node'
 
 import mongoose, { Connection, FilterQuery, HydratedDocument, LeanDocument, Model } from 'mongoose'
 
-import IArgs from './interfaces/IArgs'
-import IFileError from './interfaces/IFileError'
 import IMigration from './interfaces/IMigration'
 import IMigratorOptions from './interfaces/IMigratorOptions'
 
@@ -45,7 +43,7 @@ class Migrator {
   constructor (options: IMigratorOptions) {
     this.template = options.templatePath ? fs.readFileSync(options.templatePath, 'utf-8') : defaultTemplate
     this.migrationPath = path.resolve(options.migrationsPath || './migrations')
-    this.connection = options.connection || mongoose.createConnection(options.connectionString, { autoCreate: true })
+    this.connection = options.connection || mongoose.createConnection(options.uri, { autoCreate: true })
     this.collection = options.collection || 'migrations'
     this.autosync = options.autosync || false
     this.cli = options.cli
@@ -56,15 +54,13 @@ class Migrator {
     }
   }
 
+  async connected (): Promise<Connection> {
+    return this.connection.asPromise()
+  }
+
   log (logString: string, force = false) {
     if (force || this.cli) {
       console.log(logString)
-    }
-  }
-
-  fileError (error: IFileError): void {
-    if (error && error.code === 'ENOENT') {
-      throw new ReferenceError(`Could not find any files at path '${error.path}'`)
     }
   }
 
@@ -93,28 +89,24 @@ class Migrator {
    * @returns {Promise<Object>} A promise of the Migration created
    */
   async create (migrationName: string): Promise<HydratedDocument<IMigration>> {
-    try {
-      const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
-      if (existingMigration) {
-        throw new Error(`There is already a migration with name '${migrationName}' in the database`.red)
-      }
-
-      await this.sync()
-      const now = Date.now()
-      const newMigrationFile = `${now}-${migrationName}.ts`
-      fs.writeFileSync(path.join(this.migrationPath, newMigrationFile), this.template)
-      // create instance in db
-      await this.connection.asPromise()
-      const migrationCreated = await this.migrationModel.create({
-        name: migrationName,
-        createdAt: now
-      })
-      this.log(`Created migration ${migrationName} in ${this.migrationPath}.`)
-      return migrationCreated
-    } catch (error) {
-      this.log(error.stack)
-      this.fileError(error)
+    await this.connected()
+    const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
+    if (existingMigration) {
+      throw new Error(`There is already a migration with name '${migrationName}' in the database`.red)
     }
+
+    await this.sync()
+    const now = Date.now()
+    const newMigrationFile = `${now}-${migrationName}.ts`
+    fs.writeFileSync(path.join(this.migrationPath, newMigrationFile), this.template)
+    // create instance in db
+    await this.connected()
+    const migrationCreated = await this.migrationModel.create({
+      name: migrationName,
+      createdAt: now
+    })
+    this.log(`Created migration ${migrationName} in ${this.migrationPath}`)
+    return migrationCreated
   }
 
   /**
@@ -122,7 +114,8 @@ class Migrator {
    * @param migrationName
    * @param direction
    */
-  async run (direction = 'up', migrationName?: string, ...args: IArgs[]): Promise<LeanDocument<IMigration>[]> {
+  async run (direction = 'up', migrationName?: string, ...args): Promise<LeanDocument<IMigration>[]> {
+    await this.connected()
     await this.sync()
 
     if (direction !== 'up' && direction !== 'down') {
@@ -135,7 +128,7 @@ class Migrator {
 
     if (!untilMigration) {
       if (migrationName) throw new ReferenceError('Could not find that migration in the database')
-      else throw new Error('There are no pending migrations.')
+      else throw new Error('There are no pending migrations')
     }
 
     let query: FilterQuery<IMigration> = {
@@ -189,19 +182,19 @@ class Migrator {
           }
         })
 
-        this.log(`${direction.toUpperCase()}:   `[direction === 'up' ? 'green' : 'red'] + ` ${migration.filename} `)
+        this.log(`${direction}:`[direction === 'up' ? 'green' : 'red'] + ` ${migration.filename} `)
 
         await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
         migrationsRan.push(migration.toJSON())
         numMigrationsRan++
       } catch (err) {
-        this.log(`Failed to run migration ${migration.name} due to an error.`.red)
+        this.log(`Failed to run migration ${migration.name} due to an error`.red)
         this.log('Not continuing. Make sure your data is in consistent state'.red)
         throw err instanceof (Error) ? err : new Error(err)
       }
     }
 
-    if (migrationsToRun.length === numMigrationsRan && numMigrationsRan > 0) this.log('All migrations finished successfully.'.green)
+    if (migrationsToRun.length === numMigrationsRan && numMigrationsRan > 0) this.log('All migrations finished successfully'.green)
     return migrationsRan
   }
 
@@ -212,6 +205,7 @@ class Migrator {
    * This functionality is opposite of prune()
    */
   async sync (): Promise<LeanDocument<IMigration>[]> {
+    await this.connected()
     try {
       const filesInMigrationFolder = fs.readdirSync(this.migrationPath)
       const migrationsInDatabase = await this.migrationModel.find({}).exec()
@@ -229,7 +223,7 @@ class Migrator {
       if (!this.autosync && migrationsToImport.length) {
         const answers: { migrationsToImport: string[] } = await inquirer.prompt({
           type: 'checkbox',
-          message: 'The following migrations exist in the migrations folder but not in the database. Select the ones you want to import into the database',
+          message: 'The following migrations exist in the migrations folder but not in the database.\nSelect the ones you want to import into the database',
           name: 'migrationsToImport',
           choices: filesNotInDb
         })
@@ -253,7 +247,7 @@ class Migrator {
 
       return Promise.all(promises)
     } catch (error) {
-      this.log('Could not synchronize migrations in the migrations folder up to the database.'.red)
+      this.log('Could not synchronize migrations in the migrations folder up to the database'.red)
       throw error
     }
   }
@@ -263,6 +257,7 @@ class Migrator {
    * Removes files in migration directory which don't exist in database.
    */
   async prune () {
+    await this.connected()
     try {
       const filesInMigrationFolder = fs.readdirSync(this.migrationPath)
       const migrationsInDatabase = await this.migrationModel.find({}).exec()
@@ -300,7 +295,7 @@ class Migrator {
 
       return migrationsToDeleteDocs
     } catch (error) {
-      this.log('Could not prune extraneous migrations from database.'.red)
+      this.log('Could not prune extraneous migrations from database'.red)
       throw error
     }
   }
@@ -313,9 +308,10 @@ class Migrator {
    *   ]
    */
   async list (): Promise<LeanDocument<IMigration>[]> {
+    await this.connected()
     await this.sync()
     const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
-    if (!migrations.length) this.log('There are no migrations to list.'.yellow)
+    if (!migrations.length) this.log('There are no migrations to list'.yellow)
     return migrations.map((migration: HydratedDocument<IMigration>) => {
       this.log(
         `${migration.state}: `[migration.state === 'up' ? 'green' : 'red'] + `${migration.filename}`
