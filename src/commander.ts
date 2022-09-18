@@ -22,11 +22,30 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
     }
   }
 
-  const migrationsPath = options.migrationsPath || process.env.MIGRATE_MIGRATIONS_PATH || fileOptions.migrationsPath
-  const templatePath = options.templatePath || process.env.MIGRATE_TEMPLATE_PATH || fileOptions.templatePath
-  const uri = options.uri || process.env.MIGRATE_MONGO_URI || fileOptions.uri
-  const collection = options.collection || process.env.MIGRATE_MONGO_COLLECTION || fileOptions.collection
-  const autosync = Boolean(options.autosync || process.env.MIGRATE_AUTOSYNC || fileOptions.autosync)
+  const uri = options.uri ||
+  process.env.MIGRATE_MONGO_URI ||
+  process.env.migrateMongoUri ||
+  fileOptions.uri
+
+  const collection = options.collection ||
+    process.env.MIGRATE_MONGO_COLLECTION ||
+    process.env.migrateMongoCollection ||
+    fileOptions.collection
+
+  const migrationsPath = options.migrationsPath ||
+    process.env.MIGRATE_MIGRATIONS_PATH ||
+    process.env.migrateMigrationsPath ||
+    fileOptions.migrationsPath
+
+  const templatePath = options.templatePath ||
+    process.env.MIGRATE_TEMPLATE_PATH ||
+    process.env.migrateTemplatePath ||
+    fileOptions.templatePath
+
+  const autosync = Boolean(options.autosync ||
+    process.env.MIGRATE_AUTOSYNC ||
+    process.env.migrateAutosync ||
+    fileOptions.autosync)
 
   if (!uri) {
     throw new Error('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.'.red)
