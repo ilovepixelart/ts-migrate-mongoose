@@ -30,8 +30,8 @@ describe('cli', () => {
     const migrator = await getMigrator({
       uri
     })
+    const connection = await migrator.connected()
     expect(migrator).toBeDefined()
-    const connection = await migrator.connection.asPromise()
     expect(connection).toBeDefined()
     expect(connection.readyState).toBe(1)
     await migrator.close()

@@ -7,7 +7,6 @@ import { register } from 'ts-node'
 
 import mongoose, { Connection, FilterQuery, HydratedDocument, LeanDocument, Model } from 'mongoose'
 
-import IFileError from './interfaces/IFileError'
 import IMigration from './interfaces/IMigration'
 import IMigratorOptions from './interfaces/IMigratorOptions'
 
@@ -55,19 +54,13 @@ class Migrator {
     }
   }
 
-  async connected (): Promise<void> {
-    await this.connection.asPromise()
+  async connected (): Promise<Connection> {
+    return this.connection.asPromise()
   }
 
   log (logString: string, force = false) {
     if (force || this.cli) {
       console.log(logString)
-    }
-  }
-
-  fileError (error: IFileError): void {
-    if (error && error.code === 'ENOENT') {
-      throw new ReferenceError(`Could not find any files at path '${error.path}'`)
     }
   }
 

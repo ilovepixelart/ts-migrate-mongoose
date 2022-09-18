@@ -60,7 +60,7 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
     cli: true
   })
 
-  await migrator.connection.asPromise()
+  await migrator.connected()
 
   return migrator
 }
