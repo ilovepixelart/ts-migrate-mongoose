@@ -1,4 +1,4 @@
-# Example of using the CLI
+# Example for CLI tool
 
 After running `npm install ts-migrate-mongoose`, you will have the migration binary available to you as `./node_modules/.bin/migrate`.
 
@@ -10,9 +10,9 @@ You can simply create a new migration (e.g. `my_new_migration`) by running
 ./node_modules/.bin/migrate <options> create my_new_migration
 ```
 
-where `<options>` must at a MINIMUM contain the database url (using the `-d`/`--connectionString` option).
+where `<options>` must at a MINIMUM contain the database url (using the `-d`/`--uri` option).
 
-### Listing Migrations
+## Listing Migrations
 
 This shows you the migrations with their current states.
 
@@ -23,7 +23,7 @@ This shows you the migrations with their current states.
 ./node_modules/.bin/migrate <options> list
 ```
 
-#### Running a Migration (Migrate up)
+## Running a Migration (Migrate up)
 
 Let's say your `migrate list` command shows
 
@@ -55,7 +55,7 @@ up: 1463003345598-add_processed_credit_cards.ts
 up: 1463603842010-add_default_regional_settings.ts
 ```
 
-##### Undoing Migrations (Migrate down)
+## Undoing Migrations (Migrate down)
 
 What if you want to undo the previous step?
 
@@ -77,7 +77,7 @@ down: 1463003345598-add_processed_credit_cards.ts
 down: 1463603842010-add_default_regional_settings.ts
 ```
 
-##### Synchronizing Your DB with new Migrations
+## Synchronizing Your DB with new Migrations
 
 Lets say you `git pull` the latest changes from your project and someone had made a new migration called `add_unicorns` which adds much requested unicorns to your app.
 
@@ -102,6 +102,6 @@ Once imported, the default state is down so you'll have to `migrate up add_unico
 
 and you'll be prompted to remove it from the **FILE SYSTEM**.
 
-###### But what happens if I want to sync automatically instead of doing this every time?
+## But what happens if I want to sync automatically instead of doing this every time?
 
 just add the option `--autosync` and the migrate command will automatically import new migrations in your migrations folder before running commands.

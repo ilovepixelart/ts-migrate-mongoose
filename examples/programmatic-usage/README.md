@@ -4,26 +4,29 @@
 import Migrator from 'ts-migrate-mongoose'
 
 // Define all your variables
-const migrationsDir = '/path/to/migrations/'
-const templatePath
-const dbUrl = 'mongodb://localhost/db'
 const collection = 'myMigrations'
 const autosync = true
 
 const migrator = new Migrator({
-  migrationsPath:  migrationsDir, // Path to migrations directory
-  templatePath: templatePath, // The template to use when creating migrations needs up and down functions exposed
-  connectionString: dbUrl, // mongo url
-  collection:  collection, // collection name to use for migrations (defaults to 'migrations')
-  autosync: autosync // if making a CLI app, set this to false to prompt the user, otherwise true
+  // Path to migrations directory, default is ./migrations
+  migrationsPath:  '/path/to/migrations/',
+  // The template to use when creating migrations needs up and down functions exposed
+  // No need to specify unless you want to use a custom template
+  templatePath: '/path/to/template.ts',
+  // MongoDB connection string URI
+  uri: 'mongodb://localhost/my-db',
+  // Collection name to use for migrations (defaults to 'migrations')
+  collection: 'migrations', 
+  // Ff making a CLI app, set this to false to prompt the user, otherwise true
+  autosync: true
 });
 
 
-const migrationName = 'my-migration';
+const migrationName = 'my-migration-name';
 
 // Create a new migration
 await migrator.create(migrationName).then(() => {
-  console.log(`Migration created. Run `+ `mongoose-migrate up ${migrationName}`.cyan + ` to apply the migration.`);
+  console.log(`Migration created. Run `+ `migrate up ${migrationName}`.cyan + ` to apply the migration`);
 });
 
 // Migrate Up
@@ -41,7 +44,6 @@ Promise which resolves with
  { name: 'my-migration', filename: '149213223424_my-migration.ts', state: 'up' },
  { name: 'add-cows', filename: '149213223453_add-cows.ts', state: 'down' }
 ]
-
 */
 await migrator.list();
 
