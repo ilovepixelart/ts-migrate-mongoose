@@ -19,21 +19,21 @@ const migrator = new Migrator({
   collection: 'migrations', 
   // Ff making a CLI app, set this to false to prompt the user, otherwise true
   autosync: true
-});
+})
 
 
-const migrationName = 'my-migration-name';
+const migrationName = 'my-migration-name'
 
 // Create a new migration
 await migrator.create(migrationName).then(() => {
-  console.log(`Migration created. Run `+ `migrate up ${migrationName}`.cyan + ` to apply the migration`);
-});
+  console.log(`Migration created. Run `+ `migrate up ${migrationName}`.cyan + ` to apply the migration`)
+})
 
 // Migrate Up
-await migrator.run('up', migrationName);
+await migrator.run('up', migrationName)
 
 // Migrate Down
-await migrator.run('down', migrationName);
+await migrator.run('down', migrationName)
 
 // List Migrations
 /*
@@ -45,11 +45,11 @@ Promise which resolves with
  { name: 'add-cows', filename: '149213223453_add-cows.ts', state: 'down' }
 ]
 */
-await migrator.list();
+await migrator.list()
 
 
 // Prune extraneous migrations from file system
-await migrator.prune();
+await migrator.prune()
 
 // Synchronize DB with latest migrations from file system
 /*
@@ -58,5 +58,5 @@ on the file system but missing in the database into the database
 
 This functionality is opposite of prune()
 */
-await migrator.sync();
+await migrator.sync()
 ```

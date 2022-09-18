@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
     "target": "es2021",
-    "lib": ["es2021"],
+    "lib": [
+      "es2021"
+    ],
     "module": "commonjs",
     "outDir": "dist/",
     "moduleResolution": "node",
-    "declaration": true,                   
-    "declarationMap": true,                
+    "declaration": true,
+    "declarationMap": true,
     "sourceMap": true,
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
@@ -15,7 +17,9 @@
     "importHelpers": true,
     "removeComments": true
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "dist",
     "tools",
