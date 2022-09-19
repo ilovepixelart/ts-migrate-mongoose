@@ -11,6 +11,12 @@ const exec = (...args: string[]) => {
   return migrate.run(false)
 }
 
+const execExit = (...args: string[]) => {
+  const migrate = new Migrate()
+  process.argv = ['node', 'migrate', ...args]
+  return migrate.run(true)
+}
+
 describe('cli', () => {
   const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
   let connection: Connection
@@ -102,5 +108,19 @@ describe('cli', () => {
     expect(opts?.collection).toBe('migrations')
     expect(opts?.autosync).toBe('true')
     expect(opts?.migrationsPath).toBe('./migrations')
+  })
+
+  it('should exit with code 1', async () => {
+    const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => { throw new Error('process.exit: ' + number) })
+    await expect(execExit('up')).rejects.toThrow()
+    expect(mockExit).toHaveBeenCalledWith(1)
+    mockExit.mockRestore()
+  })
+
+  it('should exit with code 0', async () => {
+    const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => { throw new Error('process.exit: ' + number) })
+    await expect(execExit('list', '-d', uri)).rejects.toThrow()
+    expect(mockExit).toHaveBeenCalledWith(0)
+    mockExit.mockRestore()
   })
 })
