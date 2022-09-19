@@ -6,9 +6,9 @@ import { clearDirectory } from '../utils/filesystem'
 colors.enable()
 
 const exec = (...args: string[]) => {
-  const migrate = new Migrate(false)
+  const migrate = new Migrate()
   process.argv = ['node', 'migrate', ...args]
-  return migrate.run()
+  return migrate.run(false)
 }
 
 describe('cli', () => {
@@ -27,9 +27,7 @@ describe('cli', () => {
   })
 
   it('should get migrator instance', async () => {
-    const migrator = await getMigrator({
-      uri
-    })
+    const migrator = await getMigrator({ uri })
     const connection = await migrator.connected()
     expect(migrator).toBeDefined()
     expect(connection).toBeDefined()
@@ -84,5 +82,25 @@ describe('cli', () => {
     expect(opts?.migrationsPath).toBe('./migrations')
     expect(consoleSpy).toBeCalledWith(expect.stringMatching(/^down:/) && expect.stringMatching(/migration-name-test/))
     expect(consoleSpy).toBeCalledWith('All migrations finished successfully'.green)
+  })
+
+  it('should throw "You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI."', async () => {
+    expect(exec('up', 'invalid-migration-name')).rejects.toThrowError('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.')
+  })
+
+  it('should prune command', async () => {
+    await exec('create', 'migration-name-prune', '-d', uri)
+    await exec('up', 'migration-name-prune', '-d', uri, '-a', 'true')
+
+    clearDirectory('migrations')
+
+    const consoleSpy = jest.spyOn(console, 'log')
+    const opts = await exec('prune', '-d', uri, '-a', 'true')
+    expect(consoleSpy).toBeCalledWith(expect.stringMatching(/^Removing migration(s) from database/) && expect.stringMatching(/migration-name-test/))
+    expect(opts?.configPath).toBe('migrate')
+    expect(opts?.uri).toBe(uri)
+    expect(opts?.collection).toBe('migrations')
+    expect(opts?.autosync).toBe('true')
+    expect(opts?.migrationsPath).toBe('./migrations')
   })
 })
