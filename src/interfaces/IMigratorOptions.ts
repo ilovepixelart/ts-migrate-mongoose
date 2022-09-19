@@ -1,13 +1,23 @@
 import { Connection } from 'mongoose'
 
-interface IMigratorOptions {
+interface IMigratorOptionsBase {
   templatePath?: string
   migrationsPath?: string
-  uri: string
   collection?: string
-  autosync: boolean
+  autosync?: boolean
   cli?: boolean
-  connection?: Connection
 }
+
+interface IMigratorOptionsWithConnection extends IMigratorOptionsBase {
+  connection: Connection
+  uri?: never
+}
+
+interface IMigratorOptionsWithUri extends IMigratorOptionsBase {
+  connection?: never
+  uri: string
+}
+
+type IMigratorOptions = IMigratorOptionsWithConnection | IMigratorOptionsWithUri
 
 export default IMigratorOptions

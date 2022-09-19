@@ -43,7 +43,11 @@ class Migrator {
   constructor (options: IMigratorOptions) {
     this.template = options.templatePath ? fs.readFileSync(options.templatePath, 'utf-8') : defaultTemplate
     this.migrationPath = path.resolve(options.migrationsPath || './migrations')
-    this.connection = options.connection || mongoose.createConnection(options.uri, { autoCreate: true })
+    if (options.connection) {
+      this.connection = options.connection
+    } else if (options.uri) {
+      this.connection = mongoose.createConnection(options.uri, { autoCreate: true })
+    }
     this.collection = options.collection || 'migrations'
     this.autosync = options.autosync || false
     this.cli = options.cli
@@ -62,15 +66,6 @@ class Migrator {
     if (force || this.cli) {
       console.log(logString)
     }
-  }
-
-  /**
-   * Use your own Mongoose connection object (so you can use this('modelname')
-   * @param {mongoose.connection} connection - Mongoose connection
-   */
-  setMongooseConnection (connection: Connection): Migrator {
-    this.migrationModel = getMigrationModel(connection, this.collection)
-    return this
   }
 
   /**
@@ -119,7 +114,7 @@ class Migrator {
     await this.sync()
 
     if (direction !== 'up' && direction !== 'down') {
-      throw new Error(`The '${direction}' is not supported, use the 'up' or 'down' direction`)
+      throw new Error(`The direction '${direction}' is not supported, use the 'up' or 'down' direction`)
     }
 
     const untilMigration = migrationName
@@ -148,7 +143,7 @@ class Migrator {
 
     if (!migrationsToRun.length) {
       if (this.cli) {
-        this.log('There are no migrations to run'.yellow)
+        this.log('There are no pending migrations'.yellow)
         this.log('Current Migrations\' Statuses: ')
         await this.list()
       }
@@ -157,10 +152,9 @@ class Migrator {
     let numMigrationsRan = 0
     const migrationsRan: LeanDocument<IMigration>[] = []
 
-    for (const migration of migrationsToRun) {
+    for await (const migration of migrationsToRun) {
       const migrationFilePath = path.join(this.migrationPath, migration.filename)
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const migrationFunctions = require(migrationFilePath)
+      const migrationFunctions = await import(migrationFilePath)
 
       if (!migrationFunctions[direction]) {
         throw new Error(`The "${direction}" export is not defined in ${migration.filename}.`.red)
@@ -278,7 +272,7 @@ class Migrator {
       if (!this.autosync && migrationsToDelete.length) {
         const answers: { migrationsToDelete: string[] } = await inquirer.prompt({
           type: 'checkbox',
-          message: 'The following migrations exist in the database but not in the migrations folder. Select the ones you want to remove from the file system.',
+          message: 'The following migrations exist in the database but not in the migrations folder.\nSelect the ones you want to remove from the file system.',
           name: 'migrationsToDelete',
           choices: migrationsToDelete
         })

@@ -68,8 +68,7 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
 export class Migrate {
   private program: Command
   private migrator: Migrator
-  constructor (public exit: boolean = true) {
-    this.exit = exit
+  constructor () {
     this.program = new Command()
     this.program
       .name('migrate')
@@ -124,16 +123,21 @@ export class Migrate {
       })
   }
 
-  public async run (): Promise<void | OptionValues> {
+  /**
+   * Run the CLI
+   * @param exit Whether to exit the process after running the command, defaults to true
+   * @returns The parsed options or void if exit = true
+   */
+  public async run (exit = true): Promise<void | OptionValues> {
     return this.program.parseAsync(process.argv)
       .then(async () => {
         await this.migrator.close()
-        if (this.exit) process.exit(0)
+        if (exit) process.exit(0)
         return this.program.opts()
       })
       .catch((err) => {
         console.error(err.message.red)
-        if (this.exit) process.exit(1)
+        if (exit) process.exit(1)
         throw err
       })
   }

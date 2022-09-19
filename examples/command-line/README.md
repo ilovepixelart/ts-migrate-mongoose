@@ -85,7 +85,8 @@ Now, when you go run any migration command (e.g. `migrate list`), you are prompt
 
 ```bash
 Synchronizing database with file system migrations...
-? The following migrations exist in the migrations folder but not in the database. Select the ones you want to import into the database (Press <space> to select)
+? The following migrations exist in the migrations folder but not in the database.
+Select the ones you want to import into the database (Press <space> to select)
 ❯◯ 1463003339853-add_unicorns.ts
 ```
 
