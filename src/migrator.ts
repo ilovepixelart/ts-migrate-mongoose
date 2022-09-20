@@ -7,8 +7,8 @@ import { register } from 'ts-node'
 
 import mongoose, { Connection, FilterQuery, HydratedDocument, LeanDocument, Model } from 'mongoose'
 
-import IMigration from './interfaces/IMigration'
-import IMigratorOptions from './interfaces/IMigratorOptions'
+import type IMigration from './interfaces/IMigration'
+import type IMigratorOptions from './interfaces/IMigratorOptions'
 
 import { registerOptions } from './options'
 import { getMigrationModel } from './model'
@@ -32,7 +32,7 @@ export async function down () {
 `
 
 class Migrator {
-  template?: string
+  template: string
   migrationPath: string
   connection: Connection
   collection: string
@@ -41,16 +41,26 @@ class Migrator {
   migrationModel: Model<IMigration>
 
   constructor (options: IMigratorOptions) {
-    this.template = options.templatePath ? fs.readFileSync(options.templatePath, 'utf-8') : defaultTemplate
-    this.migrationPath = path.resolve(options.migrationsPath || './migrations')
-    if (options.connection) {
-      this.connection = options.connection
-    } else if (options.uri) {
-      this.connection = mongoose.createConnection(options.uri, { autoCreate: true })
+    if (!options.connection && !options.uri) {
+      throw new Error('No mongoose connection or mongo uri provided to migrator'.red)
     }
+
+    this.template = defaultTemplate
+    if (options.templatePath && fs.existsSync(options.templatePath)) {
+      this.template = fs.readFileSync(options.templatePath, 'utf8')
+    }
+
+    this.migrationPath = path.resolve(options.migrationsPath || './migrations')
     this.collection = options.collection || 'migrations'
     this.autosync = options.autosync || false
-    this.cli = options.cli
+    this.cli = options.cli || false
+
+    if (options.connection) {
+      this.connection = options.connection
+    } else {
+      this.connection = mongoose.createConnection(options.uri, { autoCreate: true })
+    }
+
     this.migrationModel = getMigrationModel(this.connection, this.collection)
 
     if (!fs.existsSync(this.migrationPath)) {
@@ -109,7 +119,7 @@ class Migrator {
    * @param migrationName
    * @param direction
    */
-  async run (direction = 'up', migrationName?: string, ...args): Promise<LeanDocument<IMigration>[]> {
+  async run (direction = 'up', migrationName?: string, ...args: unknown[]): Promise<LeanDocument<IMigration>[]> {
     await this.connected()
     await this.sync()
 
@@ -181,10 +191,10 @@ class Migrator {
         await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
         migrationsRan.push(migration.toJSON())
         numMigrationsRan++
-      } catch (err) {
+      } catch (err: unknown) {
         this.log(`Failed to run migration ${migration.name} due to an error`.red)
         this.log('Not continuing. Make sure your data is in consistent state'.red)
-        throw err instanceof (Error) ? err : new Error(err)
+        throw err instanceof (Error) ? err : new Error(err as string)
       }
     }
 

@@ -1,11 +1,11 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
-import merge from 'merge'
+const merge = require('merge')
+const ts = require('ts-jest/jest-preset')
+const mongo = require('@shelf/jest-mongodb/jest-preset')
 
-import tsPreset from 'ts-jest/jest-preset'
-import jestMongodbPreset from '@shelf/jest-mongodb/jest-preset'
-
-export default merge.recursive(tsPreset, jestMongodbPreset, {
+const config = merge.recursive(ts, mongo, {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
@@ -193,3 +193,5 @@ export default merge.recursive(tsPreset, jestMongodbPreset, {
   // Whether to use watchman for file crawling
   // watchman: true,
 })
+
+module.exports = config

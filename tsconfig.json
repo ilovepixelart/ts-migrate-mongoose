@@ -1,17 +1,27 @@
 {
   "compilerOptions": {
+    "strict": true,
     "target": "es2021",
     "lib": [
       "es2021"
     ],
     "module": "commonjs",
-    "outDir": "dist/",
+    "outDir": "dist",
     "moduleResolution": "node",
+    "importsNotUsedAsValues": "error",
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "allowSyntheticDefaultImports": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "allowJs": true,
+    "checkJs": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "importHelpers": true,
@@ -24,5 +34,6 @@
     "dist",
     "tools",
     "node_modules",
+    "./jest.config.js",
   ]
 }

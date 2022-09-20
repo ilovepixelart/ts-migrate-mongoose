@@ -1,6 +1,6 @@
 import { Schema, Connection, MongooseError } from 'mongoose'
 
-import IMigration from './interfaces/IMigration'
+import type IMigration from './interfaces/IMigration'
 
 export const getMigrationModel = (connection: Connection, collection = 'migrations') => {
   connection.on('error', (err: MongooseError) => {
