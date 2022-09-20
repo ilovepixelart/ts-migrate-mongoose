@@ -7,8 +7,8 @@ import { register } from 'ts-node'
 
 import mongoose, { Connection, FilterQuery, HydratedDocument, LeanDocument, Model } from 'mongoose'
 
-import IMigration from './interfaces/IMigration'
-import IMigratorOptions from './interfaces/IMigratorOptions'
+import type IMigration from './interfaces/IMigration'
+import type IMigratorOptions from './interfaces/IMigratorOptions'
 
 import { registerOptions } from './options'
 import { getMigrationModel } from './model'

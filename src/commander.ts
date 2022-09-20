@@ -5,7 +5,8 @@ import { Command, OptionValues } from 'commander'
 import Migrator from './migrator'
 import { register } from 'ts-node'
 import { registerOptions } from './options'
-import IOptions from './interfaces/IOptions'
+
+import type IOptions from './interfaces/IOptions'
 
 dotenv.config()
 colors.enable()

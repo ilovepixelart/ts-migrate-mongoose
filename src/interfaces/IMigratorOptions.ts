@@ -1,4 +1,4 @@
-import { Connection } from 'mongoose'
+import type { Connection } from 'mongoose'
 
 interface IMigratorOptionsBase {
   templatePath?: string
