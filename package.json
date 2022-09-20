@@ -43,8 +43,8 @@
     "build:types": "node tools/cleanup types && tsc -p config/tsconfig.types.json",
     "package": "npm run build && npm pack",
     "migrate": "ts-node-dev ./src/bin.ts",
-    "test": "jest --config jest.config.ts --detectOpenHandles",
-    "coverage": "jest --config jest.config.ts --detectOpenHandles --coverage && open-cli coverage/lcov-report/index.html"
+    "test": "jest --config jest.config.js --detectOpenHandles",
+    "coverage": "jest --config jest.config.js --detectOpenHandles --coverage && open-cli coverage/lcov-report/index.html"
   },
   "dependencies": {
     "colors": "^1.4.0",

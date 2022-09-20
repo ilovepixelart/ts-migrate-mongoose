@@ -67,7 +67,7 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
 
 export class Migrate {
   private program: Command
-  private migrator: Migrator
+  private migrator: Migrator | undefined
   constructor () {
     this.program = new Command()
     this.program
@@ -90,14 +90,14 @@ export class Migrate {
       .description('list all migrations')
       .action(async () => {
         console.log('Listing migrations'.cyan)
-        await this.migrator.list()
+        await this.migrator?.list()
       })
 
     this.program
       .command('create <migration-name>')
       .description('create a new migration file')
       .action(async (migrationName) => {
-        await this.migrator.create(migrationName)
+        await this.migrator?.create(migrationName)
         console.log('Migration created. Run ' + `migrate up ${migrationName}`.cyan + ' to apply the migration')
       })
 
@@ -105,21 +105,21 @@ export class Migrate {
       .command('up [migration-name]')
       .description('run all migrations or a specific migration if name provided')
       .action(async (migrationName) => {
-        await this.migrator.run('up', migrationName)
+        await this.migrator?.run('up', migrationName)
       })
 
     this.program
       .command('down <migration-name>')
       .description('roll back migrations down to given name')
       .action(async (migrationName) => {
-        await this.migrator.run('down', migrationName)
+        await this.migrator?.run('down', migrationName)
       })
 
     this.program
       .command('prune')
       .description('delete extraneous migrations from migration folder or database')
       .action(async () => {
-        await this.migrator.prune()
+        await this.migrator?.prune()
       })
   }
 
@@ -131,7 +131,7 @@ export class Migrate {
   public async run (exit = true): Promise<void | OptionValues> {
     return this.program.parseAsync(process.argv)
       .then(async () => {
-        await this.migrator.close()
+        await this.migrator?.close()
         if (exit) process.exit(0)
         return this.program.opts()
       })
