@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import fs from 'fs'
 import inquirer from 'inquirer'
 import path from 'path'
@@ -76,6 +75,20 @@ class Migrator {
     if (force || this.cli) {
       console.log(logString)
     }
+  }
+
+  async getMigrations () {
+    const files = fs.readdirSync(this.migrationPath)
+    const migrationsInDb = await this.migrationModel.find({}).exec()
+    const migrationsInFs = files
+      .filter((filename) => /^\d{13,}-/.test(filename) && filename.endsWith('.ts'))
+      .map((filename) => {
+        const createdAt = parseInt(filename.split('-')[0])
+        const existsInDatabase = migrationsInDb.some((migration) => filename === migration.filename)
+        return { createdAt, filename, existsInDatabase }
+      })
+
+    return { migrationsInDb, migrationsInFs }
   }
 
   /**
@@ -211,25 +224,20 @@ class Migrator {
   async sync (): Promise<LeanDocument<IMigration>[]> {
     await this.connected()
     try {
-      const filesInMigrationFolder = fs.readdirSync(this.migrationPath)
-      const migrationsInDatabase = await this.migrationModel.find({}).exec()
-      // Go over migrations in folder and delete any files not in DB
-      const migrationsInFolder = _.filter(filesInMigrationFolder, (file) => /\d{13,}-.+.ts$/.test(file))
-        .map((filename) => {
-          const fileCreatedAt = parseInt(filename.split('-')[0])
-          const existsInDatabase = migrationsInDatabase.some((m) => filename === m.filename)
-          return { createdAt: fileCreatedAt, filename, existsInDatabase }
-        })
+      const { migrationsInFs } = await this.getMigrations()
 
-      const filesNotInDb: string[] = _.filter(migrationsInFolder, { existsInDatabase: false }).map((f) => f.filename)
-      let migrationsToImport = filesNotInDb
+      const fsMigrationsNotInDb: string[] = migrationsInFs
+        .filter((f) => f.existsInDatabase === false)
+        .map((f) => f.filename)
+
+      let migrationsToImport = fsMigrationsNotInDb
       this.log('Synchronizing database with file system migrations...')
       if (!this.autosync && migrationsToImport.length) {
         const answers: { migrationsToImport: string[] } = await inquirer.prompt({
           type: 'checkbox',
           message: 'The following migrations exist in the migrations folder but not in the database.\nSelect the ones you want to import into the database',
           name: 'migrationsToImport',
-          choices: filesNotInDb
+          choices: fsMigrationsNotInDb
         })
 
         migrationsToImport = answers.migrationsToImport
@@ -263,19 +271,9 @@ class Migrator {
   async prune () {
     await this.connected()
     try {
-      const filesInMigrationFolder = fs.readdirSync(this.migrationPath)
-      const migrationsInDatabase = await this.migrationModel.find({}).exec()
-      // Go over migrations in folder and delete any files not in DB
-      const migrationsInFolder = _.filter(filesInMigrationFolder, (file) => /\d{13,}-.+.ts/.test(file))
-        .map((filename) => {
-          const fileCreatedAt = parseInt(filename.split('-')[0])
-          const existsInDatabase = migrationsInDatabase.some((m) => filename === m.filename)
-          return { createdAt: fileCreatedAt, filename, existsInDatabase }
-        })
+      const { migrationsInDb, migrationsInFs } = await this.getMigrations()
 
-      const dbMigrationsNotOnFs = _.filter(migrationsInDatabase, (m) => {
-        return !_.find(migrationsInFolder, { filename: m.filename })
-      })
+      const dbMigrationsNotOnFs = migrationsInDb.filter((m) => !migrationsInFs.find((f) => f.filename === m.filename))
 
       let migrationsToDelete = dbMigrationsNotOnFs.map((m) => m.name)
 
