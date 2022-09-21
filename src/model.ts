@@ -1,12 +1,8 @@
-import { Schema, Connection, MongooseError } from 'mongoose'
+import { Schema, Connection } from 'mongoose'
 
 import type IMigration from './interfaces/IMigration'
 
 export const getMigrationModel = (connection: Connection, collection = 'migrations') => {
-  connection.on('error', (err: MongooseError) => {
-    console.error(`MongoDB Connection Error: ${err}`)
-  })
-
   const MigrationSchema = new Schema<IMigration>({
     name: String,
     state: {
