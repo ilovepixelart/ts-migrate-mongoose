@@ -81,7 +81,7 @@ class Migrator {
     const files = fs.readdirSync(this.migrationPath)
     const migrationsInDb = await this.migrationModel.find({}).exec()
     const migrationsInFs = files
-      .filter((filename) => /\d{13,}-.*?.ts$/.test(filename))
+      .filter((filename) => /^\d{13,}-/.test(filename) && filename.endsWith('.ts'))
       .map((filename) => {
         const createdAt = parseInt(filename.split('-')[0])
         const existsInDatabase = migrationsInDb.some((migration) => filename === migration.filename)
