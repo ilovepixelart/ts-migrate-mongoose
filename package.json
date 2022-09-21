@@ -1,6 +1,6 @@
 {
   "name": "ts-migrate-mongoose",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A node/typescript based migration framework for mongoose",
   "author": "Alex Eagle",
   "license": "MIT",
