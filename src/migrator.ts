@@ -91,6 +91,24 @@ class Migrator {
     return { migrationsInDb, migrationsInFs }
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  async callMigrationFunction (migrationFunction: Function, args: unknown[]) {
+    await new Promise((resolve, reject) => {
+      const callPromise = migrationFunction.call(
+        this.connection.model.bind(this.connection),
+        function callback (err: Error) {
+          if (err) return reject(err)
+          resolve(null)
+        },
+        ...args
+      )
+
+      if (callPromise && typeof callPromise.then === 'function') {
+        callPromise.then(resolve).catch(reject)
+      }
+    })
+  }
+
   async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'up' | 'down', args: unknown[]) {
     const migrationsRan: LeanDocument<IMigration>[] = []
 
@@ -98,25 +116,13 @@ class Migrator {
       const migrationFilePath = path.join(this.migrationPath, migration.filename)
       const migrationFunctions = await import(migrationFilePath)
 
-      if (!migrationFunctions[direction]) {
+      const migrationFunction = migrationFunctions[direction]
+      if (!migrationFunction) {
         throw new Error(`The "${direction}" export is not defined in ${migration.filename}.`.red)
       }
 
       try {
-        await new Promise((resolve, reject) => {
-          const callPromise = migrationFunctions[direction].call(
-            this.connection.model.bind(this.connection),
-            function callback (err: Error) {
-              if (err) return reject(err)
-              resolve(null)
-            },
-            ...args
-          )
-
-          if (callPromise && typeof callPromise.then === 'function') {
-            callPromise.then(resolve).catch(reject)
-          }
-        })
+        await this.callMigrationFunction(migrationFunction, args)
 
         this.log(`${direction}:`[direction === 'up' ? 'green' : 'red'] + ` ${migration.filename} `)
 
