@@ -109,6 +109,10 @@ class Migrator {
     })
   }
 
+  logMigrationStatus (direction: 'up' | 'down', filename: string) {
+    this.log(`${direction}:`[direction === 'up' ? 'green' : 'red'] + ` ${filename} `)
+  }
+
   async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'up' | 'down', args: unknown[]) {
     const migrationsRan: LeanDocument<IMigration>[] = []
 
@@ -124,7 +128,7 @@ class Migrator {
       try {
         await this.callMigrationFunction(migrationFunction, args)
 
-        this.log(`${direction}:`[direction === 'up' ? 'green' : 'red'] + ` ${migration.filename} `)
+        this.logMigrationStatus(direction, migration.filename)
 
         await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
         migrationsRan.push(migration.toJSON())
@@ -325,9 +329,7 @@ class Migrator {
     const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
     if (!migrations.length) this.log('There are no migrations to list'.yellow)
     return migrations.map((migration: HydratedDocument<IMigration>) => {
-      this.log(
-        `${migration.state}: `[migration.state === 'up' ? 'green' : 'red'] + `${migration.filename}`
-      )
+      this.logMigrationStatus(migration.state, migration.filename)
       return migration.toJSON()
     })
   }
