@@ -91,6 +91,57 @@ class Migrator {
     return { migrationsInDb, migrationsInFs }
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  async callMigrationFunction (migrationFunction: Function, args: unknown[]) {
+    await new Promise((resolve, reject) => {
+      const callPromise = migrationFunction.call(
+        this.connection.model.bind(this.connection),
+        function callback (err: Error) {
+          if (err) return reject(err)
+          resolve(null)
+        },
+        ...args
+      )
+
+      if (callPromise && typeof callPromise.then === 'function') {
+        callPromise.then(resolve).catch(reject)
+      }
+    })
+  }
+
+  logMigrationStatus (direction: 'up' | 'down', filename: string) {
+    this.log(`${direction}:`[direction === 'up' ? 'green' : 'red'] + ` ${filename} `)
+  }
+
+  async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'up' | 'down', args: unknown[]) {
+    const migrationsRan: LeanDocument<IMigration>[] = []
+
+    for await (const migration of migrationsToRun) {
+      const migrationFilePath = path.join(this.migrationPath, migration.filename)
+      const migrationFunctions = await import(migrationFilePath)
+
+      const migrationFunction = migrationFunctions[direction]
+      if (!migrationFunction) {
+        throw new Error(`The "${direction}" export is not defined in ${migration.filename}.`.red)
+      }
+
+      try {
+        await this.callMigrationFunction(migrationFunction, args)
+
+        this.logMigrationStatus(direction, migration.filename)
+
+        await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
+        migrationsRan.push(migration.toJSON())
+      } catch (err: unknown) {
+        this.log(`Failed to run migration ${migration.name} due to an error`.red)
+        this.log('Not continuing. Make sure your data is in consistent state'.red)
+        throw err instanceof (Error) ? err : new Error(err as string)
+      }
+    }
+
+    return migrationsRan
+  }
+
   /**
    * Close the underlying connection to mongo
    * @returns {Promise<void>} A promise that resolves when connection is closed
@@ -132,7 +183,7 @@ class Migrator {
    * @param migrationName
    * @param direction
    */
-  async run (direction = 'up', migrationName?: string, ...args: unknown[]): Promise<LeanDocument<IMigration>[]> {
+  async run (direction: 'up' | 'down' = 'up', migrationName?: string, ...args: unknown[]): Promise<LeanDocument<IMigration>[]> {
     await this.connected()
     await this.sync()
 
@@ -164,54 +215,17 @@ class Migrator {
     const sortDirection = direction === 'up' ? 1 : -1
     const migrationsToRun = await this.migrationModel.find(query).sort({ createdAt: sortDirection }).exec()
 
-    if (!migrationsToRun.length) {
-      if (this.cli) {
-        this.log('There are no pending migrations'.yellow)
-        this.log('Current Migrations\' Statuses: ')
-        await this.list()
-      }
+    if (!migrationsToRun.length && this.cli) {
+      this.log('There are no pending migrations'.yellow)
+      this.log('Current migrations status: ')
+      await this.list()
     }
 
-    let numMigrationsRan = 0
-    const migrationsRan: LeanDocument<IMigration>[] = []
+    const migrationsRan = await this.runMigrations(migrationsToRun, direction, args)
 
-    for await (const migration of migrationsToRun) {
-      const migrationFilePath = path.join(this.migrationPath, migration.filename)
-      const migrationFunctions = await import(migrationFilePath)
-
-      if (!migrationFunctions[direction]) {
-        throw new Error(`The "${direction}" export is not defined in ${migration.filename}.`.red)
-      }
-
-      try {
-        await new Promise((resolve, reject) => {
-          const callPromise = migrationFunctions[direction].call(
-            this.connection.model.bind(this.connection),
-            function callback (err: Error) {
-              if (err) return reject(err)
-              resolve(null)
-            },
-            ...args
-          )
-
-          if (callPromise && typeof callPromise.then === 'function') {
-            callPromise.then(resolve).catch(reject)
-          }
-        })
-
-        this.log(`${direction}:`[direction === 'up' ? 'green' : 'red'] + ` ${migration.filename} `)
-
-        await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
-        migrationsRan.push(migration.toJSON())
-        numMigrationsRan++
-      } catch (err: unknown) {
-        this.log(`Failed to run migration ${migration.name} due to an error`.red)
-        this.log('Not continuing. Make sure your data is in consistent state'.red)
-        throw err instanceof (Error) ? err : new Error(err as string)
-      }
+    if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {
+      this.log('All migrations finished successfully'.green)
     }
-
-    if (migrationsToRun.length === numMigrationsRan && numMigrationsRan > 0) this.log('All migrations finished successfully'.green)
     return migrationsRan
   }
 
@@ -315,9 +329,7 @@ class Migrator {
     const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
     if (!migrations.length) this.log('There are no migrations to list'.yellow)
     return migrations.map((migration: HydratedDocument<IMigration>) => {
-      this.log(
-        `${migration.state}: `[migration.state === 'up' ? 'green' : 'red'] + `${migration.filename}`
-      )
+      this.logMigrationStatus(migration.state, migration.filename)
       return migration.toJSON()
     })
   }
