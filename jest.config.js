@@ -12,13 +12,13 @@ const config = merge.recursive(ts, mongo, {
     '!src/bin.ts'
   ],
   coverageDirectory: 'coverage',
-  globals: {
-    'ts-jest': {
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', {
       isolatedModules: true,
       allowSyntheticDefaultImports: true,
       esModuleInterop: true,
       importHelpers: true
-    }
+    }]
   },
   testMatch: [
     '<rootDir>/tests/**/*.test.ts'
