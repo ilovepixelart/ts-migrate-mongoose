@@ -18,9 +18,11 @@
   "keywords": [
     "migrate",
     "migration",
+    "migrations",
     "mongoose",
-    "schema",
     "mongodb",
+    "mongo",
+    "schema",
     "db",
     "nosql",
     "typescript"
