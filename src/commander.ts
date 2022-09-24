@@ -131,15 +131,17 @@ export class Migrate {
    */
   public async run (exit = true): Promise<void | OptionValues> {
     return this.program.parseAsync(process.argv)
-      .then(async () => {
-        await this.migrator?.close()
-        if (exit) process.exit(0)
+      .then(() => {
+        if (exit) return process.exit(0)
         return this.program.opts()
       })
       .catch((err) => {
         console.error(err.message.red)
-        if (exit) process.exit(1)
+        if (exit) return process.exit(1)
         throw err
+      })
+      .finally(async () => {
+        await this.migrator?.close()
       })
   }
 }

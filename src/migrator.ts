@@ -40,11 +40,8 @@ class Migrator {
   migrationModel: Model<IMigration>
 
   constructor (options: IMigratorOptions) {
-    if (!options.connection && !options.uri) {
-      throw new Error('No mongoose connection or mongo uri provided to migrator'.red)
-    }
-
     this.template = defaultTemplate
+
     if (options.templatePath && fs.existsSync(options.templatePath)) {
       this.template = fs.readFileSync(options.templatePath, 'utf8')
     }
@@ -54,14 +51,20 @@ class Migrator {
     this.autosync = options.autosync || false
     this.cli = options.cli || false
 
+    this.ensureMigrationPath()
+
     if (options.connection) {
       this.connection = options.connection
-    } else {
+    } else if (options.uri) {
       this.connection = mongoose.createConnection(options.uri, { autoCreate: true })
+    } else {
+      throw new Error('No mongoose connection or mongo uri provided to migrator'.red)
     }
 
     this.migrationModel = getMigrationModel(this.connection, this.collection)
+  }
 
+  ensureMigrationPath () {
     if (!fs.existsSync(this.migrationPath)) {
       fs.mkdirSync(this.migrationPath, { recursive: true })
     }
@@ -122,7 +125,7 @@ class Migrator {
 
       const migrationFunction = migrationFunctions[direction]
       if (!migrationFunction) {
-        throw new Error(`The "${direction}" export is not defined in ${migration.filename}.`.red)
+        throw new Error(`The '${direction}' export is not defined in ${migration.filename}.`.red)
       }
 
       try {
