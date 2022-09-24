@@ -130,7 +130,7 @@ describe('cli', () => {
     await exec('up', '-d', uri)
     const consoleSpy = jest.spyOn(console, 'log')
     await exec('up', '-d', uri)
-    await expect(consoleSpy).toBeCalledWith('There are no pending migrations'.yellow)
+    expect(consoleSpy).toBeCalledWith('There are no pending migrations'.yellow)
   })
 
   it('should throw "The up export is not defined in"', async () => {
@@ -139,5 +139,13 @@ describe('cli', () => {
     fs.appendFileSync('migrations/template.ts', 'export function down () { /* do nothing */ }')
     await exec('create', 'test-migration', '-d', uri, '-t', 'migrations/template.ts')
     await expect(exec('up', '-d', uri)).rejects.toThrowError(/The 'up' export is not defined in/)
+  })
+
+  it('should throw "Failed to run migration"', async () => {
+    clearDirectory('migrations')
+    await connection.collection('migrations').deleteMany({})
+    fs.appendFileSync('migrations/template.ts', 'export function up () { throw new Error("Failed to run migration") }')
+    await exec('create', 'test-migration', '-d', uri, '-t', 'migrations/template.ts')
+    await expect(exec('up', '-d', uri)).rejects.toThrowError(/Failed to run migration/)
   })
 })
