@@ -1,3 +1,4 @@
+import fs from 'fs'
 import colors from 'colors'
 import mongoose, { Connection } from 'mongoose'
 import { getMigrator, Migrate } from '../src/commander'
@@ -122,5 +123,21 @@ describe('cli', () => {
     await expect(execExit('list', '-d', uri)).rejects.toThrow()
     expect(mockExit).toHaveBeenCalledWith(0)
     mockExit.mockRestore()
+  })
+
+  it('should log no pending migrations', async () => {
+    await exec('create', 'test-migration', '-d', uri)
+    await exec('up', '-d', uri)
+    const consoleSpy = jest.spyOn(console, 'log')
+    await exec('up', '-d', uri)
+    expect(consoleSpy).toBeCalledWith('There are no pending migrations'.yellow)
+  })
+
+  it('should throw "The up export is not defined in"', async () => {
+    clearDirectory('migrations')
+    connection.collection('migrations').deleteMany({})
+    fs.appendFileSync('migrations/template.ts', 'export function down () { /* do nothing */ }')
+    await exec('create', 'test-migration', '-d', uri, '-t', 'migrations/template.ts')
+    await expect(exec('up', '-d', uri)).rejects.toThrow(/The 'up' export is not defined in/)
   })
 })

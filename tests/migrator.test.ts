@@ -1,3 +1,4 @@
+import fs from 'fs'
 import colors from 'colors'
 import mongoose, { Connection, Types } from 'mongoose'
 
@@ -171,5 +172,19 @@ describe('library', () => {
 
     await migrator.close()
     expect(migrator.connection.readyState).toEqual(0)
+  })
+
+  it('should throw "No mongoose connection or mongo uri provided to migrator"', () => {
+    expect(() => {
+      const migrator = new Migrator({ uri: null })
+      expect(migrator).toBeInstanceOf(Migrator)
+    }).toThrowError('No mongoose connection or mongo uri provided to migrator')
+  })
+
+  it('should ensure migrations path', () => {
+    fs.rmdirSync('migrations', { recursive: true })
+    const migrator = new Migrator({ connection })
+    expect(migrator).toBeInstanceOf(Migrator)
+    expect(fs.existsSync('migrations')).toBe(true)
   })
 })
