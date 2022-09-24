@@ -1,5 +1,6 @@
 import fs from 'fs'
 import colors from 'colors'
+import inquirer from 'inquirer'
 import mongoose, { Connection, Types } from 'mongoose'
 
 import Migrator from '../src/migrator'
@@ -176,7 +177,7 @@ describe('library', () => {
 
   it('should throw "No mongoose connection or mongo uri provided to migrator"', () => {
     expect(() => {
-      const migrator = new Migrator({ uri: null })
+      const migrator = new Migrator({ uri: '' })
       expect(migrator).toBeInstanceOf(Migrator)
     }).toThrowError('No mongoose connection or mongo uri provided to migrator')
   })
@@ -187,5 +188,55 @@ describe('library', () => {
     expect(migrator).toBeInstanceOf(Migrator)
     expect(fs.existsSync('migrations')).toBe(true)
     await migrator.close()
+  })
+
+  it('should throw "Failed to run migration"', async () => {
+    const migrator = new Migrator({ connection })
+    const migration = await migrator.migrationModel.create({
+      name: 'test-migration',
+      createdAt: new Date()
+    })
+    expect(migrator.runMigrations([migration], 'up', [])).rejects.toThrowError(/Cannot find module/)
+  })
+
+  it('should log "Adding migration"', async () => {
+    const migrator = new Migrator({ connection })
+    const migration = await migrator.create('test-migration')
+    clearDirectory('migrations')
+    const migrations = await migrator.syncMigrations([migration.filename])
+    expect(migrations.length).toBe(1)
+    expect(migrations[0].name).toBe('test-migration')
+  })
+
+  it('should choose first', async () => {
+    jest.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
+    const migrator = new Migrator({ connection })
+    const answers = await migrator.choseMigrations(['1', '2', '3'], 'Message')
+    expect(answers).toEqual(['1'])
+  })
+
+  it('should choose first', async () => {
+    jest.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
+    const migrator = new Migrator({ connection, autosync: true })
+    const answers = await migrator.choseMigrations(['1', '2', '3'], 'Message')
+    expect(answers).toEqual(['1', '2', '3'])
+  })
+
+  it('should throw on sync', async () => {
+    const migrator = new Migrator({ connection, autosync: true })
+    await migrator.connection.asPromise()
+    jest.spyOn(migrator, 'getMigrations').mockImplementation(async () => {
+      throw new Error('Sync error')
+    })
+    await expect(migrator.sync()).rejects.toThrowError('Sync error')
+  })
+
+  it('should throw on prune', async () => {
+    const migrator = new Migrator({ connection, autosync: true })
+    await migrator.connection.asPromise()
+    jest.spyOn(migrator, 'getMigrations').mockImplementation(async () => {
+      throw new Error('Sync error')
+    })
+    await expect(migrator.prune()).rejects.toThrowError('Sync error')
   })
 })

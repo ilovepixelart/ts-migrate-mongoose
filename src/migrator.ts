@@ -80,6 +80,24 @@ class Migrator {
     }
   }
 
+  async syncMigrations (migrationsInFs: string[]) {
+    const promises = migrationsInFs.map(async (filename) => {
+      const filePath = path.join(this.migrationPath, filename)
+      const timestampSeparatorIndex = filename.indexOf('-')
+      const timestamp = filename.slice(0, timestampSeparatorIndex)
+      const migrationName = filename.slice(timestampSeparatorIndex + 1, filename.lastIndexOf('.'))
+
+      this.log(`Adding migration ${filePath} into database from file system. State is ` + 'down'.red)
+      const createdMigration = await this.migrationModel.create({
+        name: migrationName,
+        createdAt: timestamp
+      })
+      return createdMigration.toJSON()
+    })
+
+    return Promise.all(promises)
+  }
+
   async getMigrations () {
     const files = fs.readdirSync(this.migrationPath)
     const migrationsInDb = await this.migrationModel.find({}).exec()
@@ -92,6 +110,19 @@ class Migrator {
       })
 
     return { migrationsInDb, migrationsInFs }
+  }
+
+  async choseMigrations (migrations: string[], message: string): Promise<string[]> {
+    if (!this.autosync && migrations.length) {
+      const answers: { chosen: string[] } = await inquirer.prompt({
+        type: 'checkbox',
+        message,
+        name: 'chosen',
+        choices: migrations
+      })
+      return answers.chosen
+    }
+    return migrations
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -243,38 +274,14 @@ class Migrator {
     try {
       const { migrationsInFs } = await this.getMigrations()
 
-      const fsMigrationsNotInDb: string[] = migrationsInFs
+      let migrationsToImport = migrationsInFs
         .filter((f) => f.existsInDatabase === false)
         .map((f) => f.filename)
 
-      let migrationsToImport = fsMigrationsNotInDb
       this.log('Synchronizing database with file system migrations...')
-      if (!this.autosync && migrationsToImport.length) {
-        const answers: { migrationsToImport: string[] } = await inquirer.prompt({
-          type: 'checkbox',
-          message: 'The following migrations exist in the migrations folder but not in the database.\nSelect the ones you want to import into the database',
-          name: 'migrationsToImport',
-          choices: fsMigrationsNotInDb
-        })
+      migrationsToImport = await this.choseMigrations(migrationsToImport, 'The following migrations exist in the migrations folder but not in the database.\nSelect the ones you want to import into the database')
 
-        migrationsToImport = answers.migrationsToImport
-      }
-
-      const promises = migrationsToImport.map(async (migrationToImport) => {
-        const filePath = path.join(this.migrationPath, migrationToImport)
-        const timestampSeparatorIndex = migrationToImport.indexOf('-')
-        const timestamp = migrationToImport.slice(0, timestampSeparatorIndex)
-        const migrationName = migrationToImport.slice(timestampSeparatorIndex + 1, migrationToImport.lastIndexOf('.'))
-
-        this.log(`Adding migration ${filePath} into database from file system. State is ` + 'down'.red)
-        const createdMigration = await this.migrationModel.create({
-          name: migrationName,
-          createdAt: timestamp
-        })
-        return createdMigration.toJSON()
-      })
-
-      return Promise.all(promises)
+      return this.syncMigrations(migrationsToImport)
     } catch (error) {
       this.log('Could not synchronize migrations in the migrations folder up to the database'.red)
       throw error
@@ -290,25 +297,16 @@ class Migrator {
     try {
       const { migrationsInDb, migrationsInFs } = await this.getMigrations()
 
-      const dbMigrationsNotOnFs = migrationsInDb.filter((m) => !migrationsInFs.find((f) => f.filename === m.filename))
+      let migrationsToDelete = migrationsInDb
+        .filter((m) => !migrationsInFs.find((f) => f.filename === m.filename))
+        .map((m) => m.name)
 
-      let migrationsToDelete = dbMigrationsNotOnFs.map((m) => m.name)
-
-      if (!this.autosync && migrationsToDelete.length) {
-        const answers: { migrationsToDelete: string[] } = await inquirer.prompt({
-          type: 'checkbox',
-          message: 'The following migrations exist in the database but not in the migrations folder.\nSelect the ones you want to remove from the file system.',
-          name: 'migrationsToDelete',
-          choices: migrationsToDelete
-        })
-
-        migrationsToDelete = answers.migrationsToDelete
-      }
+      migrationsToDelete = await this.choseMigrations(migrationsToDelete, 'The following migrations exist in the database but not in the migrations folder.\nSelect the ones you want to remove from the file system')
 
       const migrationsToDeleteDocs = await this.migrationModel.find({ name: { $in: migrationsToDelete } }).lean().exec()
 
       if (migrationsToDelete.length) {
-        this.log(`Removing migration(s) from database: \n${migrationsToDelete.join('\n, ').cyan} `)
+        this.log(`Removing migration(s) from database: \n${migrationsToDelete.join('\n').cyan} `)
         await this.migrationModel.deleteMany({ name: { $in: migrationsToDelete } }).exec()
       }
 
