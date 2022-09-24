@@ -41,6 +41,7 @@ class Migrator {
 
   constructor (options: IMigratorOptions) {
     this.template = defaultTemplate
+
     if (options.templatePath && fs.existsSync(options.templatePath)) {
       this.template = fs.readFileSync(options.templatePath, 'utf8')
     }
