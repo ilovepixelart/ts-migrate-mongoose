@@ -181,10 +181,11 @@ describe('library', () => {
     }).toThrowError('No mongoose connection or mongo uri provided to migrator')
   })
 
-  it('should ensure migrations path', () => {
+  it('should ensure migrations path', async () => {
     fs.rmdirSync('migrations', { recursive: true })
     const migrator = new Migrator({ connection })
     expect(migrator).toBeInstanceOf(Migrator)
     expect(fs.existsSync('migrations')).toBe(true)
+    await migrator.close()
   })
 })
