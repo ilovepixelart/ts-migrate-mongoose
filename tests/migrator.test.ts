@@ -1,5 +1,4 @@
 import fs from 'fs'
-import path from 'path'
 import colors from 'colors'
 import inquirer from 'inquirer'
 import mongoose, { Connection, Types } from 'mongoose'
