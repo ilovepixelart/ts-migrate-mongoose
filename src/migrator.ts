@@ -130,6 +130,7 @@ class Migrator {
     await new Promise((resolve, reject) => {
       const callPromise = migrationFunction.call(
         this.connection.model.bind(this.connection),
+        /* istanbul ignore next */
         function callback (err: Error) {
           if (err) return reject(err)
           resolve(null)

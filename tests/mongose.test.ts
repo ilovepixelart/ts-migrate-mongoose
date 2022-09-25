@@ -6,6 +6,7 @@ describe('mongoose', () => {
 
   beforeAll(async () => {
     connection = await mongoose.createConnection(uri).asPromise()
+    await connection.collection('migrations').deleteMany({})
   })
 
   afterAll(async () => {
