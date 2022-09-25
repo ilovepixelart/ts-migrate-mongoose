@@ -29,9 +29,9 @@ describe('library', () => {
     expect(migrator).toBeInstanceOf(Migrator)
 
     await migrator.connected()
-    expect(migrator.connection.readyState).toEqual(1)
+    expect(migrator.connection.readyState).toBe(1)
 
-    await expect(migrator.run('up')).rejects.toThrowError('There are no pending migrations')
+    await expect(migrator.run('up')).rejects.toThrow('There are no pending migrations')
   })
 
   it('should throw "There is already a migration with name \'create-users\' in the database"', async () => {
@@ -40,12 +40,12 @@ describe('library', () => {
     expect(migrator).toBeInstanceOf(Migrator)
 
     await migrator.connected()
-    expect(migrator.connection.readyState).toEqual(1)
+    expect(migrator.connection.readyState).toBe(1)
 
     const migration = await migrator.create(migrationName)
     expect(migration.filename).toContain(migrationName)
 
-    await expect(migrator.create(migrationName)).rejects.toThrowError(`There is already a migration with name '${migrationName}' in the database`)
+    await expect(migrator.create(migrationName)).rejects.toThrow(`There is already a migration with name '${migrationName}' in the database`)
   })
 
   it('should throw "The direction \'sideways\' is not supported, use the \'up\' or \'down\' direction"', async () => {
@@ -55,22 +55,12 @@ describe('library', () => {
     expect(migrator).toBeInstanceOf(Migrator)
 
     await migrator.connected()
-    expect(migrator.connection.readyState).toEqual(1)
+    expect(migrator.connection.readyState).toBe(1)
 
     const migration = await migrator.create(migrationName)
     expect(migration.filename).toContain(migrationName)
 
-    await expect(migrator.run(direction)).rejects.toThrowError(`The direction '${direction}' is not supported, use the 'up' or 'down' direction`)
-  })
-
-  it('should throw "There are no pending migrations"', async () => {
-    const migrator = new Migrator({ connection, cli: true })
-    expect(migrator).toBeInstanceOf(Migrator)
-
-    await migrator.connected()
-    expect(migrator.connection.readyState).toEqual(1)
-
-    await expect(migrator.run('up')).rejects.toThrowError('There are no pending migrations')
+    await expect(migrator.run(direction)).rejects.toThrow(`The direction '${direction}' is not supported, use the 'up' or 'down' direction`)
   })
 
   it('should throw "Could not find that migration in the database"', async () => {
@@ -79,9 +69,9 @@ describe('library', () => {
     expect(migrator).toBeInstanceOf(Migrator)
 
     await migrator.connected()
-    expect(migrator.connection.readyState).toEqual(1)
+    expect(migrator.connection.readyState).toBe(1)
 
-    await expect(migrator.run('down', migrationName)).rejects.toThrowError('Could not find that migration in the database')
+    await expect(migrator.run('down', migrationName)).rejects.toThrow('Could not find that migration in the database')
   })
 
   it('should create migrator with mongoose connection', async () => {
@@ -89,10 +79,10 @@ describe('library', () => {
     expect(migrator).toBeInstanceOf(Migrator)
 
     await migrator.connected()
-    expect(migrator.connection.readyState).toEqual(1)
+    expect(migrator.connection.readyState).toBe(1)
 
     await migrator.close()
-    expect(migrator.connection.readyState).toEqual(0)
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should create migrator with uri', async () => {
@@ -100,10 +90,10 @@ describe('library', () => {
     expect(migrator).toBeInstanceOf(Migrator)
 
     await migrator.connected()
-    expect(migrator.connection.readyState).toEqual(1)
+    expect(migrator.connection.readyState).toBe(1)
 
     await migrator.close()
-    expect(migrator.connection.readyState).toEqual(0)
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should insert a doc into collection with migrator', async () => {
@@ -142,7 +132,7 @@ describe('library', () => {
 
     // Close the underlying connection to mongo
     await migrator.close()
-    expect(migrator.connection.readyState).toEqual(0)
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should prune all migrations', async () => {
@@ -169,17 +159,17 @@ describe('library', () => {
     expect(migrations[0].name).toBe(migrationName)
 
     const migrationsInDB = await migrator.migrationModel.find({})
-    expect(migrationsInDB.length).toBe(0)
+    expect(migrationsInDB).toHaveLength(0)
 
     await migrator.close()
-    expect(migrator.connection.readyState).toEqual(0)
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should throw "No mongoose connection or mongo uri provided to migrator"', () => {
     expect(() => {
       const migrator = new Migrator({ uri: '' })
       expect(migrator).toBeInstanceOf(Migrator)
-    }).toThrowError('No mongoose connection or mongo uri provided to migrator')
+    }).toThrow('No mongoose connection or mongo uri provided to migrator')
   })
 
   it('should ensure migrations path', async () => {
@@ -196,7 +186,7 @@ describe('library', () => {
       name: 'test-migration',
       createdAt: new Date()
     })
-    expect(migrator.runMigrations([migration], 'up', [])).rejects.toThrowError(/Cannot find module/)
+    await expect(migrator.runMigrations([migration], 'up', [])).rejects.toThrow(/Cannot find module/)
   })
 
   it('should log "Adding migration"', async () => {
@@ -204,7 +194,7 @@ describe('library', () => {
     const migration = await migrator.create('test-migration')
     clearDirectory('migrations')
     const migrations = await migrator.syncMigrations([migration.filename])
-    expect(migrations.length).toBe(1)
+    expect(migrations).toHaveLength(1)
     expect(migrations[0].name).toBe('test-migration')
   })
 
@@ -215,7 +205,7 @@ describe('library', () => {
     expect(answers).toEqual(['1'])
   })
 
-  it('should choose first', async () => {
+  it('should choose all', async () => {
     jest.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
     const migrator = new Migrator({ connection, autosync: true })
     const answers = await migrator.choseMigrations(['1', '2', '3'], 'Message')
@@ -228,7 +218,7 @@ describe('library', () => {
     jest.spyOn(migrator, 'getMigrations').mockImplementation(async () => {
       throw new Error('Sync error')
     })
-    await expect(migrator.sync()).rejects.toThrowError('Sync error')
+    await expect(migrator.sync()).rejects.toThrow('Sync error')
   })
 
   it('should throw on prune', async () => {
@@ -237,6 +227,6 @@ describe('library', () => {
     jest.spyOn(migrator, 'getMigrations').mockImplementation(async () => {
       throw new Error('Sync error')
     })
-    await expect(migrator.prune()).rejects.toThrowError('Sync error')
+    await expect(migrator.prune()).rejects.toThrow('Sync error')
   })
 })

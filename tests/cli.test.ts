@@ -22,12 +22,13 @@ describe('cli', () => {
   const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
   let connection: Connection
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     clearDirectory('migrations')
     connection = await mongoose.createConnection(uri).asPromise()
+    await connection.collection('migrations').deleteMany({})
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     if (connection.readyState !== 0) {
       await connection.close()
     }
@@ -51,8 +52,8 @@ describe('cli', () => {
     expect(opts?.collection).toBe('migrations')
     expect(opts?.autosync).toBe(false)
     expect(opts?.migrationsPath).toBe('./migrations')
-    expect(consoleSpy).toBeCalledWith('Listing migrations'.cyan)
-    expect(consoleSpy).toBeCalledWith('There are no migrations to list'.yellow)
+    expect(consoleSpy).toHaveBeenCalledWith('Listing migrations'.cyan)
+    expect(consoleSpy).toHaveBeenCalledWith('There are no migrations to list'.yellow)
   })
 
   it('should run create command', async () => {
@@ -63,11 +64,12 @@ describe('cli', () => {
     expect(opts?.collection).toBe('migrations')
     expect(opts?.autosync).toBe(false)
     expect(opts?.migrationsPath).toBe('./migrations')
-    expect(consoleSpy).toBeCalledWith(expect.stringMatching(/^Created migration migration-name-test in/))
-    expect(consoleSpy).toBeCalledWith(expect.stringMatching(/^Migration created/))
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(/^Created migration migration-name-test in/))
   })
 
   it('should run up command', async () => {
+    const migrationName = 'migration-name-test'
+    await exec('create', migrationName, '-d', uri)
     const consoleSpy = jest.spyOn(console, 'log')
     const opts = await exec('up', '-d', uri)
     expect(opts?.configPath).toBe('migrate')
@@ -75,11 +77,15 @@ describe('cli', () => {
     expect(opts?.collection).toBe('migrations')
     expect(opts?.autosync).toBe(false)
     expect(opts?.migrationsPath).toBe('./migrations')
-    expect(consoleSpy).toBeCalledWith(expect.stringMatching(/^up:/) && expect.stringMatching(/migration-name-test/))
-    expect(consoleSpy).toBeCalledWith('All migrations finished successfully'.green)
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(/up:/))
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(migrationName))
+    expect(consoleSpy).toHaveBeenCalledWith('All migrations finished successfully'.green)
   })
 
   it('should run down command', async () => {
+    const migrationName = 'migration-name-test'
+    await exec('create', migrationName, '-d', uri)
+    await exec('up', migrationName, '-d', uri)
     const consoleSpy = jest.spyOn(console, 'log')
     const opts = await exec('down', 'migration-name-test', '-d', uri)
     expect(opts?.configPath).toBe('migrate')
@@ -87,12 +93,12 @@ describe('cli', () => {
     expect(opts?.collection).toBe('migrations')
     expect(opts?.autosync).toBe(false)
     expect(opts?.migrationsPath).toBe('./migrations')
-    expect(consoleSpy).toBeCalledWith(expect.stringMatching(/^down:/) && expect.stringMatching(/migration-name-test/))
-    expect(consoleSpy).toBeCalledWith('All migrations finished successfully'.green)
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(migrationName))
+    expect(consoleSpy).toHaveBeenCalledWith('All migrations finished successfully'.green)
   })
 
   it('should throw "You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI."', async () => {
-    expect(exec('up', 'invalid-migration-name')).rejects.toThrowError('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.')
+    await expect(exec('up', 'invalid-migration-name')).rejects.toThrow('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.')
   })
 
   it('should prune command', async () => {
@@ -103,7 +109,7 @@ describe('cli', () => {
 
     const consoleSpy = jest.spyOn(console, 'log')
     const opts = await exec('prune', '-d', uri, '-a', 'true')
-    expect(consoleSpy).toBeCalledWith(expect.stringMatching(/^Removing migration(s) from database/) && expect.stringMatching(/migration-name-test/))
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(/Removing migration\(s\) from database/))
     expect(opts?.configPath).toBe('migrate')
     expect(opts?.uri).toBe(uri)
     expect(opts?.collection).toBe('migrations')
@@ -130,15 +136,15 @@ describe('cli', () => {
     await exec('up', '-d', uri)
     const consoleSpy = jest.spyOn(console, 'log')
     await exec('up', '-d', uri)
-    expect(consoleSpy).toBeCalledWith('There are no pending migrations'.yellow)
+    expect(consoleSpy).toHaveBeenCalledWith('There are no pending migrations'.yellow)
   })
 
-  it('should throw "The up export is not defined in"', async () => {
+  it('should throw "The \'up\' export is not defined in"', async () => {
     clearDirectory('migrations')
     await connection.collection('migrations').deleteMany({})
     fs.appendFileSync('migrations/template.ts', 'export function down () { /* do nothing */ }')
     await exec('create', 'test-migration', '-d', uri, '-t', 'migrations/template.ts')
-    await expect(exec('up', '-d', uri)).rejects.toThrowError(/The 'up' export is not defined in/)
+    await expect(exec('up', '-d', uri)).rejects.toThrow(/The 'up' export is not defined in/)
   })
 
   it('should throw "Failed to run migration"', async () => {
@@ -146,6 +152,6 @@ describe('cli', () => {
     await connection.collection('migrations').deleteMany({})
     fs.appendFileSync('migrations/template.ts', 'export function up () { throw new Error("Failed to run migration") }')
     await exec('create', 'test-migration', '-d', uri, '-t', 'migrations/template.ts')
-    await expect(exec('up', '-d', uri)).rejects.toThrowError(/Failed to run migration/)
+    await expect(exec('up', '-d', uri)).rejects.toThrow(/Failed to run migration/)
   })
 })
