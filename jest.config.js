@@ -6,12 +6,19 @@ const ts = require('ts-jest/jest-preset')
 const mongo = require('@shelf/jest-mongodb/jest-preset')
 
 const config = merge.recursive(ts, mongo, {
+  roots: ['<rootDir>/src/', '<rootDir>/tests/'],
   clearMocks: true,
+  collectCoverage: true,
   collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/bin.ts'
+    'src/**/*.[jt]s?(x)',
+    '!src/bin.ts',
+    '!src/**/*.d.ts',
+    '!src/interfaces/**/*.[jt]s?(x)'
   ],
   coverageDirectory: 'coverage',
+  testMatch: [
+    '<rootDir>/tests/**/*.test.ts'
+  ],
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
       isolatedModules: true,
@@ -20,13 +27,12 @@ const config = merge.recursive(ts, mongo, {
       importHelpers: true
     }]
   },
-  testMatch: [
-    '<rootDir>/tests/**/*.test.ts'
-  ],
   testPathIgnorePatterns: [
-    '/node_modules/'
+    'node_modules'
   ],
-  watchPathIgnorePatterns: ['globalConfig']
+  watchPathIgnorePatterns: [
+    'globalConfig'
+  ]
 })
 
 module.exports = config

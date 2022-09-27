@@ -5,6 +5,7 @@ import mongoose, { Connection, Types } from 'mongoose'
 
 import Migrator from '../src/migrator'
 import { clearDirectory } from '../utils/filesystem'
+import { exec } from 'child_process'
 
 colors.enable()
 
@@ -228,5 +229,44 @@ describe('library', () => {
       throw new Error('Sync error')
     })
     await expect(migrator.prune()).rejects.toThrow('Sync error')
+  })
+
+  it('should get migrations', async () => {
+    const migrator = new Migrator({ connection })
+    await migrator.create('test-migration1')
+    await migrator.create('test-migration2')
+    await migrator.create('test-migration3')
+    await migrator.run('up', 'test-migration1')
+    const { migrationsInDb, migrationsInFs } = await migrator.getMigrations()
+    expect(migrationsInDb).toHaveLength(3)
+
+    expect(migrationsInDb[0].name).toBe('test-migration1')
+    expect(migrationsInDb[0].state).toBe('up')
+    expect(migrationsInDb[0].filename).toMatch(/^\d{13,}-test-migration1.ts/)
+
+    expect(migrationsInDb[1].name).toBe('test-migration2')
+    expect(migrationsInDb[1].state).toBe('down')
+    expect(migrationsInDb[1].filename).toMatch(/^\d{13,}-test-migration2.ts/)
+
+    expect(migrationsInDb[2].name).toBe('test-migration3')
+    expect(migrationsInDb[2].state).toBe('down')
+    expect(migrationsInDb[2].filename).toMatch(/^\d{13,}-test-migration3.ts/)
+
+    expect(migrationsInFs).toHaveLength(3)
+
+    expect(migrationsInFs[0].filename).toMatch(/^\d{13,}-test-migration1.ts/)
+    expect(migrationsInFs[0].existsInDatabase).toBe(true)
+
+    expect(migrationsInFs[1].filename).toMatch(/^\d{13,}-test-migration2.ts/)
+    expect(migrationsInFs[1].existsInDatabase).toBe(true)
+
+    expect(migrationsInFs[2].filename).toMatch(/^\d{13,}-test-migration3.ts/)
+    expect(migrationsInFs[2].existsInDatabase).toBe(true)
+
+    expect(migrationsInDb[0].filename).toBe(migrationsInFs[0].filename)
+    expect(migrationsInDb[1].filename).toBe(migrationsInFs[1].filename)
+    expect(migrationsInDb[2].filename).toBe(migrationsInFs[2].filename)
+
+    await migrator.close()
   })
 })
