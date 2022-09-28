@@ -4,7 +4,7 @@ import path from 'path'
 import colors from 'colors'
 import { register } from 'ts-node'
 
-import mongoose, { Connection, FilterQuery, HydratedDocument, LeanDocument, Model } from 'mongoose'
+import mongoose, { Connection, FilterQuery, HydratedDocument, LeanDocument, Model, Mongoose } from 'mongoose'
 
 import type IMigration from './interfaces/IMigration'
 import type IMigratorOptions from './interfaces/IMigratorOptions'
@@ -15,10 +15,20 @@ import { getMigrationModel } from './model'
 colors.enable()
 register(registerOptions)
 
-const defaultTemplate = `/**
+const connect = async (mongoose: Mongoose, cli: boolean, uri: string | undefined) => {
+  if (cli && uri && mongoose.connection.readyState !== 1) {
+    console.log('Connecting to database...'.yellow, uri)
+    await mongoose.connect(uri)
+  }
+}
+
+const defaultTemplate = `import mongoose from 'mongoose'
+
+/**
  * Make any changes you need to make to the database here
  */
 export async function up () {
+  await this.connect(mongoose)
   // Write migration here
 }
 
@@ -26,6 +36,7 @@ export async function up () {
  * Make any changes that UNDO the up function side effects here (if possible)
  */
 export async function down () {
+  await this.connect(mongoose)
   // Write migration here
 }
 `
@@ -57,6 +68,7 @@ class Migrator {
     if (options.connection) {
       this.connection = options.connection
     } else if (options.uri) {
+      this.uri = options.uri
       this.connection = mongoose.createConnection(options.uri, { autoCreate: true })
     } else {
       throw new Error('No mongoose connection or mongo uri provided to migrator'.red)
@@ -126,34 +138,12 @@ class Migrator {
     return migrations
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  async callMigrationFunction (migrationFunction: Function, args: unknown[]) {
-    await new Promise((resolve, reject) => {
-      const call = migrationFunction.call(
-        this.connection.model.bind(this.connection),
-        /* istanbul ignore next */
-        function callback (err: Error) {
-          if (err) return reject(err)
-          resolve(null)
-        },
-        ...args
-      )
-
-      if (call && (typeof call.then === 'function' || call instanceof Promise)) {
-        call.then(resolve).catch(reject)
-      }
-    })
-  }
-
   logMigrationStatus (direction: 'up' | 'down', filename: string) {
     this.log(`${direction}:`[direction === 'up' ? 'green' : 'red'] + ` ${filename} `)
   }
 
   async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'up' | 'down', args: unknown[]) {
     const migrationsRan: LeanDocument<IMigration>[] = []
-    if (migrationsToRun.length && this.cli === true && this.uri && mongoose.connection.readyState !== 1) {
-      await mongoose.connect(this.uri)
-    }
     for await (const migration of migrationsToRun) {
       const migrationFilePath = path.join(this.migrationPath, migration.filename)
       const migrationFunctions = await import(migrationFilePath)
@@ -164,7 +154,10 @@ class Migrator {
       }
 
       try {
-        await this.callMigrationFunction(migrationFunction, args)
+        const fn = migrationFunction.bind({
+          connect: (mongoose: Mongoose) => connect(mongoose, this.cli, this.uri)
+        })
+        await fn()
 
         this.logMigrationStatus(direction, migration.filename)
 
