@@ -15,10 +15,12 @@ import { getMigrationModel } from './model'
 colors.enable()
 register(registerOptions)
 
+let cliMongoose: Mongoose = mongoose
 const connect = async (mongoose: Mongoose, cli: boolean, uri: string | undefined) => {
   if (cli && uri && mongoose.connection.readyState !== 1) {
-    console.log('Connecting to database...'.yellow, uri)
+    console.log('Connecting to database...'.yellow)
     await mongoose.connect(uri)
+    cliMongoose = mongoose
   }
 }
 
@@ -157,7 +159,7 @@ class Migrator {
         const fn = migrationFunction.bind({
           connect: (mongoose: Mongoose) => connect(mongoose, this.cli, this.uri)
         })
-        await fn()
+        await fn(...args)
 
         this.logMigrationStatus(direction, migration.filename)
 
@@ -168,6 +170,10 @@ class Migrator {
         this.log('Not continuing. Make sure your data is in consistent state'.red)
         throw err instanceof (Error) ? err : new Error(err as string)
       }
+    }
+
+    if (this.cli && this.uri) {
+      await cliMongoose.disconnect()
     }
 
     return migrationsRan
