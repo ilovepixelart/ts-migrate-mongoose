@@ -31,6 +31,7 @@ export async function down () {
 `
 
 class Migrator {
+  uri?: string
   template: string
   migrationPath: string
   connection: Connection
@@ -150,7 +151,9 @@ class Migrator {
 
   async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'up' | 'down', args: unknown[]) {
     const migrationsRan: LeanDocument<IMigration>[] = []
-
+    if (migrationsToRun.length && this.cli === true && this.uri && mongoose.connection.readyState !== 1) {
+      await mongoose.connect(this.uri)
+    }
     for await (const migration of migrationsToRun) {
       const migrationFilePath = path.join(this.migrationPath, migration.filename)
       const migrationFunctions = await import(migrationFilePath)
