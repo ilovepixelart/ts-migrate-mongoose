@@ -129,7 +129,7 @@ class Migrator {
   // eslint-disable-next-line @typescript-eslint/ban-types
   async callMigrationFunction (migrationFunction: Function, args: unknown[]) {
     await new Promise((resolve, reject) => {
-      const callPromise = migrationFunction.call(
+      const call = migrationFunction.call(
         this.connection.model.bind(this.connection),
         /* istanbul ignore next */
         function callback (err: Error) {
@@ -139,8 +139,8 @@ class Migrator {
         ...args
       )
 
-      if (callPromise && typeof callPromise.then === 'function') {
-        callPromise.then(resolve).catch(reject)
+      if (call && (typeof call.then === 'function' || call instanceof Promise)) {
+        call.then(resolve).catch(reject)
       }
     })
   }
@@ -206,8 +206,6 @@ class Migrator {
     const now = Date.now()
     const newMigrationFile = `${now}-${migrationName}.ts`
     fs.writeFileSync(path.join(this.migrationPath, newMigrationFile), this.template)
-    // create instance in db
-    await this.connected()
     const migrationCreated = await this.migrationModel.create({
       name: migrationName,
       createdAt: now
@@ -222,7 +220,6 @@ class Migrator {
    * @param direction
    */
   async run (direction: 'up' | 'down' = 'up', migrationName?: string, ...args: unknown[]): Promise<LeanDocument<IMigration>[]> {
-    await this.connected()
     await this.sync()
 
     if (direction !== 'up' && direction !== 'down') {
@@ -329,7 +326,6 @@ class Migrator {
    *   ]
    */
   async list (): Promise<LeanDocument<IMigration>[]> {
-    await this.connected()
     await this.sync()
     const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
     if (!migrations.length) this.log('There are no migrations to list'.yellow)
