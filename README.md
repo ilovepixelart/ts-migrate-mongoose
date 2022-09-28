@@ -218,25 +218,17 @@ export default model<IUser>('user', UserSchema)
 - 1662715725041-first-migration-demo.ts
 
 ```typescript
+import mongoose from 'mongoose'
 import User from '../models/User'
 
 export async function up() {
+  await this.connect(mongoose)
   // Then you can use it in the migration like so  
   await User.create({ firstName: 'Ada', lastName: 'Lovelace' })
   
   // Or do something such as
   const users = await User.find()
   /* Do something with users */
-}
-```
-
-If you're using the package programmatically. You can access your models using the connection you constructed the Migrator with through the `this` context.
-
-```typescript
-export async function up() {
-  // "this('user')"  is the same as calling "connection.model('user')"
-  // using the connection you passed to the Migrator constructor.
-  await this('user').create({ firstName: 'Ada', lastName: 'Lovelace' })
 }
 ```
 
