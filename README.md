@@ -164,10 +164,13 @@ Here's an example of a migration created using `migrate create some-migration-na
 - 1662715725041-first-migration-demo.ts
 
 ```typescript
+import mongoose from 'mongoose'
+
 /**
  * Make any changes you need to make to the database here
  */
 export async function up () {
+  await this.connect(mongoose)
   // Write migration here
 }
 
@@ -175,6 +178,7 @@ export async function up () {
  * Make any changes that UNDO the up function side effects here (if possible)
  */
 export async function down () {
+  await this.connect(mongoose)
   // Write migration here
 }
 ```
