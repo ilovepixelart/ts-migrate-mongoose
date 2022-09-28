@@ -15,7 +15,7 @@ import { getMigrationModel } from './model'
 colors.enable()
 register(registerOptions)
 
-let cliMongoose: Mongoose = mongoose
+let cliMongoose: Mongoose | null = null
 const connect = async (mongoose: Mongoose, cli: boolean, uri: string | undefined) => {
   if (cli && uri && mongoose.connection.readyState !== 1) {
     console.log('Connecting to database...'.yellow)
@@ -172,7 +172,7 @@ class Migrator {
       }
     }
 
-    if (this.cli && this.uri) {
+    if (cliMongoose) {
       await cliMongoose.disconnect()
     }
 
