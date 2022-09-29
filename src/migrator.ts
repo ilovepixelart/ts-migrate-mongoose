@@ -4,7 +4,7 @@ import path from 'path'
 import colors from 'colors'
 import { register } from 'ts-node'
 
-import mongoose, { Connection, FilterQuery, HydratedDocument, LeanDocument, Model, Mongoose } from 'mongoose'
+import mongoose, { Connection, FilterQuery, HydratedDocument, LeanDocument, Model } from 'mongoose'
 
 import type IMigration from './interfaces/IMigration'
 import type IMigratorOptions from './interfaces/IMigratorOptions'
@@ -15,22 +15,10 @@ import { getMigrationModel } from './model'
 colors.enable()
 register(registerOptions)
 
-let cliMongoose: Mongoose | null = null
-const connect = async (mongoose: Mongoose, cli: boolean, uri: string | undefined) => {
-  if (cli && uri && mongoose.connection.readyState !== 1) {
-    console.log('Connecting to database...'.yellow)
-    await mongoose.connect(uri)
-    cliMongoose = mongoose
-  }
-}
-
-const defaultTemplate = `import mongoose from 'mongoose'
-
-/**
+const defaultTemplate = `/**
  * Make any changes you need to make to the database here
  */
 export async function up () {
-  await this.connect(mongoose)
   // Write migration here
 }
 
@@ -38,13 +26,11 @@ export async function up () {
  * Make any changes that UNDO the up function side effects here (if possible)
  */
 export async function down () {
-  await this.connect(mongoose)
   // Write migration here
 }
 `
 
 class Migrator {
-  uri?: string
   template: string
   migrationPath: string
   connection: Connection
@@ -70,7 +56,6 @@ class Migrator {
     if (options.connection) {
       this.connection = options.connection
     } else if (options.uri) {
-      this.uri = options.uri
       this.connection = mongoose.createConnection(options.uri, { autoCreate: true })
     } else {
       throw new Error('No mongoose connection or mongo uri provided to migrator'.red)
@@ -156,10 +141,7 @@ class Migrator {
       }
 
       try {
-        const fn = migrationFunction.bind({
-          connect: (mongoose: Mongoose) => connect(mongoose, this.cli, this.uri)
-        })
-        await fn(...args)
+        await migrationFunction(...args)
 
         this.logMigrationStatus(direction, migration.filename)
 
@@ -170,10 +152,6 @@ class Migrator {
         this.log('Not continuing. Make sure your data is in consistent state'.red)
         throw err instanceof (Error) ? err : new Error(err as string)
       }
-    }
-
-    if (cliMongoose) {
-      await cliMongoose.disconnect()
     }
 
     return migrationsRan
