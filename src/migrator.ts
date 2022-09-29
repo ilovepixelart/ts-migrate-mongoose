@@ -4,7 +4,7 @@ import path from 'path'
 import colors from 'colors'
 import { register } from 'ts-node'
 
-import mongoose, { Connection, FilterQuery, HydratedDocument, LeanDocument, Model } from 'mongoose'
+import { createConnection, Connection, FilterQuery, HydratedDocument, LeanDocument, Model, Mongoose } from 'mongoose'
 
 import type IMigration from './interfaces/IMigration'
 import type IMigratorOptions from './interfaces/IMigratorOptions'
@@ -15,10 +15,13 @@ import { getMigrationModel } from './model'
 colors.enable()
 register(registerOptions)
 
-const defaultTemplate = `/**
+const defaultTemplate = `import mongoose from 'mongoose'
+
+/**
  * Make any changes you need to make to the database here
  */
 export async function up () {
+  await this.connect(mongoose)
   // Write migration here
 }
 
@@ -26,13 +29,16 @@ export async function up () {
  * Make any changes that UNDO the up function side effects here (if possible)
  */
 export async function down () {
+  await this.connect(mongoose)
   // Write migration here
 }
 `
 
 class Migrator {
+  uri: string | null = null
+  mongoose: Mongoose | null = null
   template: string
-  migrationPath: string
+  migrationsPath: string
   connection: Connection
   collection: string
   autosync: boolean
@@ -46,17 +52,18 @@ class Migrator {
       this.template = fs.readFileSync(options.templatePath, 'utf8')
     }
 
-    this.migrationPath = path.resolve(options.migrationsPath || './migrations')
+    this.migrationsPath = path.resolve(options.migrationsPath || './migrations')
     this.collection = options.collection || 'migrations'
     this.autosync = options.autosync || false
     this.cli = options.cli || false
 
-    this.ensureMigrationPath()
+    this.ensureMigrationsPath()
 
     if (options.connection) {
       this.connection = options.connection
     } else if (options.uri) {
-      this.connection = mongoose.createConnection(options.uri, { autoCreate: true })
+      this.uri = options.uri
+      this.connection = createConnection(options.uri, { autoCreate: true })
     } else {
       throw new Error('No mongoose connection or mongo uri provided to migrator'.red)
     }
@@ -64,9 +71,9 @@ class Migrator {
     this.migrationModel = getMigrationModel(this.connection, this.collection)
   }
 
-  ensureMigrationPath () {
-    if (!fs.existsSync(this.migrationPath)) {
-      fs.mkdirSync(this.migrationPath, { recursive: true })
+  ensureMigrationsPath () {
+    if (!fs.existsSync(this.migrationsPath)) {
+      fs.mkdirSync(this.migrationsPath, { recursive: true })
     }
   }
 
@@ -82,7 +89,7 @@ class Migrator {
 
   async syncMigrations (migrationsInFs: string[]) {
     const promises = migrationsInFs.map(async (filename) => {
-      const filePath = path.join(this.migrationPath, filename)
+      const filePath = path.join(this.migrationsPath, filename)
       const timestampSeparatorIndex = filename.indexOf('-')
       const timestamp = filename.slice(0, timestampSeparatorIndex)
       const migrationName = filename.slice(timestampSeparatorIndex + 1, filename.lastIndexOf('.'))
@@ -99,7 +106,7 @@ class Migrator {
   }
 
   async getMigrations () {
-    const files = fs.readdirSync(this.migrationPath)
+    const files = fs.readdirSync(this.migrationsPath)
     const migrationsInDb = await this.migrationModel.find({}).exec()
     const migrationsInFs = files
       .filter((filename) => /^\d{13,}-/.test(filename) && filename.endsWith('.ts'))
@@ -131,8 +138,14 @@ class Migrator {
 
   async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'up' | 'down', args: unknown[]) {
     const migrationsRan: LeanDocument<IMigration>[] = []
+    const connect = async (mongoose: Mongoose) => {
+      if (this.cli && this.uri && mongoose.connection.readyState !== 1) {
+        await mongoose.connect(this.uri)
+        this.mongoose = mongoose
+      }
+    }
     for await (const migration of migrationsToRun) {
-      const migrationFilePath = path.join(this.migrationPath, migration.filename)
+      const migrationFilePath = path.join(this.migrationsPath, migration.filename)
       const migrationFunctions = await import(migrationFilePath)
 
       const migrationFunction = migrationFunctions[direction]
@@ -141,7 +154,9 @@ class Migrator {
       }
 
       try {
-        await migrationFunction(...args)
+        await migrationFunction.apply({
+          connect: (mongoose: Mongoose) => connect(mongoose)
+        }, ...args)
 
         this.logMigrationStatus(direction, migration.filename)
 
@@ -163,6 +178,9 @@ class Migrator {
    */
   async close (): Promise<void> {
     if (this.connection) {
+      if (this.mongoose) {
+        await this.mongoose.disconnect()
+      }
       await this.connection.close()
     }
   }
@@ -182,12 +200,12 @@ class Migrator {
     await this.sync()
     const now = Date.now()
     const newMigrationFile = `${now}-${migrationName}.ts`
-    fs.writeFileSync(path.join(this.migrationPath, newMigrationFile), this.template)
+    fs.writeFileSync(path.join(this.migrationsPath, newMigrationFile), this.template)
     const migrationCreated = await this.migrationModel.create({
       name: migrationName,
       createdAt: now
     })
-    this.log(`Created migration ${migrationName} in ${this.migrationPath}`)
+    this.log(`Created migration ${migrationName} in ${this.migrationsPath}`)
     return migrationCreated
   }
 
