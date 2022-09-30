@@ -2,8 +2,7 @@ import mongoose from 'mongoose'
 // Import your models here
 import User from '../models/User'
 
-// https://mongoosejs.com/docs/guide.html#strictQuery
-mongoose.set('strictQuery', false)
+mongoose.set('strictQuery', false) // https://mongoosejs.com/docs/guide.html#strictQuery
 /**
  * Make any changes you need to make to the database here
  */
