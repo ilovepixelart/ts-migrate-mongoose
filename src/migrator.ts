@@ -16,7 +16,10 @@ colors.enable()
 register(registerOptions)
 
 const defaultTemplate = `import mongoose from 'mongoose'
+// Import your models here
 
+# https://mongoosejs.com/docs/guide.html#strictQuery
+mongoose.set('strictQuery', false)
 /**
  * Make any changes you need to make to the database here
  */
@@ -35,8 +38,8 @@ export async function down () {
 `
 
 class Migrator {
-  uri: string | null = null
-  mongoose: Mongoose | null = null
+  uri: string | undefined
+  mongoose: Mongoose | undefined
   template: string
   migrationsPath: string
   connection: Connection
@@ -63,7 +66,7 @@ class Migrator {
       this.connection = options.connection
     } else if (options.uri) {
       this.uri = options.uri
-      this.connection = createConnection(options.uri, { autoCreate: true })
+      this.connection = createConnection(this.uri, { autoCreate: true })
     } else {
       throw new Error('No mongoose connection or mongo uri provided to migrator'.red)
     }

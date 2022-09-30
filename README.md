@@ -165,7 +165,10 @@ Here's an example of a migration created using `migrate create some-migration-na
 
 ```typescript
 import mongoose from 'mongoose'
+// Import your models here
 
+// https://mongoosejs.com/docs/guide.html#strictQuery
+mongoose.set('strictQuery', false)
 /**
  * Make any changes you need to make to the database here
  */
@@ -219,11 +222,17 @@ export default model<IUser>('user', UserSchema)
 
 ```typescript
 import mongoose from 'mongoose';
+// Import your models here
 import User from '../models/User'
 
+// https://mongoosejs.com/docs/guide.html#strictQuery
+mongoose.set('strictQuery', false)
+/**
+ * Make any changes you need to make to the database here
+ */
 export async function up() {
   await this.connect(mongoose)
-  // Then you can use it in the migration like so  
+  // Then you can use it in the migration like so 
   await User.create({ firstName: 'Ada', lastName: 'Lovelace' })
   
   // Or do something such as

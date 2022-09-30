@@ -1,6 +1,9 @@
 import mongoose from 'mongoose'
+// Import your models here
 import User from '../models/User'
 
+// https://mongoosejs.com/docs/guide.html#strictQuery
+mongoose.set('strictQuery', false)
 /**
  * Make any changes you need to make to the database here
  */
