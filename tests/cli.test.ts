@@ -3,6 +3,7 @@ import colors from 'colors'
 import mongoose, { Connection } from 'mongoose'
 import { getMigrator, Migrate } from '../src/commander'
 import { clearDirectory } from '../utils/filesystem'
+import { defaultTemplate } from '../src/migrator'
 
 colors.enable()
 
@@ -153,5 +154,73 @@ describe('cli', () => {
     fs.appendFileSync('migrations/template.ts', 'export function up () { throw new Error("Failed to run migration") }')
     await exec('create', 'test-migration', '-d', uri, '-t', 'migrations/template.ts')
     await expect(exec('up', '-d', uri)).rejects.toThrow(/Failed to run migration/)
+  })
+
+  it('should disable strict', async () => {
+    clearDirectory('migrations')
+    await connection.collection('migrations').deleteMany({})
+    const testModel = `import { model, Schema } from 'mongoose'
+
+export interface IExample {
+  name: string
+  type: Date
+}
+
+export let ExampleSchema = new Schema({
+  name: {
+    type: Schema.Types.String,
+    required: true,
+  },
+  type: {
+    type: Schema.Types.Number,
+    required: true,
+  },
+})
+
+export default model<IExample>('Example', ExampleSchema)`
+
+    const testTemplate = defaultTemplate
+      .replace('// Import your models here', `
+import Example from './Example.ts'
+      `)
+      .replace('// Write migration here', `
+  await Example.insertMany([
+    {
+      name: 'test',
+      type: 1,
+    },
+    {
+      name: 'test2',
+      type: 1,
+    },
+    {
+      name: 'test3',
+      type: 2,
+    },
+    {
+      name: 'test4',
+      type: 2,
+    }
+  ])`)
+      .replace('// Write migration here', `
+  await Example.deleteMany({ propertyIsNotDefinedInSchema: 'some-value' })
+  await Example.deleteMany({ type: 1 })
+  `)
+
+    console.log(testModel)
+    console.log(testTemplate)
+
+    fs.appendFileSync('migrations/Example.ts', testModel)
+    fs.appendFileSync('migrations/template.ts', testTemplate)
+
+    await mongoose.connect(uri)
+    await exec('create', 'test-migration', '-d', uri, '-t', 'migrations/template.ts')
+    await exec('up', 'test-migration', '-d', uri)
+    const countUp = await mongoose.connection.collection('examples').countDocuments()
+    expect(countUp).toBe(4)
+    await exec('down', 'test-migration', '-d', uri)
+    const countDown = await mongoose.connection.collection('examples').countDocuments()
+    expect(countDown).toBe(2)
+    await mongoose.disconnect()
   })
 })

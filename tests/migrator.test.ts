@@ -5,7 +5,6 @@ import mongoose, { Connection, Types } from 'mongoose'
 
 import Migrator from '../src/migrator'
 import { clearDirectory } from '../utils/filesystem'
-import { exec } from 'child_process'
 
 colors.enable()
 
