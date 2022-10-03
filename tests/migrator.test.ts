@@ -1,12 +1,9 @@
 import fs from 'fs'
-import colors from 'colors'
 import inquirer from 'inquirer'
 import mongoose, { Connection, Types } from 'mongoose'
 
 import Migrator from '../src/migrator'
 import { clearDirectory } from '../utils/filesystem'
-
-colors.enable()
 
 describe('library', () => {
   const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`

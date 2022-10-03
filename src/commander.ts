@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 import path from 'path'
-import colors from 'colors'
+import chalk from 'chalk'
 import { Command, OptionValues } from 'commander'
 import Migrator from './migrator'
 import { register } from 'ts-node'
@@ -9,7 +9,6 @@ import { registerOptions } from './options'
 import type IOptions from './interfaces/IOptions'
 
 dotenv.config()
-colors.enable()
 register(registerOptions)
 
 export const getMigrator = async (options: IOptions): Promise<Migrator> => {
@@ -49,7 +48,7 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
     fileOptions.autosync)
 
   if (!uri) {
-    throw new Error('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.'.red)
+    throw new Error(chalk.red('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.'))
   }
 
   const migrator = new Migrator({
@@ -73,9 +72,9 @@ export class Migrate {
     this.program = new Command()
     this.program
       .name('migrate')
-      .description('CLI migration tool for mongoose'.cyan)
+      .description(chalk.cyan('CLI migration tool for mongoose'))
       .option('-f, --config-path <path>', 'path to the config file', 'migrate')
-      .option('-d, --uri <string>', 'mongo connection string'.yellow)
+      .option('-d, --uri <string>', chalk.yellow('mongo connection string'))
       .option('-c, --collection <string>', 'collection name to use for the migrations', 'migrations')
       .option('-a, --autosync <boolean>', 'automatically sync new migrations without prompt', false)
       .option('-m, --migrations-path <path>', 'path to the migration files', './migrations')
@@ -90,7 +89,7 @@ export class Migrate {
       .command('list')
       .description('list all migrations')
       .action(async () => {
-        console.log('Listing migrations'.cyan)
+        console.log(chalk.cyan('Listing migrations'))
         await this.migrator?.list()
       })
 
@@ -99,7 +98,7 @@ export class Migrate {
       .description('create a new migration file')
       .action(async (migrationName) => {
         await this.migrator?.create(migrationName)
-        console.log('Migration created. Run ' + `migrate up ${migrationName}`.cyan + ' to apply the migration')
+        console.log('Migration created. Run ' + chalk.cyan(`migrate up ${migrationName}`) + ' to apply the migration')
       })
 
     this.program

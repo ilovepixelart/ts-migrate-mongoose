@@ -1,7 +1,7 @@
 import fs from 'fs'
 import inquirer from 'inquirer'
 import path from 'path'
-import colors from 'colors'
+import chalk from 'chalk'
 import { register } from 'ts-node'
 
 import { createConnection, Connection, FilterQuery, HydratedDocument, LeanDocument, Model, Mongoose } from 'mongoose'
@@ -12,7 +12,6 @@ import type IMigratorOptions from './interfaces/IMigratorOptions'
 import { registerOptions } from './options'
 import { getMigrationModel } from './model'
 
-colors.enable()
 register(registerOptions)
 
 export const defaultTemplate = `/* eslint-disable import/first */
@@ -66,7 +65,7 @@ class Migrator {
       this.uri = options.uri
       this.connection = createConnection(this.uri, { autoCreate: true })
     } else {
-      throw new Error('No mongoose connection or mongo uri provided to migrator'.red)
+      throw new Error(chalk.red('No mongoose connection or mongo uri provided to migrator'))
     }
 
     this.migrationModel = getMigrationModel(this.connection, this.collection)
@@ -95,7 +94,7 @@ class Migrator {
       const timestamp = filename.slice(0, timestampSeparatorIndex)
       const migrationName = filename.slice(timestampSeparatorIndex + 1, filename.lastIndexOf('.'))
 
-      this.log(`Adding migration ${filePath} into database from file system. State is ` + 'down'.red)
+      this.log(`Adding migration ${filePath} into database from file system. State is ` + chalk.red('down'))
       const createdMigration = await this.migrationModel.create({
         name: migrationName,
         createdAt: timestamp
@@ -134,7 +133,7 @@ class Migrator {
   }
 
   logMigrationStatus (direction: 'up' | 'down', filename: string) {
-    this.log(`${direction}:`[direction === 'up' ? 'green' : 'red'] + ` ${filename} `)
+    this.log(chalk[direction === 'up' ? 'green' : 'red'](`${direction}:`) + ` ${filename} `)
   }
 
   async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'up' | 'down', args: unknown[]) {
@@ -151,7 +150,7 @@ class Migrator {
 
       const migrationFunction = migrationFunctions[direction]
       if (!migrationFunction) {
-        throw new Error(`The '${direction}' export is not defined in ${migration.filename}.`.red)
+        throw new Error(chalk.red(`The '${direction}' export is not defined in ${migration.filename}.`))
       }
 
       try {
@@ -164,8 +163,8 @@ class Migrator {
         await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
         migrationsRan.push(migration.toJSON())
       } catch (err: unknown) {
-        this.log(`Failed to run migration ${migration.name} due to an error`.red)
-        this.log('Not continuing. Make sure your data is in consistent state'.red)
+        this.log(chalk.red(`Failed to run migration ${migration.name} due to an error`))
+        this.log(chalk.red('Not continuing. Make sure your data is in consistent state'))
         throw err instanceof (Error) ? err : new Error(err as string)
       }
     }
@@ -195,7 +194,7 @@ class Migrator {
     await this.connected()
     const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     if (existingMigration) {
-      throw new Error(`There is already a migration with name '${migrationName}' in the database`.red)
+      throw new Error(chalk.red(`There is already a migration with name '${migrationName}' in the database`))
     }
 
     await this.sync()
@@ -247,7 +246,7 @@ class Migrator {
     const migrationsToRun = await this.migrationModel.find(query).sort({ createdAt: sortDirection }).exec()
 
     if (!migrationsToRun.length && this.cli) {
-      this.log('There are no pending migrations'.yellow)
+      this.log(chalk.yellow('There are no pending migrations'))
       this.log('Current migrations status: ')
       await this.list()
     }
@@ -255,7 +254,7 @@ class Migrator {
     const migrationsRan = await this.runMigrations(migrationsToRun, direction, args)
 
     if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {
-      this.log('All migrations finished successfully'.green)
+      this.log(chalk.green('All migrations finished successfully'))
     }
     return migrationsRan
   }
@@ -280,7 +279,7 @@ class Migrator {
 
       return this.syncMigrations(migrationsToImport)
     } catch (error) {
-      this.log('Could not synchronize migrations in the migrations folder up to the database'.red)
+      this.log(chalk.red('Could not synchronize migrations in the migrations folder up to the database'))
       throw error
     }
   }
@@ -303,13 +302,13 @@ class Migrator {
       const migrationsToDeleteDocs = await this.migrationModel.find({ name: { $in: migrationsToDelete } }).lean().exec()
 
       if (migrationsToDelete.length) {
-        this.log(`Removing migration(s) from database: \n${migrationsToDelete.join('\n').cyan} `)
+        this.log(`Removing migration(s) from database: \n${chalk.cyan(migrationsToDelete.join('\n'))} `)
         await this.migrationModel.deleteMany({ name: { $in: migrationsToDelete } }).exec()
       }
 
       return migrationsToDeleteDocs
     } catch (error) {
-      this.log('Could not prune extraneous migrations from database'.red)
+      this.log(chalk.red('Could not prune extraneous migrations from database'))
       throw error
     }
   }
@@ -324,7 +323,7 @@ class Migrator {
   async list (): Promise<LeanDocument<IMigration>[]> {
     await this.sync()
     const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
-    if (!migrations.length) this.log('There are no migrations to list'.yellow)
+    if (!migrations.length) this.log(chalk.yellow('There are no migrations to list'))
     return migrations.map((migration: HydratedDocument<IMigration>) => {
       this.logMigrationStatus(migration.state, migration.filename)
       return migration.toJSON()
