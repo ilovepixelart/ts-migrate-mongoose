@@ -248,9 +248,3 @@ example: `-d mongodb://localhost:27017/development` .
 If you don't want to pass it in every time feel free to use the `migrate.json` config file or an environment variable
 
 Feel Free to check out the examples in the project to get a better idea of usage
-
-## How to contribute
-
-1. Start an issue. We will discuss the best approach
-2. Make a pull request. I'll review it and comment until we are both confident about it
-3. I'll merge your PR and bump the version of the package
