@@ -135,7 +135,7 @@ export class Migrate {
         return this.program.opts()
       })
       .catch((err) => {
-        console.error(err.message.red)
+        console.error(chalk.red(err.message))
         if (exit) return process.exit(1)
         throw err
       })

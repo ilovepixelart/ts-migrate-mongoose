@@ -139,7 +139,7 @@ class Migrator {
   async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'up' | 'down', args: unknown[]) {
     const migrationsRan: LeanDocument<IMigration>[] = []
     const connect = async (mongoose: Mongoose) => {
-      if (this.cli && this.uri && mongoose.connection.readyState !== 1) {
+      if (this.cli && this.uri && mongoose && mongoose.connection.readyState !== 1) {
         await mongoose.connect(this.uri)
         this.mongoose = mongoose
       }
@@ -178,10 +178,10 @@ class Migrator {
    */
   async close (): Promise<void> {
     if (this.connection) {
+      await this.connection.close()
       if (this.mongoose) {
         await this.mongoose.disconnect()
       }
-      await this.connection.close()
     }
   }
 
