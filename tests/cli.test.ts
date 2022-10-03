@@ -1,11 +1,9 @@
 import fs from 'fs'
-import colors from 'colors'
+import chalk from 'chalk'
 import mongoose, { Connection } from 'mongoose'
 import { getMigrator, Migrate } from '../src/commander'
 import { clearDirectory } from '../utils/filesystem'
 import { defaultTemplate } from '../src/migrator'
-
-colors.enable()
 
 const exec = (...args: string[]) => {
   const migrate = new Migrate()
@@ -53,8 +51,8 @@ describe('cli', () => {
     expect(opts?.collection).toBe('migrations')
     expect(opts?.autosync).toBe(false)
     expect(opts?.migrationsPath).toBe('./migrations')
-    expect(consoleSpy).toHaveBeenCalledWith('Listing migrations'.cyan)
-    expect(consoleSpy).toHaveBeenCalledWith('There are no migrations to list'.yellow)
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.cyan('Listing migrations'))
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.yellow('There are no migrations to list'))
   })
 
   it('should run create command', async () => {
@@ -80,7 +78,7 @@ describe('cli', () => {
     expect(opts?.migrationsPath).toBe('./migrations')
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(/up:/))
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(migrationName))
-    expect(consoleSpy).toHaveBeenCalledWith('All migrations finished successfully'.green)
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.green('All migrations finished successfully'))
   })
 
   it('should run down command', async () => {
@@ -95,11 +93,11 @@ describe('cli', () => {
     expect(opts?.autosync).toBe(false)
     expect(opts?.migrationsPath).toBe('./migrations')
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(migrationName))
-    expect(consoleSpy).toHaveBeenCalledWith('All migrations finished successfully'.green)
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.green('All migrations finished successfully'))
   })
 
   it('should throw "You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI."', async () => {
-    await expect(exec('up', 'invalid-migration-name')).rejects.toThrow('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.')
+    await expect(exec('up', 'invalid-migration-name')).rejects.toThrow(chalk.red('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.'))
   })
 
   it('should prune command', async () => {
@@ -137,7 +135,7 @@ describe('cli', () => {
     await exec('up', '-d', uri)
     const consoleSpy = jest.spyOn(console, 'log')
     await exec('up', '-d', uri)
-    expect(consoleSpy).toHaveBeenCalledWith('There are no pending migrations'.yellow)
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.yellow('There are no pending migrations'))
   })
 
   it('should throw "The \'up\' export is not defined in"', async () => {

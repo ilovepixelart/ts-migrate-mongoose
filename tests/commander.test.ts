@@ -1,10 +1,8 @@
-import colors from 'colors'
+import chalk from 'chalk'
 import mongoose, { Connection } from 'mongoose'
 
 import { migrate } from '../src/commander'
 import { clearDirectory } from '../utils/filesystem'
-
-colors.enable()
 
 const setProcessArgv = (...args: string[]) => {
   process.argv = ['node', 'migrate', ...args]
@@ -46,7 +44,7 @@ describe('commander', () => {
     const consoleSpy = jest.spyOn(console, 'log')
     setProcessArgv('list', '-d', uri)
     await migrate.run(false)
-    expect(consoleSpy).toHaveBeenCalledWith('Listing migrations'.cyan)
-    expect(consoleSpy).toHaveBeenCalledWith('There are no migrations to list'.yellow)
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.cyan('Listing migrations'))
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.yellow('There are no migrations to list'))
   })
 })
