@@ -1,4 +1,4 @@
-import { Schema, Connection } from 'mongoose'
+import { Schema, Connection, HydratedDocument } from 'mongoose'
 
 import type IMigration from './interfaces/IMigration'
 
@@ -15,8 +15,7 @@ export const getMigrationModel = (connection: Connection, collection = 'migratio
     collection,
     toJSON: {
       virtuals: true,
-      transform: function (doc, ret) {
-        delete ret._id
+      transform: function (doc, ret: HydratedDocument<IMigration>) {
         delete ret.id
         delete ret.__v
         return ret

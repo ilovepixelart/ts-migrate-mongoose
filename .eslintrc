@@ -16,17 +16,15 @@
     "standard",
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:jest/style",
-    "plugin:jest/recommended",
-    "plugin:jest-formatting/recommended"
+    "plugin:@typescript-eslint/recommended"
   ],
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
   },
   "parserOptions": {
-    "ecmaVersion": 2021
+    "ecmaVersion": 2021,
+    "sourceType": "module"
   },
   "rules": {
     "indent": [
@@ -48,5 +46,30 @@
       "error",
       "never"
     ]
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "tests/**/*.test.ts"
+      ],
+      "extends": [
+        "plugin:jest/style",
+        "plugin:jest/recommended",
+        "plugin:jest-formatting/recommended"
+      ]
+    },
+    {
+      "parserOptions": {
+        "project": [
+          "tsconfig.json"
+        ]
+      },
+      "files": [
+        "src/**/*.ts"
+      ],
+      "extends": [
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+      ]
+    }
+  ]
 }
