@@ -45,21 +45,6 @@ describe('library', () => {
     await expect(migrator.create(migrationName)).rejects.toThrow(`There is already a migration with name '${migrationName}' in the database`)
   })
 
-  it('should throw "The direction \'sideways\' is not supported, use the \'up\' or \'down\' direction"', async () => {
-    const migrationName = 'create-aliens'
-    const direction = 'sideways'
-    const migrator = new Migrator({ connection })
-    expect(migrator).toBeInstanceOf(Migrator)
-
-    await migrator.connected()
-    expect(migrator.connection.readyState).toBe(1)
-
-    const migration = await migrator.create(migrationName)
-    expect(migration.filename).toContain(migrationName)
-
-    await expect(migrator.run(direction)).rejects.toThrow(`The direction '${direction}' is not supported, use the 'up' or 'down' direction`)
-  })
-
   it('should throw "Could not find that migration in the database"', async () => {
     const migrationName = 'create-unicorns'
     const migrator = new Migrator({ connection, cli: true })
@@ -183,7 +168,7 @@ describe('library', () => {
       name: 'test-migration',
       createdAt: new Date()
     })
-    await expect(migrator.runMigrations([migration], 'up', [])).rejects.toThrow(/Cannot find module/)
+    await expect(migrator.runMigrations([migration], 'up')).rejects.toThrow(/Cannot find module/)
   })
 
   it('should log "Adding migration"', async () => {

@@ -1,26 +1,35 @@
 import dotenv from 'dotenv'
 import path from 'path'
 import chalk from 'chalk'
-import { Command, OptionValues } from 'commander'
+import { Command } from 'commander'
 import Migrator from './migrator'
 import { register } from 'ts-node'
 import { registerOptions } from './options'
 
 import type IOptions from './interfaces/IOptions'
+import type IConfigModule from './interfaces/IConfigModule'
 
 dotenv.config()
 register(registerOptions)
 
-export const getMigrator = async (options: IOptions): Promise<Migrator> => {
+export const getConfig = async (options: IOptions): Promise<IOptions> => {
   let fileOptions: IOptions = {}
   if (options.configPath) {
     try {
       const configPath = path.resolve(options.configPath)
-      fileOptions = (await import(configPath)).default
+      const module = <IConfigModule>(await import(configPath))
+      if (module.default) {
+        fileOptions = module.default
+      }
     } catch (err) {
       fileOptions = {}
     }
   }
+  return fileOptions
+}
+
+export const getMigrator = async (options: IOptions): Promise<Migrator> => {
+  const fileOptions = await getConfig(options)
 
   const uri = options.uri ||
     process.env.MIGRATE_MONGO_URI ||
@@ -79,9 +88,8 @@ export class Migrate {
       .option('-a, --autosync <boolean>', 'automatically sync new migrations without prompt', false)
       .option('-m, --migrations-path <path>', 'path to the migration files', './migrations')
       .option('-t, --template-path <path>', 'template file to use when creating a migration')
-      .option('-cd, --change-dir <path>', 'change current working directory before running anything')
       .hook('preAction', async () => {
-        const opts = this.program.opts()
+        const opts = this.program.opts<IOptions>()
         this.migrator = await getMigrator(opts)
       })
 
@@ -96,7 +104,7 @@ export class Migrate {
     this.program
       .command('create <migration-name>')
       .description('create a new migration file')
-      .action(async (migrationName) => {
+      .action(async (migrationName: string) => {
         await this.migrator?.create(migrationName)
         console.log('Migration created. Run ' + chalk.cyan(`migrate up ${migrationName}`) + ' to apply the migration')
       })
@@ -104,14 +112,14 @@ export class Migrate {
     this.program
       .command('up [migration-name]')
       .description('run all migrations or a specific migration if name provided')
-      .action(async (migrationName) => {
+      .action(async (migrationName: string) => {
         await this.migrator?.run('up', migrationName)
       })
 
     this.program
       .command('down <migration-name>')
       .description('roll back migrations down to given name')
-      .action(async (migrationName) => {
+      .action(async (migrationName: string) => {
         await this.migrator?.run('down', migrationName)
       })
 
@@ -128,19 +136,18 @@ export class Migrate {
    * @param exit Whether to exit the process after running the command, defaults to true
    * @returns The parsed options or void if exit = true
    */
-  public async run (exit = true): Promise<void | OptionValues> {
+  public async run (exit = true): Promise<IOptions | void> {
     return this.program.parseAsync(process.argv)
-      .then(() => {
+      .then(async () => {
+        await this.migrator?.close()
         if (exit) return process.exit(0)
-        return this.program.opts()
+        return this.program.opts<IOptions>()
       })
-      .catch((err) => {
+      .catch(async (err: Error) => {
+        await this.migrator?.close()
         console.error(chalk.red(err.message))
         if (exit) return process.exit(1)
         throw err
-      })
-      .finally(async () => {
-        await this.migrator?.close()
       })
   }
 }

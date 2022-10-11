@@ -8,6 +8,7 @@ import { createConnection, Connection, FilterQuery, HydratedDocument, LeanDocume
 
 import type IMigration from './interfaces/IMigration'
 import type IMigratorOptions from './interfaces/IMigratorOptions'
+import type IMigrationModule from './interfaces/IMigrationModule'
 
 import { registerOptions } from './options'
 import { getMigrationModel } from './model'
@@ -121,7 +122,7 @@ class Migrator {
 
   async choseMigrations (migrations: string[], message: string): Promise<string[]> {
     if (!this.autosync && migrations.length) {
-      const answers: { chosen: string[] } = await inquirer.prompt({
+      const answers = await inquirer.prompt<{ chosen: string[] }>({
         type: 'checkbox',
         message,
         name: 'chosen',
@@ -136,7 +137,7 @@ class Migrator {
     this.log(chalk[direction === 'up' ? 'green' : 'red'](`${direction}:`) + ` ${filename} `)
   }
 
-  async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'up' | 'down', args: unknown[]) {
+  async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'up' | 'down') {
     const migrationsRan: LeanDocument<IMigration>[] = []
     const connect = async (mongoose: Mongoose) => {
       if (this.cli && this.uri && mongoose && mongoose.connection.readyState !== 1) {
@@ -146,7 +147,7 @@ class Migrator {
     }
     for await (const migration of migrationsToRun) {
       const migrationFilePath = path.join(this.migrationsPath, migration.filename)
-      const migrationFunctions = await import(migrationFilePath)
+      const migrationFunctions = <IMigrationModule>(await import(migrationFilePath))
 
       const migrationFunction = migrationFunctions[direction]
       if (!migrationFunction) {
@@ -156,7 +157,7 @@ class Migrator {
       try {
         await migrationFunction.apply({
           connect: (mongoose: Mongoose) => connect(mongoose)
-        }, ...args)
+        })
 
         this.logMigrationStatus(direction, migration.filename)
 
@@ -214,12 +215,8 @@ class Migrator {
    * @param migrationName
    * @param direction
    */
-  async run (direction: 'up' | 'down' = 'up', migrationName?: string, ...args: unknown[]): Promise<LeanDocument<IMigration>[]> {
+  async run (direction: 'up' | 'down' = 'up', migrationName?: string): Promise<LeanDocument<IMigration>[]> {
     await this.sync()
-
-    if (direction !== 'up' && direction !== 'down') {
-      throw new Error(`The direction '${direction}' is not supported, use the 'up' or 'down' direction`)
-    }
 
     const untilMigration = migrationName
       ? await this.migrationModel.findOne({ name: migrationName }).exec()
@@ -251,7 +248,7 @@ class Migrator {
       await this.list()
     }
 
-    const migrationsRan = await this.runMigrations(migrationsToRun, direction, args)
+    const migrationsRan = await this.runMigrations(migrationsToRun, direction)
 
     if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {
       this.log(chalk.green('All migrations finished successfully'))

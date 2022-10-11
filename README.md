@@ -75,7 +75,6 @@ Options:
   -a, --autosync <boolean>      automatically sync new migrations without prompt (default: false)
   -m, --migrations-path <path>  path to the migration files (default: "./migrations")
   -t, --template-path <path>    template file to use when creating a migration
-  -cd, --change-dir <path>      change current working directory before running anything
   -h, --help                    display help for command
 
 Commands:
@@ -169,7 +168,7 @@ Here's an example of a migration created using `migrate create some-migration-na
 import mongoose from 'mongoose'
 mongoose.set('strictQuery', false) // https://mongoosejs.com/docs/guide.html#strictQuery
 
-// Importing models here
+// Import your models here
 
 // Make any changes you need to make to the database here
 export async function up () {
