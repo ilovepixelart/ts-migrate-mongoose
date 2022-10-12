@@ -27,6 +27,11 @@
     "sourceType": "module"
   },
   "rules": {
+    "@typescript-eslint/array-type": "error",
+    "@typescript-eslint/consistent-type-imports": "error",
+    "@typescript-eslint/method-signature-style": "error",
+    "@typescript-eslint/consistent-indexed-object-style": "error",
+    "@typescript-eslint/sort-type-union-intersection-members": "error",
     "indent": [
       "error",
       2
@@ -68,8 +73,12 @@
         "src/**/*.ts"
       ],
       "extends": [
-        "plugin:@typescript-eslint/recommended-requiring-type-checking"
-      ]
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:@typescript-eslint/strict"
+      ],
+      "rules": {
+        "@typescript-eslint/consistent-type-exports": "error"
+      }
     }
   ]
 }

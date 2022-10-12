@@ -1,7 +1,7 @@
 interface IMigration {
   name: string
   filename: string
-  state: 'up' | 'down'
+  state: 'down' | 'up'
   createdAt: Date
 }
 
