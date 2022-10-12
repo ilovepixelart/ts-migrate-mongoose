@@ -1,9 +1,12 @@
 import fs from 'fs'
 import chalk from 'chalk'
-import mongoose, { Connection } from 'mongoose'
+import mongoose from 'mongoose'
+
 import { getMigrator, Migrate } from '../src/commander'
 import { clearDirectory } from '../utils/filesystem'
 import { defaultTemplate } from '../src/migrator'
+
+import type { Connection } from 'mongoose'
 
 const exec = (...args: string[]) => {
   const migrate = new Migrate()

@@ -1,5 +1,6 @@
-import { Schema, Connection, HydratedDocument } from 'mongoose'
+import { Schema } from 'mongoose'
 
+import type { Connection, HydratedDocument } from 'mongoose'
 import type IMigration from './interfaces/IMigration'
 
 export const getMigrationModel = (connection: Connection, collection = 'migrations') => {
@@ -24,7 +25,7 @@ export const getMigrationModel = (connection: Connection, collection = 'migratio
   })
 
   MigrationSchema.virtual('filename').get(function () {
-    return `${this.createdAt?.getTime()}-${this.name}.ts`
+    return `${this.createdAt.getTime()}-${this.name}.ts`
   })
 
   return connection.model<IMigration>(collection, MigrationSchema)

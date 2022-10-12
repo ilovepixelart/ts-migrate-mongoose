@@ -1,4 +1,6 @@
-import mongoose, { Connection } from 'mongoose'
+import mongoose from 'mongoose'
+
+import type { Connection } from 'mongoose'
 
 describe('mongoose', () => {
   const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`

@@ -1,8 +1,10 @@
 import chalk from 'chalk'
-import mongoose, { Connection } from 'mongoose'
+import mongoose from 'mongoose'
 
 import { migrate } from '../src/commander'
 import { clearDirectory } from '../utils/filesystem'
+
+import type { Connection } from 'mongoose'
 
 const setProcessArgv = (...args: string[]) => {
   process.argv = ['node', 'migrate', ...args]

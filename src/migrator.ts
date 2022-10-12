@@ -3,15 +3,15 @@ import inquirer from 'inquirer'
 import path from 'path'
 import chalk from 'chalk'
 import { register } from 'ts-node'
-
-import { createConnection, Connection, FilterQuery, HydratedDocument, LeanDocument, Model, Mongoose } from 'mongoose'
-
-import type IMigration from './interfaces/IMigration'
-import type IMigratorOptions from './interfaces/IMigratorOptions'
-import type IMigrationModule from './interfaces/IMigrationModule'
+import { createConnection } from 'mongoose'
 
 import { registerOptions } from './options'
 import { getMigrationModel } from './model'
+
+import type { Connection, FilterQuery, HydratedDocument, LeanDocument, Model, Mongoose } from 'mongoose'
+import type IMigration from './interfaces/IMigration'
+import type IMigratorOptions from './interfaces/IMigratorOptions'
+import type IMigrationModule from './interfaces/IMigrationModule'
 
 register(registerOptions)
 
@@ -53,10 +53,10 @@ class Migrator {
       this.template = fs.readFileSync(options.templatePath, 'utf8')
     }
 
-    this.migrationsPath = path.resolve(options.migrationsPath || './migrations')
-    this.collection = options.collection || 'migrations'
-    this.autosync = options.autosync || false
-    this.cli = options.cli || false
+    this.migrationsPath = path.resolve(options.migrationsPath ?? './migrations')
+    this.collection = options.collection ?? 'migrations'
+    this.autosync = options.autosync ?? false
+    this.cli = options.cli ?? false
 
     this.ensureMigrationsPath()
 
@@ -133,21 +133,21 @@ class Migrator {
     return migrations
   }
 
-  logMigrationStatus (direction: 'up' | 'down', filename: string) {
+  logMigrationStatus (direction: 'down' | 'up', filename: string) {
     this.log(chalk[direction === 'up' ? 'green' : 'red'](`${direction}:`) + ` ${filename} `)
   }
 
-  async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'up' | 'down') {
+  async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'down' | 'up') {
     const migrationsRan: LeanDocument<IMigration>[] = []
     const connect = async (mongoose: Mongoose) => {
-      if (this.cli && this.uri && mongoose && mongoose.connection.readyState !== 1) {
+      if (this.cli && this.uri && mongoose.connection.readyState !== 1) {
         await mongoose.connect(this.uri)
         this.mongoose = mongoose
       }
     }
     for await (const migration of migrationsToRun) {
       const migrationFilePath = path.join(this.migrationsPath, migration.filename)
-      const migrationFunctions = <IMigrationModule>(await import(migrationFilePath))
+      const migrationFunctions = await import(migrationFilePath) as IMigrationModule
 
       const migrationFunction = migrationFunctions[direction]
       if (!migrationFunction) {
@@ -178,11 +178,9 @@ class Migrator {
    * @returns {Promise<void>} A promise that resolves when connection is closed
    */
   async close (): Promise<void> {
-    if (this.connection) {
-      await this.connection.close()
-      if (this.mongoose) {
-        await this.mongoose.disconnect()
-      }
+    await this.connection.close()
+    if (this.mongoose) {
+      await this.mongoose.disconnect()
     }
   }
 
@@ -215,7 +213,7 @@ class Migrator {
    * @param migrationName
    * @param direction
    */
-  async run (direction: 'up' | 'down' = 'up', migrationName?: string): Promise<LeanDocument<IMigration>[]> {
+  async run (direction: 'down' | 'up' = 'up', migrationName?: string): Promise<LeanDocument<IMigration>[]> {
     await this.sync()
 
     const untilMigration = migrationName
@@ -268,7 +266,7 @@ class Migrator {
       const { migrationsInFs } = await this.getMigrations()
 
       let migrationsToImport = migrationsInFs
-        .filter((f) => f.existsInDatabase === false)
+        .filter((f) => !f.existsInDatabase)
         .map((f) => f.filename)
 
       this.log('Synchronizing database with file system migrations...')

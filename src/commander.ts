@@ -17,7 +17,7 @@ export const getConfig = async (options: IOptions): Promise<IOptions> => {
   if (options.configPath) {
     try {
       const configPath = path.resolve(options.configPath)
-      const module = <IConfigModule>(await import(configPath))
+      const module = await import(configPath) as IConfigModule
       if (module.default) {
         fileOptions = module.default
       }
@@ -31,29 +31,29 @@ export const getConfig = async (options: IOptions): Promise<IOptions> => {
 export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   const fileOptions = await getConfig(options)
 
-  const uri = options.uri ||
-    process.env.MIGRATE_MONGO_URI ||
-    process.env.migrateMongoUri ||
+  const uri = options.uri ??
+    process.env.MIGRATE_MONGO_URI ??
+    process.env.migrateMongoUri ??
     fileOptions.uri
 
-  const collection = options.collection ||
-    process.env.MIGRATE_MONGO_COLLECTION ||
-    process.env.migrateMongoCollection ||
+  const collection = options.collection ??
+    process.env.MIGRATE_MONGO_COLLECTION ??
+    process.env.migrateMongoCollection ??
     fileOptions.collection
 
-  const migrationsPath = options.migrationsPath ||
-    process.env.MIGRATE_MIGRATIONS_PATH ||
-    process.env.migrateMigrationsPath ||
+  const migrationsPath = options.migrationsPath ??
+    process.env.MIGRATE_MIGRATIONS_PATH ??
+    process.env.migrateMigrationsPath ??
     fileOptions.migrationsPath
 
-  const templatePath = options.templatePath ||
-    process.env.MIGRATE_TEMPLATE_PATH ||
-    process.env.migrateTemplatePath ||
+  const templatePath = options.templatePath ??
+    process.env.MIGRATE_TEMPLATE_PATH ??
+    process.env.migrateTemplatePath ??
     fileOptions.templatePath
 
-  const autosync = Boolean(options.autosync ||
-    process.env.MIGRATE_AUTOSYNC ||
-    process.env.migrateAutosync ||
+  const autosync = Boolean(options.autosync ??
+    process.env.MIGRATE_AUTOSYNC ??
+    process.env.migrateAutosync ??
     fileOptions.autosync)
 
   if (!uri) {
@@ -136,7 +136,7 @@ export class Migrate {
    * @param exit Whether to exit the process after running the command, defaults to true
    * @returns The parsed options or void if exit = true
    */
-  public async run (exit = true): Promise<IOptions | void> {
+  public async run (exit = true): Promise<IOptions> {
     return this.program.parseAsync(process.argv)
       .then(async () => {
         await this.migrator?.close()
