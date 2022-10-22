@@ -2,10 +2,9 @@
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 const merge = require('merge')
-const ts = require('ts-jest/jest-preset')
 const mongo = require('@shelf/jest-mongodb/jest-preset')
 
-const config = merge.recursive(ts, mongo, {
+const config = merge.recursive(mongo, {
   roots: ['<rootDir>/src/', '<rootDir>/tests/'],
   clearMocks: true,
   collectCoverage: true,
@@ -20,12 +19,7 @@ const config = merge.recursive(ts, mongo, {
     '<rootDir>/tests/**/*.test.ts'
   ],
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', {
-      isolatedModules: true,
-      allowSyntheticDefaultImports: true,
-      esModuleInterop: true,
-      importHelpers: true
-    }]
+    '^.+\\.tsx?$': '@swc/jest'
   },
   testPathIgnorePatterns: [
     'node_modules'

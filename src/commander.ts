@@ -1,16 +1,14 @@
+import '@swc/register'
 import dotenv from 'dotenv'
 import path from 'path'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import Migrator from './migrator'
-import { register } from 'ts-node'
-import { registerOptions } from './options'
 
 import type IOptions from './interfaces/IOptions'
 import type IConfigModule from './interfaces/IConfigModule'
 
 dotenv.config()
-register(registerOptions)
 
 export const getConfig = async (options: IOptions): Promise<IOptions> => {
   let fileOptions: IOptions = {}

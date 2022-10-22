@@ -25,6 +25,7 @@
     "parens",
     "sonarcloud",
     "sonarsource",
+    "swcrc",
     "virtuals"
   ]
 }
