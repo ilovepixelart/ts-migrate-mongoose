@@ -1,19 +1,16 @@
+import '@swc/register'
 import fs from 'fs'
 import inquirer from 'inquirer'
 import path from 'path'
 import chalk from 'chalk'
-import { register } from 'ts-node'
 import { createConnection } from 'mongoose'
 
-import { registerOptions } from './options'
 import { getMigrationModel } from './model'
 
 import type { Connection, FilterQuery, HydratedDocument, LeanDocument, Model, Mongoose } from 'mongoose'
 import type IMigration from './interfaces/IMigration'
 import type IMigratorOptions from './interfaces/IMigratorOptions'
 import type IMigrationModule from './interfaces/IMigrationModule'
-
-register(registerOptions)
 
 export const defaultTemplate = `/* eslint-disable import/first */
 // Orders is important, import your models bellow this two lines, NOT above
