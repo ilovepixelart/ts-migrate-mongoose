@@ -1,4 +1,3 @@
-import '@swc/register'
 import fs from 'fs'
 import inquirer from 'inquirer'
 import path from 'path'
@@ -11,6 +10,10 @@ import type { Connection, FilterQuery, HydratedDocument, LeanDocument, Model, Mo
 import type IMigration from './interfaces/IMigration'
 import type IMigratorOptions from './interfaces/IMigratorOptions'
 import type IMigrationModule from './interfaces/IMigrationModule'
+
+import swcrc from './swcrc'
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-var-requires
+require('@swc/register')(swcrc)
 
 export const defaultTemplate = `/* eslint-disable import/first */
 // Orders is important, import your models bellow this two lines, NOT above

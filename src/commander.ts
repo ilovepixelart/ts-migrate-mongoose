@@ -1,4 +1,3 @@
-import '@swc/register'
 import dotenv from 'dotenv'
 import path from 'path'
 import chalk from 'chalk'
@@ -7,6 +6,10 @@ import Migrator from './migrator'
 
 import type IOptions from './interfaces/IOptions'
 import type IConfigModule from './interfaces/IConfigModule'
+
+import swcrc from './swcrc'
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-var-requires
+require('@swc/register')(swcrc)
 
 dotenv.config()
 
