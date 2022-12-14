@@ -10,8 +10,13 @@ npm-debug.log
 .idea
 .env
 
+# Folder for migrations
 /migrations
+
+# Migration configurators
 /migrate.ts
 /migrate.js
 /migrate.json
+
+# Inmemmory mongo config
 /globalConfig.json

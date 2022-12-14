@@ -1,11 +1,13 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
-const merge = require('merge')
-const mongo = require('@shelf/jest-mongodb/jest-preset')
+import { recursive } from 'merge'
+import mongo from '@shelf/jest-mongodb/jest-preset'
 
-const config = merge.recursive(mongo, {
-  roots: ['<rootDir>/src/', '<rootDir>/tests/'],
+const config = recursive(mongo, {
+  roots: [
+    '<rootDir>/src/',
+    '<rootDir>/tests/'
+  ],
   clearMocks: true,
   collectCoverage: true,
   collectCoverageFrom: [
@@ -29,4 +31,4 @@ const config = merge.recursive(mongo, {
   ]
 })
 
-module.exports = config
+export default config

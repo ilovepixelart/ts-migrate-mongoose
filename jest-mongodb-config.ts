@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   mongodbMemoryServerOptions: {
     binary: {
       skipMD5: true
