@@ -1,4 +1,4 @@
-name: Analyze with SonarCloud
+name: PR check
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ on:
       types: [opened, synchronize, reopened]
       
 jobs:
-  sonarcloud:
+  tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -27,12 +27,20 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Dependencies
+      - name: Installing dependencies
         run: npm ci
       - name: Lint
         run: npm run lint
       - name: Coverage
         run: npm run coverage
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
@@ -48,3 +56,4 @@ jobs:
             -Dsonar.test.exclusions=tests/**
             -Dsonar.coverage.exclusions=tests/**
             -Dsonar.verbose=true
+

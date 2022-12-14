@@ -33,7 +33,9 @@
   "exclude": [
     "dist",
     "tools",
-    "node_modules",
-    "./jest.config.js",
-  ]
+    "node_modules"
+  ],
+  "ts-node": {
+    "swc": true
+  }
 }
