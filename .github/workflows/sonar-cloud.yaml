@@ -12,6 +12,27 @@ on:
       types: [opened, synchronize, reopened]
       
 jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Installing dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Coverage
+        run: npm run coverage
   sonarcloud:
     runs-on: ubuntu-latest
     steps:
@@ -35,25 +56,4 @@ jobs:
             -Dsonar.test.exclusions=tests/**
             -Dsonar.coverage.exclusions=tests/**
             -Dsonar.verbose=true
-  tests:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x, 16.x, 18.x]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          # Disabling shallow clone is recommended for improving relevancy of reporting
-          fetch-depth: 0
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Installing dependencies
-        run: npm ci
-      - name: Lint
-        run: npm run lint
-      - name: Coverage
-        run: npm run coverage
 
