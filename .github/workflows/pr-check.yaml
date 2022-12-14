@@ -1,4 +1,4 @@
-name: Analyze with SonarCloud
+name: PR check
 
 on:
   workflow_dispatch:
