@@ -6,10 +6,11 @@ on:
   # and when creating a pull request.
   release:
     types:
-      - created
+      - published
 
 jobs:
   changelog:
+    name: Update changelog
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,6 +18,7 @@ jobs:
         with:
           # Disabling shallow clone is recommended for improving relevancy of reporting
           fetch-depth: 0
+          ref: main
       - name: Changelog
         uses: rhysd/changelog-from-release/action@v3
         with:
