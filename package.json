@@ -35,7 +35,9 @@
     "src",
     "tests",
     ".eslintrc",
-    ".eslintignore"
+    ".eslintignore",
+    ".npmignore",
+    "CHANGELOG.md"
   ],
   "bin": {
     "migrate": "dist/cjs/bin.js"

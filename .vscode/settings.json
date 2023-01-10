@@ -23,6 +23,8 @@
     "lcov",
     "linebreak",
     "nargs",
+    "nosql",
+    "npmignore",
     "parens",
     "sonarcloud",
     "sonarsource",
