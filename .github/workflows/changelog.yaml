@@ -16,8 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          # Disabling shallow clone is recommended for improving relevancy of reporting
-          fetch-depth: 0
           ref: main
       - name: Changelog
         uses: rhysd/changelog-from-release/action@v3
