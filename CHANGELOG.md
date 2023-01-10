@@ -1,3 +1,20 @@
+<a name="v2.4.7"></a>
+# [v2.4.7](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v2.4.7) - 10 Jan 2023
+
+- Tests for npm metrics  1675d8c
+- Update changelog for v2.4.6  ffb4689
+- Change log action  67872e6
+- Checkout  5d815d5
+- Switch action  c61d8f0
+- Dispatch  1e6e34b
+- Merge pull request [#30](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/30) from ilovepixelart/feature/npm-metrics  1047de1
+- .npmignore changelog.yaml  567f9fb
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.6...v2.4.7
+
+[Changes][v2.4.7]
+
+
 <a name="v2.4.6"></a>
 # [v2.4.6](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v2.4.6) - 04 Jan 2023
 
@@ -442,6 +459,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v2.4.7]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.6...v2.4.7
 [v2.4.6]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.5...v2.4.6
 [v2.4.5]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.4...v2.4.5
 [v2.4.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.3...v2.4.4
