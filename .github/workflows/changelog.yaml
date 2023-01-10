@@ -18,8 +18,7 @@ jobs:
           # Disabling shallow clone is recommended for improving relevancy of reporting
           fetch-depth: 0
       - name: Changelog
-        uses: scottbrenner/generate-changelog-action@master
-        id: Changelog
+        uses: rhysd/changelog-from-release/action@v3
         with:
-          from-tag: v1.0.3
-          to-tag: HEAD
+          file: CHANGELOG.md
+          github_token: ${{ secrets.GITHUB_TOKEN }}
