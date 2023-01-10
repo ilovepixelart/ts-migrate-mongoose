@@ -3,7 +3,7 @@ import inquirer from 'inquirer'
 import mongoose, { Types } from 'mongoose'
 
 import Migrator from '../src/migrator'
-import { clearDirectory } from '../utils/filesystem'
+import { clearDirectory } from './utils/filesystem'
 
 import type { Connection } from 'mongoose'
 

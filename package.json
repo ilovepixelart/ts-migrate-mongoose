@@ -31,7 +31,11 @@
     "node": "^14.15.0 || ^16.10.0 || >=18.0.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "src",
+    "tests",
+    ".eslintrc",
+    ".eslintignore"
   ],
   "bin": {
     "migrate": "dist/cjs/bin.js"

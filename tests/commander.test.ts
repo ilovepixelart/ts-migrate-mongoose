@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import mongoose from 'mongoose'
 
 import { migrate } from '../src/commander'
-import { clearDirectory } from '../utils/filesystem'
+import { clearDirectory } from './utils/filesystem'
 
 import type { Connection } from 'mongoose'
 
