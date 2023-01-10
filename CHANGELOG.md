@@ -1,3 +1,15 @@
+<a name="v2.4.9"></a>
+# [v2.4.9](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v2.4.9) - 10 Jan 2023
+
+- Dep  fa24f0f
+- More files, and badge for snyk  9e7a688
+- Update changelog for &quot;v2.4.8&quot;  d41df06
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.8...v2.4.9
+
+[Changes][v2.4.9]
+
+
 <a name="v2.4.8"></a>
 # [v2.4.8](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v2.4.8) - 10 Jan 2023
 
@@ -472,6 +484,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v2.4.9]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.8...v2.4.9
 [v2.4.8]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.7...v2.4.8
 [v2.4.7]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.6...v2.4.7
 [v2.4.6]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.5...v2.4.6
