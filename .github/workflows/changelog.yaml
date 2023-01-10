@@ -12,7 +12,9 @@ jobs:
   changelog:
     runs-on: ubuntu-latest
     steps:
-      - name: "Generate release changelog"
-        uses: heinrichreimer/github-changelog-generator-action@v2.3
+      - name: Changelog
+        uses: scottbrenner/generate-changelog-action@master
+        id: Changelog
         with:
-          token: ${{ secrets.GITHUB_TOKEN }} 
+          from-tag: v1.0.3
+          to-tag: HEAD
