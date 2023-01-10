@@ -1,3 +1,16 @@
+<a name="v2.4.8"></a>
+# [v2.4.8](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v2.4.8) - 10 Jan 2023
+
+- Update changelog for v2.4.7  fbf5618
+- Main  c4ffcac
+- Update changelog  d623965
+- Add files  d63af06
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.7...v2.4.8
+
+[Changes][v2.4.8]
+
+
 <a name="v2.4.7"></a>
 # [v2.4.7](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v2.4.7) - 10 Jan 2023
 
@@ -459,6 +472,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v2.4.8]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.7...v2.4.8
 [v2.4.7]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.6...v2.4.7
 [v2.4.6]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.5...v2.4.6
 [v2.4.5]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.4...v2.4.5
