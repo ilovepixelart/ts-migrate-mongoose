@@ -12,6 +12,11 @@ jobs:
   changelog:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
       - name: Changelog
         uses: scottbrenner/generate-changelog-action@master
         id: Changelog
