@@ -13,6 +13,11 @@ require('@swc/register')(swcrc)
 
 dotenv.config()
 
+/**
+ * Get the options from the config file
+ * @param options The options passed to the CLI
+ * @returns The options from the config file
+ */
 export const getConfig = async (options: IOptions): Promise<IOptions> => {
   let fileOptions: IOptions = {}
   if (options.configPath) {
@@ -29,6 +34,12 @@ export const getConfig = async (options: IOptions): Promise<IOptions> => {
   return fileOptions
 }
 
+/**
+ * Get the migrator instance
+ * @param options The options passed to the CLI
+ * @returns The migrator instance
+ * @throws Error if the uri is not provided in the config file, environment or CLI
+ */
 export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   const fileOptions = await getConfig(options)
 
@@ -75,11 +86,17 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   return migrator
 }
 
+/**
+ * This class is responsible for running migrations in the CLI
+ * @class Migrate
+ */
 export class Migrate {
   private program: Command
   private migrator: Migrator | undefined
+
   constructor () {
     this.program = new Command()
+
     this.program
       .name('migrate')
       .description(chalk.cyan('CLI migration tool for mongoose'))
@@ -135,7 +152,7 @@ export class Migrate {
   /**
    * Run the CLI
    * @param exit Whether to exit the process after running the command, defaults to true
-   * @returns The parsed options or void if exit = true
+   * @returns The parsed options or void if exit is true
    */
   public async run (exit = true): Promise<IOptions> {
     return this.program.parseAsync(process.argv)
