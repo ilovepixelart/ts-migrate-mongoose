@@ -4,10 +4,10 @@ After running `npm install ts-migrate-mongoose`, you will have the migration bin
 
 ## Creating a Migration
 
-You can simply create a new migration (e.g. `my_new_migration`) by running
+You can simply create a new migration (e.g. `my-new-migration`) by running
 
 ```bash
-./node_modules/.bin/migrate <options> create my_new_migration
+./node_modules/.bin/migrate <options> create my-new-migration
 ```
 
 where `<options>` must at a MINIMUM contain the database url (using the `-d`/`--uri` option).
