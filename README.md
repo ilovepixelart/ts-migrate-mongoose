@@ -48,7 +48,7 @@ npm install -g ts-migrate-mongoose
 
 ## Configuration
 
-If you don't want to provide `-d` or `--uri` flag in CLI or if you run migrations Programmatically, you can configure it
+If you don't want to provide `-d` or `--uri` flag in CLI or Programmatic mode, you can configure it.
 \
 Create a `migrate.json` or `migrate.ts` or `.env` file in the root of your project:
 
@@ -92,7 +92,7 @@ migrateTemplatePath=migrations/template.ts
 migrateAutosync=true
 ```
 
-| `migrate.ts` / .json | `.env` / export          | Default      | Required | Description                                      |
+| Config file          | `.env` / export          | Default      | Required | Description                                      |
 | -------------------- | ------------------------ | ------------ | -------- | ------------------------------------------------ |
 | uri                  | MIGRATE_MONGO_URI        | -            | Yes      | mongo connection string                          |
 | collection           | MIGRATE_MONGO_COLLECTION | migrations   | No       | collection name to use for the migrations        |
