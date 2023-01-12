@@ -3,20 +3,18 @@
 ```typescript
 import Migrator from 'ts-migrate-mongoose'
 
-// Define all your variables
-const collection = 'myMigrations'
-const autosync = true
-
 const migrator = new Migrator({
+  // This is the only required property you need to set
+  // MongoDB connection string URI
+  uri: 'mongodb://localhost/my-db',
+  // All the options below are optional
+  // Collection name to use for migrations (defaults to 'migrations')
+  collection: 'migrations', 
   // Path to migrations directory, default is ./migrations
   migrationsPath:  '/path/to/migrations/',
   // The template to use when creating migrations needs up and down functions exposed
   // No need to specify unless you want to use a custom template
   templatePath: '/path/to/template.ts',
-  // MongoDB connection string URI
-  uri: 'mongodb://localhost/my-db',
-  // Collection name to use for migrations (defaults to 'migrations')
-  collection: 'migrations', 
   // Ff making a CLI app, set this to false to prompt the user, otherwise true
   autosync: true
 })
