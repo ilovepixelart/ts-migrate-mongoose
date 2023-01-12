@@ -1,4 +1,4 @@
-# Example for CLI tool
+# Example for CLI
 
 After running `npm install ts-migrate-mongoose`, you will have the migration binary available to you as `./node_modules/.bin/migrate`.
 

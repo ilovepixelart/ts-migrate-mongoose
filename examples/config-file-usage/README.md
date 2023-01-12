@@ -1,6 +1,6 @@
 # Example of using a config file
 
-By using a config file (`migrate.ts` or `migrate.json`), you can skip providing the options to the CLI command every time.
+By using a config file `migrate.ts` or `migrate.json`, you can skip providing the options to the CLI command every time.
 
 Fot demo purposes `migrate.ts` or `migrate.json` files were provided but you need you use only one
 
@@ -9,8 +9,8 @@ Now instead of running this command to create a new migration
 Directory in this example is **not** the default `./migrations` but `./my-custom/migrations`.
 
 ```bash
-yarn migrate -m my-custom/migrations -d mongodb://localhost/my-db create my-new-migration
-npx migrate -m my-custom/migrations -d mongodb://localhost/my-db create my-new-migration
+yarn migrate -d mongodb://localhost/my-db create my-new-migration
+npx migrate -d mongodb://localhost/my-db create my-new-migration
 ```
 
 We can simply run
