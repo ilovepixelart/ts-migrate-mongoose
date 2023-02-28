@@ -6,7 +6,6 @@
     "eamodio.gitlens",
     "ms-vscode.vscode-typescript-next",
     "firsttris.vscode-jest-runner",
-    "ms-vsliveshare.vsliveshare-pack",
     "DavidAnson.vscode-markdownlint"
   ]
 }
