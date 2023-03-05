@@ -43,30 +43,30 @@ export const getConfig = async (options: IOptions): Promise<IOptions> => {
 export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   const fileOptions = await getConfig(options)
 
-  const uri = options.uri ??
-    process.env.MIGRATE_MONGO_URI ??
+  const uri = process.env.MIGRATE_MONGO_URI ??
     process.env.migrateMongoUri ??
-    fileOptions.uri
+    fileOptions.uri ??
+    options.uri
 
-  const collection = options.collection ??
-    process.env.MIGRATE_MONGO_COLLECTION ??
+  const collection = process.env.MIGRATE_MONGO_COLLECTION ??
     process.env.migrateMongoCollection ??
-    fileOptions.collection
+    fileOptions.collection ??
+    options.collection
 
-  const migrationsPath = options.migrationsPath ??
-    process.env.MIGRATE_MIGRATIONS_PATH ??
+  const migrationsPath = process.env.MIGRATE_MIGRATIONS_PATH ??
     process.env.migrateMigrationsPath ??
-    fileOptions.migrationsPath
+    fileOptions.migrationsPath ??
+    options.migrationsPath
 
-  const templatePath = options.templatePath ??
-    process.env.MIGRATE_TEMPLATE_PATH ??
+  const templatePath = process.env.MIGRATE_TEMPLATE_PATH ??
     process.env.migrateTemplatePath ??
-    fileOptions.templatePath
+    fileOptions.templatePath ??
+    options.templatePath
 
-  const autosync = Boolean(options.autosync ??
-    process.env.MIGRATE_AUTOSYNC ??
+  const autosync = Boolean(process.env.MIGRATE_AUTOSYNC ??
     process.env.migrateAutosync ??
-    fileOptions.autosync)
+    fileOptions.autosync ??
+    options.autosync)
 
   if (!uri) {
     throw new Error(chalk.red('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.'))

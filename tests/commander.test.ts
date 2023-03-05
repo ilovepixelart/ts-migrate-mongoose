@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import mongoose from 'mongoose'
 
-import { migrate } from '../src/commander'
+import { migrate, getMigrator } from '../src/commander'
 import { clearDirectory } from './utils/filesystem'
 
 import type { Connection } from 'mongoose'
@@ -48,5 +48,20 @@ describe('commander', () => {
     await migrate.run(false)
     expect(consoleSpy).toHaveBeenCalledWith(chalk.cyan('Listing migrations'))
     expect(consoleSpy).toHaveBeenCalledWith(chalk.yellow('There are no migrations to list'))
+  })
+
+  it('should prioritize .env above args', async () => {
+    process.env.MIGRATE_MONGO_URI = uri
+
+    const migrator = await getMigrator({
+      configPath: undefined,
+      uri: 'mongodb://localhost:27017',
+      collection: 'migrations',
+      autosync: false,
+      migrationsPath: './migrations',
+      templatePath: undefined
+    })
+
+    expect(migrator.uri).toBe(uri)
   })
 })
