@@ -91,7 +91,7 @@ migrateMongoCollection=migrations
 migrateConfigPath=./migrate
 migrateMigrationsPath=./migrations
 migrateTemplatePath=./migrations/template.ts
-migrateAutosync=true
+migrateAutosync=false
 ```
 
 | Config file          | `.env` / export          | Default      | Required | Description                                      |
