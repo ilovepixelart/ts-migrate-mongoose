@@ -12,6 +12,13 @@ import type IFileMigration from './interfaces/IFileMigration'
 import type IMigratorOptions from './interfaces/IMigratorOptions'
 import type IMigrationModule from './interfaces/IMigrationModule'
 
+import {
+  DEFAULT_MIGRATE_AUTOSYNC,
+  DEFAULT_MIGRATE_CLI,
+  DEFAULT_MIGRATE_MIGRATIONS_PATH,
+  DEFAULT_MIGRATE_MONGO_COLLECTION
+} from './defaults'
+
 import swcrc from './swcrc'
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-var-requires
 require('@swc/register')(swcrc)
@@ -58,10 +65,10 @@ class Migrator {
       this.template = fs.readFileSync(options.templatePath, 'utf8')
     }
 
-    this.migrationsPath = path.resolve(options.migrationsPath ?? './migrations')
-    this.collection = options.collection ?? 'migrations'
-    this.autosync = options.autosync ?? false
-    this.cli = options.cli ?? false
+    this.migrationsPath = path.resolve(options.migrationsPath ?? DEFAULT_MIGRATE_MIGRATIONS_PATH)
+    this.collection = options.collection ?? DEFAULT_MIGRATE_MONGO_COLLECTION
+    this.autosync = options.autosync ?? DEFAULT_MIGRATE_AUTOSYNC
+    this.cli = options.cli ?? DEFAULT_MIGRATE_CLI
 
     this.ensureMigrationsPath()
 

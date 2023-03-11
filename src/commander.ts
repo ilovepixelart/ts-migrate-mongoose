@@ -7,6 +7,13 @@ import Migrator from './migrator'
 import type IOptions from './interfaces/IOptions'
 import type IConfigModule from './interfaces/IConfigModule'
 
+import {
+  DEFAULT_MIGRATE_AUTOSYNC,
+  DEFAULT_MIGRATE_CONFIG_PATH,
+  DEFAULT_MIGRATE_MIGRATIONS_PATH,
+  DEFAULT_MIGRATE_MONGO_COLLECTION
+} from './defaults'
+
 import swcrc from './swcrc'
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-var-requires
 require('@swc/register')(swcrc)
@@ -15,15 +22,15 @@ dotenv.config()
 
 /**
  * Get the options from the config file
- * @param options The options passed to the CLI
+ * @param configPath The options passed to the CLI
  * @returns The options from the config file
  */
-export const getConfig = async (options: IOptions): Promise<IOptions> => {
+export const getConfig = async (configPath: string): Promise<IOptions> => {
   let fileOptions: IOptions = {}
-  if (options.configPath) {
+  if (configPath) {
     try {
-      const configPath = path.resolve(options.configPath)
-      const module = await import(configPath) as IConfigModule
+      const file = path.resolve(configPath)
+      const module = await import(file) as IConfigModule
       if (module.default) {
         fileOptions = module.default
       }
@@ -41,32 +48,42 @@ export const getConfig = async (options: IOptions): Promise<IOptions> => {
  * @throws Error if the uri is not provided in the config file, environment or CLI
  */
 export const getMigrator = async (options: IOptions): Promise<Migrator> => {
-  const fileOptions = await getConfig(options)
+  const configPath = options.configPath ??
+    process.env.MIGRATE_CONFIG_PATH ??
+    process.env.migrateConfigPath ??
+    DEFAULT_MIGRATE_CONFIG_PATH
+
+  const fileOptions = await getConfig(configPath)
 
   const uri = options.uri ??
     process.env.MIGRATE_MONGO_URI ??
     process.env.migrateMongoUri ??
     fileOptions.uri
+    // no default value always required
 
   const collection = options.collection ??
     process.env.MIGRATE_MONGO_COLLECTION ??
     process.env.migrateMongoCollection ??
-    fileOptions.collection
+    fileOptions.collection ??
+    DEFAULT_MIGRATE_MONGO_COLLECTION
 
   const migrationsPath = options.migrationsPath ??
     process.env.MIGRATE_MIGRATIONS_PATH ??
     process.env.migrateMigrationsPath ??
-    fileOptions.migrationsPath
+    fileOptions.migrationsPath ??
+    DEFAULT_MIGRATE_MIGRATIONS_PATH
 
   const templatePath = options.templatePath ??
     process.env.MIGRATE_TEMPLATE_PATH ??
     process.env.migrateTemplatePath ??
     fileOptions.templatePath
+    // can be empty then we use default template
 
   const autosync = Boolean(options.autosync ??
     process.env.MIGRATE_AUTOSYNC ??
     process.env.migrateAutosync ??
-    fileOptions.autosync)
+    fileOptions.autosync ??
+    DEFAULT_MIGRATE_AUTOSYNC)
 
   if (!uri) {
     throw new Error(chalk.red('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.'))
@@ -100,11 +117,11 @@ export class Migrate {
     this.program
       .name('migrate')
       .description(chalk.cyan('CLI migration tool for mongoose'))
-      .option('-f, --config-path <path>', 'path to the config file', 'migrate')
+      .option('-f, --config-path <path>', 'path to the config file')
       .option('-d, --uri <string>', chalk.yellow('mongo connection string'))
-      .option('-c, --collection <string>', 'collection name to use for the migrations', 'migrations')
-      .option('-a, --autosync <boolean>', 'automatically sync new migrations without prompt', false)
-      .option('-m, --migrations-path <path>', 'path to the migration files', './migrations')
+      .option('-c, --collection <string>', 'collection name to use for the migrations')
+      .option('-a, --autosync <boolean>', 'automatically sync new migrations without prompt')
+      .option('-m, --migrations-path <path>', 'path to the migration files')
       .option('-t, --template-path <path>', 'template file to use when creating a migration')
       .hook('preAction', async () => {
         const opts = this.program.opts<IOptions>()

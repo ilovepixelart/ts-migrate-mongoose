@@ -81,21 +81,24 @@ export default {
 ```bash
 MIGRATE_MONGO_URI=mongodb://localhost/my-db
 MIGRATE_MONGO_COLLECTION=migrations
+MIGRATE_CONFIG_PATH=./migrate
 MIGRATE_MIGRATIONS_PATH=./migrations
 MIGRATE_TEMPLATE_PATH=./migrations/template.ts
 MIGRATE_AUTOSYNC=false
 # or 
 migrateMongoUri=mongodb://localhost/my-db
 migrateMongoCollection=migrations
-migrateMigrationsPath=migrations
-migrateTemplatePath=migrations/template.ts
-migrateAutosync=true
+migrateConfigPath=./migrate
+migrateMigrationsPath=./migrations
+migrateTemplatePath=./migrations/template.ts
+migrateAutosync=false
 ```
 
 | Config file          | `.env` / export          | Default      | Required | Description                                      |
 | -------------------- | ------------------------ | ------------ | -------- | ------------------------------------------------ |
 | uri                  | MIGRATE_MONGO_URI        | -            | Yes      | mongo connection string                          |
 | collection           | MIGRATE_MONGO_COLLECTION | migrations   | No       | collection name to use for the migrations        |
+| configPath           | MIGRATE_CONFIG_PATH      | ./migrate    | No       | path to the config file                          |
 | migrationsPath       | MIGRATE_MIGRATIONS_PATH  | ./migrations | No       | path to the migration files                      |
 | templatePath         | MIGRATE_TEMPLATE_PATH    | -            | No       | template file to use when creating a migration   |
 | autosync             | MIGRATE_AUTOSYNC         | false        | No       | automatically sync new migrations without prompt |
