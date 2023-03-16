@@ -32,7 +32,7 @@ jobs:
       - name: Lint
         run: npm run lint
       - name: Coverage
-        run: npm run coverage
+        run: npm run test
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
