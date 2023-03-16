@@ -1,3 +1,18 @@
+<a name="v2.5.3"></a>
+# [v2.5.3](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v2.5.3) - 16 Mar 2023
+
+- Always run coverage  fe76366
+- Merge pull request [#59](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/59) from ilovepixelart/feature/cleanup  692dd15
+- Keyword  67f5416
+- Remove useless files from bundle  530a899
+- Cleanup  c362591
+- Update changelog for &quot;v2.5.2&quot;  0ee8805
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.2...v2.5.3
+
+[Changes][v2.5.3]
+
+
 <a name="v2.5.2"></a>
 # [v2.5.2](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v2.5.2) - 16 Mar 2023
 
@@ -574,6 +589,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v2.5.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.2...v2.5.3
 [v2.5.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.1...v2.5.2
 [v2.5.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.14...v2.5.1
 [v2.4.14]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.12...v2.4.14
