@@ -35,6 +35,7 @@
     "src",
     "tests",
     ".swcrc",
+    "tsconfig.json",
     "jest.config.ts",
     "jest-mongodb-config.ts",
     ".eslintrc",
