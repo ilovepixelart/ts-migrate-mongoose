@@ -25,7 +25,8 @@
     "schema",
     "db",
     "nosql",
-    "typescript"
+    "typescript",
+    "swc"
   ],
   "engines": {
     "node": "^14.15.0 || ^16.10.0 || >=18.0.0"
@@ -35,12 +36,11 @@
     "src",
     "tests",
     ".swcrc",
+    "tsconfig.json",
     "jest.config.ts",
     "jest-mongodb-config.ts",
     ".eslintrc",
-    ".eslintignore",
-    ".npmignore",
-    "CHANGELOG.md"
+    ".eslintignore"
   ],
   "bin": {
     "migrate": "dist/cjs/bin.js"
