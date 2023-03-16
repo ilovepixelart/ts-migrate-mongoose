@@ -39,9 +39,7 @@
     "jest.config.ts",
     "jest-mongodb-config.ts",
     ".eslintrc",
-    ".eslintignore",
-    ".npmignore",
-    "CHANGELOG.md"
+    ".eslintignore"
   ],
   "bin": {
     "migrate": "dist/cjs/bin.js"
