@@ -9,7 +9,7 @@ import type IMigration from './interfaces/IMigration'
   * @param connection The mongoose connection to use
   * @param collection The name of the collection to use
   */
-export const getMigrationModel = (connection: Connection, collection = 'migrations'): Model<IMigration> => {
+export const getMigrationModel = (connection: Connection, collection: string): Model<IMigration> => {
   const MigrationSchema = new Schema<IMigration>({
     name: String,
     state: {
