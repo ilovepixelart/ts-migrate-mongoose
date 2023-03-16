@@ -1,3 +1,17 @@
+<a name="v2.5.2"></a>
+# [v2.5.2](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v2.5.2) - 16 Mar 2023
+
+- Merge pull request [#58](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/58) from ilovepixelart/feature/dep  2a6814b
+- Dep + no default for collection on getMigrationModel method  7537722
+- Merge pull request [#57](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/57) from ilovepixelart/snyk-upgrade-48ec56b575682de3376803b66841a91e  df2ef9e
+- fix: upgrade mongoose from 6.9.2 to 6.10.0  cb6d928
+- Update changelog for &quot;v2.5.1&quot;  65ba013
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.1...v2.5.2
+
+[Changes][v2.5.2]
+
+
 <a name="v2.5.1"></a>
 # [v2.5.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v2.5.1) - 11 Mar 2023
 
@@ -560,6 +574,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v2.5.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.1...v2.5.2
 [v2.5.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.14...v2.5.1
 [v2.4.14]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.12...v2.4.14
 [v2.4.12]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.11...v2.4.12
