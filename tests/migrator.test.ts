@@ -149,7 +149,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   })
 
   it('should ensure migrations path', async () => {
-    fs.rmdirSync('migrations', { recursive: true })
+    fs.rmSync('migrations', { recursive: true })
     const migrator = await Migrator.connect({ connection })
     expect(migrator).toBeInstanceOf(Migrator)
     expect(fs.existsSync('migrations')).toBe(true)
@@ -205,6 +205,15 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     const migrations = await migrator.sync()
     expect(migrations).toBeInstanceOf(Array)
     expect(migrations).toHaveLength(3)
+  })
+
+  it('should run sync and find 0 migrations', async () => {
+    const migrator = await Migrator.connect({ connection, autosync: true })
+    await migrator.migrationModel.deleteMany({})
+    clearDirectory('migrations')
+    const migrations = await migrator.sync()
+    expect(migrations).toBeInstanceOf(Array)
+    expect(migrations).toHaveLength(0)
   })
 
   it('should run prune and find 2 migrations in db that no longer exits in file system', async () => {
