@@ -16,55 +16,32 @@ import {
   DEFAULT_MIGRATE_AUTOSYNC,
   DEFAULT_MIGRATE_CLI,
   DEFAULT_MIGRATE_MIGRATIONS_PATH,
-  DEFAULT_MIGRATE_MONGO_COLLECTION
+  DEFAULT_MIGRATE_MONGO_COLLECTION,
+  DEFAULT_MIGRATE_TEMPLATE_PATH
 } from './defaults'
 
 import swcrc from './swcrc'
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-var-requires
 require('@swc/register')(swcrc)
 
-export const defaultTemplate = `/* eslint-disable import/first */
-// Orders is important, import your models bellow this two lines, NOT above
-import mongoose from 'mongoose'
-mongoose.set('strictQuery', false) // https://mongoosejs.com/docs/guide.html#strictQuery
-
-// Import your models here
-
-// Make any changes you need to make to the database here
-export async function up () {
-  await this.connect(mongoose)
-  // Write migration here
-}
-
-// Make any changes that UNDO the up function side effects here (if possible)
-export async function down () {
-  await this.connect(mongoose)
-  // Write migration here
-}
-`
-
 /**
  * This class is responsible for running migrations
  * @class Migrator
  */
 class Migrator {
-  uri: string | undefined
-  mongoose: Mongoose | undefined
-  template: string
-  migrationsPath: string
-  connection: Connection
-  collection: string
-  autosync: boolean
-  cli: boolean
-  migrationModel: Model<IMigration>
+  readonly migrationModel: Model<IMigration>
+  readonly connection: Connection
 
-  constructor (options: IMigratorOptions) {
-    this.template = defaultTemplate
+  private uri?: string
+  private mongoose?: Mongoose
+  private template: string
+  private migrationsPath: string
+  private collection: string
+  private autosync: boolean
+  private cli: boolean
 
-    if (options.templatePath && fs.existsSync(options.templatePath)) {
-      this.template = fs.readFileSync(options.templatePath, 'utf8')
-    }
-
+  private constructor (options: IMigratorOptions) {
+    this.template = this.getTemplate(options.templatePath ?? DEFAULT_MIGRATE_TEMPLATE_PATH)
     this.migrationsPath = path.resolve(options.migrationsPath ?? DEFAULT_MIGRATE_MIGRATIONS_PATH)
     this.collection = options.collection ?? DEFAULT_MIGRATE_MONGO_COLLECTION
     this.autosync = options.autosync ?? DEFAULT_MIGRATE_AUTOSYNC
@@ -82,6 +59,20 @@ class Migrator {
     }
 
     this.migrationModel = getMigrationModel(this.connection, this.collection)
+  }
+
+  /**
+   * Asynchronously creates a new migrator instance
+   * @param options The options to use
+   * @returns A promise that resolves to the created migrator
+   * @memberof Migrator
+   * @static
+   * @async
+   */
+  static async connect (options: IMigratorOptions): Promise<Migrator> {
+    const migrator = new Migrator(options)
+    await migrator.connected()
+    return migrator
   }
 
   /**
@@ -106,6 +97,20 @@ class Migrator {
    */
   logMigrationStatus (direction: 'down' | 'up', filename: string): void {
     this.log(chalk[direction === 'up' ? 'green' : 'red'](`${direction}:`) + ` ${filename} `)
+  }
+
+  /**
+   * Gets template from file system
+   * @param templatePath The path to the template
+   * @returns The template string
+   * @memberof Migrator
+   */
+  getTemplate (templatePath: string): string {
+    const path = templatePath && fs.existsSync(templatePath)
+      ? templatePath
+      : DEFAULT_MIGRATE_TEMPLATE_PATH
+
+    return fs.readFileSync(path, 'utf8')
   }
 
   /**
@@ -237,7 +242,7 @@ class Migrator {
       } catch (err: unknown) {
         this.log(chalk.red(`Failed to run migration ${migration.name} due to an error`))
         this.log(chalk.red('Not continuing. Make sure your data is in consistent state'))
-        throw err instanceof (Error) ? err : new Error(err as string)
+        throw err
       }
     }
 
@@ -262,7 +267,6 @@ class Migrator {
    * @returns A promise that resolves to the created migration
    */
   async create (migrationName: string): Promise<HydratedDocument<IMigration>> {
-    await this.connected()
     const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     if (existingMigration) {
       throw new Error(chalk.red(`There is already a migration with name '${migrationName}' in the database`))
@@ -286,7 +290,7 @@ class Migrator {
    * @param migrationName Name of the migration to run to
    * @returns A promise that resolves to the ran migrations
    */
-  async run (direction: 'down' | 'up' = 'up', migrationName?: string): Promise<LeanDocument<IMigration>[]> {
+  async run (direction: 'down' | 'up', migrationName?: string): Promise<LeanDocument<IMigration>[]> {
     await this.sync()
 
     const untilMigration = migrationName
@@ -335,13 +339,12 @@ class Migrator {
    * @returns A promise that resolves to the imported migrations
    */
   async sync (): Promise<LeanDocument<IMigration>[]> {
-    await this.connected()
     try {
       const { migrationsInFs } = await this.getMigrations()
 
       let migrationsToImport = migrationsInFs
-        .filter((f) => !f.existsInDatabase)
-        .map((f) => f.filename)
+        .filter((file) => !file.existsInDatabase)
+        .map((file) => file.filename)
 
       this.log('Synchronizing database with file system migrations...')
       migrationsToImport = await this.choseMigrations(migrationsToImport, 'The following migrations exist in the migrations folder but not in the database.\nSelect the ones you want to import into the database')
@@ -362,13 +365,12 @@ class Migrator {
    * @returns A promise that resolves to the deleted migrations
    */
   async prune (): Promise<LeanDocument<IMigration>[]> {
-    await this.connected()
     try {
       const { migrationsInDb, migrationsInFs } = await this.getMigrations()
 
       let migrationsToDelete = migrationsInDb
-        .filter((m) => !migrationsInFs.find((f) => f.filename === m.filename))
-        .map((m) => m.name)
+        .filter((migration) => !migrationsInFs.find((file) => file.filename === migration.filename))
+        .map((migration) => migration.name)
 
       migrationsToDelete = await this.choseMigrations(migrationsToDelete, 'The following migrations exist in the database but not in the migrations folder.\nSelect the ones you want to remove from the file system')
 

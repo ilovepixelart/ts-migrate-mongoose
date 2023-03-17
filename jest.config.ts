@@ -14,7 +14,8 @@ const config = recursive(mongo, {
     'src/**/*.[jt]s?(x)',
     '!src/bin.ts',
     '!src/**/*.d.ts',
-    '!src/interfaces/**/*.[jt]s?(x)'
+    '!src/interfaces/**/*.[jt]s?(x)',
+    '!src/template.ts'
   ],
   coverageDirectory: 'coverage',
   testMatch: [

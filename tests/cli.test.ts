@@ -4,7 +4,6 @@ import mongoose from 'mongoose'
 
 import { getMigrator, Migrate } from '../src/commander'
 import { clearDirectory } from './utils/filesystem'
-import { defaultTemplate } from '../src/migrator'
 
 import type { Connection } from 'mongoose'
 
@@ -38,12 +37,11 @@ describe('cli', () => {
 
   it('should get migrator instance', async () => {
     const migrator = await getMigrator({ uri })
-    const connection = await migrator.connected()
     expect(migrator).toBeDefined()
-    expect(connection).toBeDefined()
-    expect(connection.readyState).toBe(1)
+    expect(migrator.connection).toBeDefined()
+    expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
-    expect(connection.readyState).toBe(0)
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should run list command', async () => {
@@ -141,6 +139,7 @@ describe('cli', () => {
   it('should disable strict', async () => {
     clearDirectory('migrations')
     await connection.collection('migrations').deleteMany({})
+    const defaultTemplate = fs.readFileSync('./src/template.ts', 'utf8')
     const testModel = `import { model, Schema } from 'mongoose'
 
 export interface IExample {
