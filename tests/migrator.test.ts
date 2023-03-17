@@ -7,7 +7,7 @@ import { clearDirectory } from './utils/filesystem'
 
 import type { Connection } from 'mongoose'
 
-describe('library', () => {
+describe('Tests for Migrator class - Programmatic approach', () => {
   const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
   let connection: Connection
 
@@ -190,16 +190,49 @@ describe('library', () => {
 
   it('should throw on sync', async () => {
     const migrator = await Migrator.connect({ connection, autosync: true })
-    await migrator.connection.asPromise()
     jest.spyOn(migrator, 'getMigrations').mockImplementation(async () => {
       throw new Error('Sync error')
     })
     await expect(migrator.sync()).rejects.toThrow('Sync error')
   })
 
+  it('should run sync and find 3 migrations', async () => {
+    const migrator = await Migrator.connect({ connection, autosync: true })
+    await migrator.create('test-migration1')
+    await migrator.create('test-migration2')
+    await migrator.create('test-migration3')
+    await migrator.migrationModel.deleteMany({})
+    const migrations = await migrator.sync()
+    expect(migrations).toBeInstanceOf(Array)
+    expect(migrations).toHaveLength(3)
+  })
+
+  it('should run prune and find 2 migrations in db that no longer exits in file system', async () => {
+    const migrator = await Migrator.connect({ connection, autosync: true })
+    await migrator.create('test-migration1')
+    await migrator.create('test-migration2')
+    await migrator.run('up', 'test-migration1')
+    await migrator.run('up', 'test-migration2')
+    clearDirectory('migrations')
+    const migrations = await migrator.prune()
+    console.log(migrations)
+    expect(migrations).toBeInstanceOf(Array)
+    expect(migrations).toHaveLength(2)
+  })
+
+  it('should run prune and find 0 migrations in db that no longer exits in file system', async () => {
+    const migrator = await Migrator.connect({ connection, autosync: true })
+    await migrator.create('test-migration1')
+    await migrator.create('test-migration2')
+    await migrator.run('up', 'test-migration1')
+    await migrator.run('up', 'test-migration2')
+    const migrations = await migrator.prune()
+    expect(migrations).toBeInstanceOf(Array)
+    expect(migrations).toHaveLength(0)
+  })
+
   it('should throw on prune', async () => {
     const migrator = await Migrator.connect({ connection, autosync: true })
-    await migrator.connection.asPromise()
     jest.spyOn(migrator, 'getMigrations').mockImplementation(async () => {
       throw new Error('Sync error')
     })
