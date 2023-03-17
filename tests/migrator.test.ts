@@ -7,6 +7,8 @@ import { clearDirectory } from './utils/filesystem'
 
 import type { Connection } from 'mongoose'
 
+import { DEFAULT_MIGRATE_TEMPLATE_PATH } from '../src/defaults'
+
 describe('Tests for Migrator class - Programmatic approach', () => {
   const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
   let connection: Connection
@@ -284,6 +286,25 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     expect(migrationsInDb[1].filename).toBe(migrationsInFs[1].filename)
     expect(migrationsInDb[2].filename).toBe(migrationsInFs[2].filename)
 
+    await migrator.close()
+  })
+
+  it('should create migrator instance with wrong template path and fallback to default template', async () => {
+    const migrator = await Migrator.connect({ connection, templatePath: 'wrong/path' })
+    const migration = await migrator.create('test-migration')
+    expect(migration.filename).toMatch(/^\d{13,}-test-migration.ts/)
+    const templateContent = fs.readFileSync(DEFAULT_MIGRATE_TEMPLATE_PATH, 'utf8')
+    const migrationContent = fs.readFileSync('migrations/' + migration.filename, 'utf8')
+    expect(templateContent).toMatch(migrationContent)
+    await migrator.close()
+  })
+
+  it('should run up and run down', async () => {
+    const migrator = await Migrator.connect({ connection })
+    const migration = await migrator.create('test-migration')
+    expect(migration.filename).toMatch(/^\d{13,}-test-migration.ts/)
+    await migrator.run('up', 'test-migration')
+    await migrator.run('down')
     await migrator.close()
   })
 })

@@ -52,6 +52,15 @@ describe('cli', () => {
     expect(consoleSpy).toHaveBeenCalledWith(chalk.yellow('There are no migrations to list'))
   })
 
+  it('should run list command with pending migrations', async () => {
+    await exec('create', 'migration-name-test', '-d', uri)
+    const consoleSpy = jest.spyOn(console, 'log')
+    const opts = await exec('list', '-d', uri)
+    expect(opts?.uri).toBe(uri)
+    expect(consoleSpy).toHaveBeenCalledWith(chalk.cyan('Listing migrations'))
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(/migration-name-test/))
+  })
+
   it('should run create command', async () => {
     const consoleSpy = jest.spyOn(console, 'log')
     const opts = await exec('create', 'migration-name-test', '-d', uri)
