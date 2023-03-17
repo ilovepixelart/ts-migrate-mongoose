@@ -13,7 +13,7 @@ const deleteFolderRecursive = (dir: string) => {
         fs.unlinkSync(cur)
       }
     })
-    fs.rmSync(dir)
+    fs.rmSync(dir, { recursive: true })
   }
 }
 
