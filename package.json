@@ -25,8 +25,13 @@
     "schema",
     "db",
     "nosql",
+    "ts",
     "typescript",
-    "swc"
+    "swc",
+    "cli",
+    "cli-app",
+    "cli-tool",
+    "programmatic"
   ],
   "engines": {
     "node": "^14.15.0 || ^16.10.0 || >=18.0.0"
