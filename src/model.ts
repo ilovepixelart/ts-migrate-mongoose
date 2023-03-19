@@ -27,7 +27,8 @@ export const getMigrationModel = (connection: Connection, collection: string): M
         delete ret.__v
         return ret
       }
-    }
+    },
+    autoCreate: true
   })
 
   MigrationSchema.virtual('filename').get(function () {

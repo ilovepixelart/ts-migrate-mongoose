@@ -2,7 +2,7 @@ import fs from 'fs'
 import inquirer from 'inquirer'
 import path from 'path'
 import chalk from 'chalk'
-import { createConnection } from 'mongoose'
+import mongoose from 'mongoose'
 
 import { getMigrationModel } from './model'
 
@@ -39,6 +39,9 @@ class Migrator {
   private cli: boolean
 
   private constructor (options: IMigratorOptions) {
+    // https://mongoosejs.com/docs/guide.
+    mongoose.set('strictQuery', false)
+
     this.template = this.getTemplate(options.templatePath)
     this.migrationsPath = path.resolve(options.migrationsPath ?? DEFAULT_MIGRATE_MIGRATIONS_PATH)
     this.collection = options.collection ?? DEFAULT_MIGRATE_MONGO_COLLECTION
@@ -47,11 +50,9 @@ class Migrator {
 
     this.ensureMigrationsPath()
 
-    if (options.connection) {
-      this.connection = options.connection
-    } else if (options.uri) {
+    if (options.uri) {
       this.uri = options.uri
-      this.connection = createConnection(this.uri, { autoCreate: true })
+      this.connection = mongoose.createConnection(this.uri, options.connectOptions)
     } else {
       throw new Error(chalk.red('No mongoose connection or mongo uri provided to migrator'))
     }
