@@ -238,6 +238,7 @@ export default model<IUser>('user', UserSchema)
 /* eslint-disable import/first */
 // Orders is important, import your models bellow this two lines, NOT above
 import mongoose from 'mongoose'
+import type { Mongoose } from 'mongoose'
 mongoose.set('strictQuery', false) // https://mongoosejs.com/docs/guide.html#strictQuery
 
 interface IApply {

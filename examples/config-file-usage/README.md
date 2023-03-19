@@ -9,8 +9,8 @@ Now instead of running this command to create a new migration
 Directory in this example is **not** the default `./migrations` but `./my-custom/migrations`.
 
 ```bash
-yarn migrate -d mongodb://localhost/my-db create my-new-migration
-npx migrate -d mongodb://localhost/my-db create my-new-migration
+yarn migrate create my-new-migration -d mongodb://localhost/my-db
+npx migrate create my-new-migration -d mongodb://localhost/my-db
 ```
 
 We can simply run
