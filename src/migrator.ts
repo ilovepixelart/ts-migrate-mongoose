@@ -6,7 +6,7 @@ import { createConnection } from 'mongoose'
 
 import { getMigrationModel } from './model'
 
-import type { Connection, FilterQuery, HydratedDocument, LeanDocument, Model, Mongoose } from 'mongoose'
+import type { Connection, FilterQuery, HydratedDocument, LeanDocument, Model } from 'mongoose'
 import type IMigration from './interfaces/IMigration'
 import type IFileMigration from './interfaces/IFileMigration'
 import type IMigratorOptions from './interfaces/IMigratorOptions'
@@ -32,7 +32,6 @@ class Migrator {
   readonly connection: Connection
 
   private uri?: string
-  private mongoose?: Mongoose
   private template: string
   private migrationsPath: string
   private collection: string
@@ -81,9 +80,6 @@ class Migrator {
    */
   async close (): Promise<void> {
     await this.connection.close()
-    if (this.mongoose) {
-      await this.mongoose.disconnect()
-    }
   }
 
   /**
@@ -383,12 +379,6 @@ class Migrator {
      */
   private async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'down' | 'up'): Promise<LeanDocument<IMigration>[]> {
     const migrationsRan: LeanDocument<IMigration>[] = []
-    const connect = async (mongoose: Mongoose): Promise<void> => {
-      if (this.cli && this.uri && mongoose.connection.readyState !== 1) {
-        await mongoose.connect(this.uri)
-        this.mongoose = mongoose
-      }
-    }
     for await (const migration of migrationsToRun) {
       const migrationFilePath = path.join(this.migrationsPath, migration.filename)
       const migrationFunctions = await import(migrationFilePath) as IMigrationModule
@@ -399,9 +389,7 @@ class Migrator {
       }
 
       try {
-        await migrationFunction.apply({
-          connect: (mongoose: Mongoose) => connect(mongoose)
-        })
+        await migrationFunction()
 
         this.logMigrationStatus(direction, migration.filename)
 
