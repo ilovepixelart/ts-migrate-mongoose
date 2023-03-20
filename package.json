@@ -76,7 +76,7 @@
     "@swc/helpers": "0.4.14",
     "@swc/jest": "0.2.24",
     "@types/inquirer": "8.2.5",
-    "@types/jest": "29.4.4",
+    "@types/jest": "29.5.0",
     "@types/node": "18.15.3",
     "@typescript-eslint/eslint-plugin": "5.55.0",
     "@typescript-eslint/parser": "5.55.0",
