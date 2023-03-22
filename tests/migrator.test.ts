@@ -25,15 +25,14 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     }
   })
 
-  it('should log "There are no pending migrations"', async () => {
+  it('should return [] if "There are no pending migrations"', async () => {
     const migrator = await Migrator.connect({ uri })
     expect(migrator).toBeInstanceOf(Migrator)
 
     expect(migrator.connection.readyState).toBe(1)
 
-    const consoleSpy = jest.spyOn(console, 'log')
-    await migrator.run('up')
-    expect(consoleSpy).toHaveBeenCalledWith(chalk.yellow('There are no pending migrations'))
+    const migrations = await migrator.run('up')
+    expect(migrations).toEqual([])
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()

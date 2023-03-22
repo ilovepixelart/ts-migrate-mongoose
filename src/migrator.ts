@@ -14,6 +14,7 @@ import type IMigrationModule from './interfaces/IMigrationModule'
 
 import {
   DEFAULT_MIGRATE_AUTOSYNC,
+  DEFAULT_MIGRATE_CLI,
   DEFAULT_MIGRATE_MIGRATIONS_PATH,
   DEFAULT_MIGRATE_MONGO_COLLECTION
 } from './defaults'
@@ -35,6 +36,7 @@ class Migrator {
   private migrationsPath: string
   private collection: string
   private autosync: boolean
+  private cli: boolean
 
   private constructor (options: IMigratorOptions) {
     // https://mongoosejs.com/docs/guide.
@@ -44,6 +46,7 @@ class Migrator {
     this.migrationsPath = path.resolve(options.migrationsPath ?? DEFAULT_MIGRATE_MIGRATIONS_PATH)
     this.collection = options.collection ?? DEFAULT_MIGRATE_MONGO_COLLECTION
     this.autosync = options.autosync ?? DEFAULT_MIGRATE_AUTOSYNC
+    this.cli = options.cli ?? DEFAULT_MIGRATE_CLI
 
     this.ensureMigrationsPath()
 
@@ -92,7 +95,7 @@ class Migrator {
   async list (): Promise<LeanDocument<IMigration>[]> {
     await this.sync()
     const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
-    if (!migrations.length) console.log(chalk.yellow('There are no migrations to list'))
+    if (!migrations.length) this.log(chalk.yellow('There are no migrations to list'))
     return migrations.map((migration: HydratedDocument<IMigration>) => {
       this.logMigrationStatus(migration.state, migration.filename)
       return migration.toJSON()
@@ -118,7 +121,7 @@ class Migrator {
       name: migrationName,
       createdAt: now
     })
-    console.log(`Created migration ${migrationName} in ${this.migrationsPath}`)
+    this.log(`Created migration ${migrationName} in ${this.migrationsPath}`)
     return migrationCreated
   }
 
@@ -162,7 +165,7 @@ class Migrator {
     const migrationsRan = await this.runMigrations(migrationsToRun, direction)
 
     if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {
-      console.log(chalk.green('All migrations finished successfully'))
+      this.log(chalk.green('All migrations finished successfully'))
     }
     return migrationsRan
   }
@@ -182,12 +185,12 @@ class Migrator {
         .filter((file) => !file.existsInDatabase)
         .map((file) => file.filename)
 
-      console.log('Synchronizing database with file system migrations...')
+      this.log('Synchronizing database with file system migrations...')
       migrationsToImport = await this.choseMigrations(migrationsToImport, 'The following migrations exist in the migrations folder but not in the database.\nSelect the ones you want to import into the database')
 
       return this.syncMigrations(migrationsToImport)
     } catch (error) {
-      console.log(chalk.red('Could not synchronize migrations in the migrations folder up to the database'))
+      this.log(chalk.red('Could not synchronize migrations in the migrations folder up to the database'))
       throw error
     }
   }
@@ -213,13 +216,13 @@ class Migrator {
       const migrationsToDeleteDocs = await this.migrationModel.find({ name: { $in: migrationsToDelete } }).lean().exec()
 
       if (migrationsToDelete.length) {
-        console.log(`Removing migration(s) from database: \n${chalk.cyan(migrationsToDelete.join('\n'))} `)
+        this.log(`Removing migration(s) from database: \n${chalk.cyan(migrationsToDelete.join('\n'))} `)
         await this.migrationModel.deleteMany({ name: { $in: migrationsToDelete } }).exec()
       }
 
       return migrationsToDeleteDocs
     } catch (error) {
-      console.log(chalk.red('Could not prune extraneous migrations from database'))
+      this.log(chalk.red('Could not prune extraneous migrations from database'))
       throw error
     }
   }
@@ -231,10 +234,25 @@ class Migrator {
    * @async
    */
   private async noPendingMigrations (): Promise<LeanDocument<IMigration>[]> {
-    console.log(chalk.yellow('There are no pending migrations'))
-    console.log('Current migrations status: ')
-    await this.list()
+    this.log(chalk.yellow('There are no pending migrations'))
+    if (this.cli) {
+      this.log('Current migrations status: ')
+      await this.list()
+    }
     return []
+  }
+
+  /**
+   * Logs a message to the console if the migrator is running in cli mode or if force is true
+   * @param message The string to log
+   * @returns void
+   * @memberof Migrator
+   * @private
+   */
+  private log (message: string): void {
+    if (this.cli) {
+      console.log(message)
+    }
   }
 
   /**
@@ -246,7 +264,7 @@ class Migrator {
      * @private
      */
   private logMigrationStatus (direction: 'down' | 'up', filename: string): void {
-    console.log(chalk[direction === 'up' ? 'green' : 'red'](`${direction}:`) + ` ${filename} `)
+    this.log(chalk[direction === 'up' ? 'green' : 'red'](`${direction}:`) + ` ${filename} `)
   }
 
   /**
@@ -308,7 +326,7 @@ class Migrator {
       const timestamp = filename.slice(0, timestampSeparatorIndex)
       const migrationName = filename.slice(timestampSeparatorIndex + 1, filename.lastIndexOf('.'))
 
-      console.log(`Adding migration ${filePath} into database from file system. State is ` + chalk.red('down'))
+      this.log(`Adding migration ${filePath} into database from file system. State is ` + chalk.red('down'))
       const createdMigration = await this.migrationModel.create({
         name: migrationName,
         createdAt: timestamp
@@ -391,8 +409,8 @@ class Migrator {
         await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
         migrationsRan.push(migration.toJSON())
       } catch (err: unknown) {
-        console.log(chalk.red(`Failed to run migration ${migration.name} due to an error`))
-        console.log(chalk.red('Not continuing. Make sure your data is in consistent state'))
+        this.log(chalk.red(`Failed to run migration ${migration.name} due to an error`))
+        this.log(chalk.red('Not continuing. Make sure your data is in consistent state'))
         throw err
       }
     }
