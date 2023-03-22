@@ -11,8 +11,7 @@ const UserSchema = new Schema<IUser>({
     required: true
   },
   lastName: {
-    type: String,
-    required: false
+    type: String
   }
 })
 
