@@ -14,7 +14,6 @@ import type IMigrationModule from './interfaces/IMigrationModule'
 
 import {
   DEFAULT_MIGRATE_AUTOSYNC,
-  DEFAULT_MIGRATE_CLI,
   DEFAULT_MIGRATE_MIGRATIONS_PATH,
   DEFAULT_MIGRATE_MONGO_COLLECTION
 } from './defaults'
