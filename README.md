@@ -179,12 +179,10 @@ Executing the above command will create a migration file in the `./migrations` f
 ```typescript
 // Import your models here
 
-// Make any changes you need to make to the database here
 export async function up (): Promise<void> {
   // Write migration here
 }
 
-// Make any changes that UNDO the up function side effects here (if possible)
 export async function down (): Promise<void> {
   // Write migration here
 }
@@ -226,7 +224,6 @@ export default model<IUser>('user', UserSchema)
 // Import your models here
 import User from '../models/User'
 
-// Make any changes you need to make to the database here
 export async function up (): Promise<void> {
   // Then you can use it in the migration like so 
   await User.create({ firstName: 'John', lastName: 'Doe' })
