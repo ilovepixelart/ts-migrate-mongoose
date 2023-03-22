@@ -1,6 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import chalk from 'chalk'
 import inquirer from 'inquirer'
 import mongoose, { Types } from 'mongoose'
 
