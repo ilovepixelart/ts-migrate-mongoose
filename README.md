@@ -198,7 +198,7 @@ As long as you can import the references to your models you can use them in migr
 \
 Below is an example of a typical setup in a mongoose project:
 
-- models/User.ts
+- models/User.ts - defines the User model
 
 ```typescript
 import { Schema, model } from 'mongoose'
@@ -214,27 +214,64 @@ const UserSchema = new Schema<IUser>({
     required: true
   },
   lastName: {
-    type: String,
-    required: false
+    type: String
   }
 })
 
 export default model<IUser>('user', UserSchema)
 ```
 
-- 1673525773572-first-migration-demo.ts
+- models/index.ts - ensures that all models are exported and you establish a connection to the database
 
 ```typescript
-// Import your models here
-import User from '../models/User'
+import mongoose from 'mongoose'
+import mongooseOptions from '../options/mongoose'
 
-export async function up (): Promise<void> {
-  // Then you can use it in the migration like so 
-  await User.create({ firstName: 'John', lastName: 'Doe' })
-  
-  // Or do something such as
-  const users = await User.find()
-  /* Do something with users */
+import User from './User'
+
+const getModels = async () => {
+  // In case you using mongoose 6
+  // https://mongoosejs.com/docs/guide.html#strictQuery
+  mongoose.set('strictQuery', false)
+
+  // Ensure connection is open so we can run migrations
+  if (mongoose.connection.readyState !== 1) {
+    await mongoose.connect(process.env.MIGRATE_MONGO_URI ?? 'mongodb://localhost:27017/express', mongooseOptions)
+  }
+
+  // Return models that will be used in migration methods
+  return {
+    User
+  }
+}
+
+export default getModels
+```
+
+- 1673525773572-first-migration-demo.ts - your migration file
+
+```typescript
+import getModels from '../models'
+
+export async function up () {
+  const { User } = await getModels()
+  // Write migration here
+  await User.create([
+    {
+      firstName: 'John',
+      lastName: 'Doe'
+    },
+    {
+      firstName: 'Jane',
+      lastName: 'Doe'
+    }
+  ])
+}
+
+export async function down () {
+  const { User } = await getModels()
+  // Write migration here
+  await User.deleteMany({ firstName: { $in: ['Jane', 'John'] } }).exec()
 }
 ```
 
