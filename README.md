@@ -30,6 +30,10 @@ ts-migrate-mongoose is a migration framework for projects which are already usin
 - Ability to prune old migrations, and sync new migrations
 - Ability to create custom templates for migrations
 
+## Example
+
+How to use it with express [ts-express-swc](https://github.com/ilovepixelart/ts-express-swc)
+
 ## Installation
 
 - Locally inside your project
