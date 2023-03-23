@@ -30,6 +30,10 @@ ts-migrate-mongoose is a migration framework for projects which are already usin
 - Ability to prune old migrations, and sync new migrations
 - Ability to create custom templates for migrations
 
+## Example
+
+How to use it with express [ts-express-swc](https://github.com/ilovepixelart/ts-express-swc)
+
 ## Installation
 
 - Locally inside your project
@@ -177,22 +181,13 @@ Executing the above command will create a migration file in the `./migrations` f
 - 1673525773572-first-migration-demo.ts
 
 ```typescript
-/* eslint-disable import/first */
-// Orders is important, import your models bellow this two lines, NOT above
-import mongoose from 'mongoose'
-mongoose.set('strictQuery', false) // https://mongoosejs.com/docs/guide.html#strictQuery
-
 // Import your models here
 
-// Make any changes you need to make to the database here
-export async function up () {
-  await this.connect(mongoose)
+export async function up (): Promise<void> {
   // Write migration here
 }
 
-// Make any changes that UNDO the up function side effects here (if possible)
-export async function down () {
-  await this.connect(mongoose)
+export async function down (): Promise<void> {
   // Write migration here
 }
 ```
@@ -203,7 +198,7 @@ As long as you can import the references to your models you can use them in migr
 \
 Below is an example of a typical setup in a mongoose project:
 
-- models/User.ts
+- models/User.ts - defines the User model
 
 ```typescript
 import { Schema, model } from 'mongoose'
@@ -219,34 +214,64 @@ const UserSchema = new Schema<IUser>({
     required: true
   },
   lastName: {
-    type: String,
-    required: false
+    type: String
   }
 })
 
 export default model<IUser>('user', UserSchema)
 ```
 
-- 1673525773572-first-migration-demo.ts
+- models/index.ts - ensures that all models are exported and you establish a connection to the database
 
 ```typescript
-/* eslint-disable import/first */
-// Orders is important, import your models bellow this two lines, NOT above
 import mongoose from 'mongoose'
-mongoose.set('strictQuery', false) // https://mongoosejs.com/docs/guide.html#strictQuery
+import mongooseOptions from '../options/mongoose'
 
-// Import your models here
-import User from '../models/User'
+import User from './User'
 
-// Make any changes you need to make to the database here
-export async function up() {
-  await this.connect(mongoose)
-  // Then you can use it in the migration like so 
-  await User.create({ firstName: 'John', lastName: 'Doe' })
-  
-  // Or do something such as
-  const users = await User.find()
-  /* Do something with users */
+const getModels = async () => {
+  // In case you using mongoose 6
+  // https://mongoosejs.com/docs/guide.html#strictQuery
+  mongoose.set('strictQuery', false)
+
+  // Ensure connection is open so we can run migrations
+  if (mongoose.connection.readyState !== 1) {
+    await mongoose.connect(process.env.MIGRATE_MONGO_URI ?? 'mongodb://localhost:27017/express', mongooseOptions)
+  }
+
+  // Return models that will be used in migration methods
+  return {
+    User
+  }
+}
+
+export default getModels
+```
+
+- 1673525773572-first-migration-demo.ts - your migration file
+
+```typescript
+import getModels from '../models'
+
+export async function up () {
+  const { User } = await getModels()
+  // Write migration here
+  await User.create([
+    {
+      firstName: 'John',
+      lastName: 'Doe'
+    },
+    {
+      firstName: 'Jane',
+      lastName: 'Doe'
+    }
+  ])
+}
+
+export async function down () {
+  const { User } = await getModels()
+  // Write migration here
+  await User.deleteMany({ firstName: { $in: ['Jane', 'John'] } }).exec()
 }
 ```
 

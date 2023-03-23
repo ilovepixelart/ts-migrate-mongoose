@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import mongoose from 'mongoose'
 
-import { migrate } from '../src/commander'
+import { migrate, getConfig } from '../src/commander'
 import { clearDirectory } from './utils/filesystem'
 
 import type { Connection } from 'mongoose'
@@ -48,5 +48,26 @@ describe('commander', () => {
     await migrate.run(false)
     expect(consoleSpy).toHaveBeenCalledWith(chalk.cyan('Listing migrations'))
     expect(consoleSpy).toHaveBeenCalledWith(chalk.yellow('There are no migrations to list'))
+  })
+
+  it('should getConfig .json options', async () => {
+    const config = await getConfig('./examples/config-file-usage/migrate.json')
+    expect(config).toEqual({
+      uri: 'mongodb://localhost/my-db',
+      migrationsPath: 'migrations'
+    })
+  })
+
+  it('should getConfig .ts options', async () => {
+    const config = await getConfig('./examples/config-file-usage/migrate.ts')
+    expect(config).toEqual({
+      uri: 'mongodb://localhost/my-db',
+      migrationsPath: 'migrations'
+    })
+  })
+
+  it('should getConfig .js options', async () => {
+    const config = await getConfig('./examples/config-file-usage/migrate.js')
+    expect(config).toEqual({})
   })
 })

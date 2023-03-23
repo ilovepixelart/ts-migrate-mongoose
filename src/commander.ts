@@ -89,7 +89,7 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
     throw new Error(chalk.red('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.'))
   }
 
-  const migrator = new Migrator({
+  return Migrator.connect({
     migrationsPath,
     templatePath,
     uri,
@@ -97,10 +97,6 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
     autosync,
     cli: true
   })
-
-  await migrator.connected()
-
-  return migrator
 }
 
 /**

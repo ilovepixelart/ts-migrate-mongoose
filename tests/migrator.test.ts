@@ -1,4 +1,5 @@
 import fs from 'fs'
+import path from 'path'
 import inquirer from 'inquirer'
 import mongoose, { Types } from 'mongoose'
 
@@ -7,7 +8,7 @@ import { clearDirectory } from './utils/filesystem'
 
 import type { Connection } from 'mongoose'
 
-describe('library', () => {
+describe('Tests for Migrator class - Programmatic approach', () => {
   const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
   let connection: Connection
 
@@ -23,65 +24,71 @@ describe('library', () => {
     }
   })
 
-  it('should throw "There are no pending migrations"', async () => {
-    const migrator = new Migrator({ connection })
+  it('should return [] if "There are no pending migrations"', async () => {
+    const migrator = await Migrator.connect({ uri })
     expect(migrator).toBeInstanceOf(Migrator)
 
-    await migrator.connected()
     expect(migrator.connection.readyState).toBe(1)
 
-    await expect(migrator.run('up')).rejects.toThrow('There are no pending migrations')
+    const migrations = await migrator.run('up')
+    expect(migrations).toEqual([])
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should throw "There is already a migration with name \'create-users\' in the database"', async () => {
     const migrationName = 'create-users'
-    const migrator = new Migrator({ connection })
+    const migrator = await Migrator.connect({ uri })
     expect(migrator).toBeInstanceOf(Migrator)
 
-    await migrator.connected()
     expect(migrator.connection.readyState).toBe(1)
 
     const migration = await migrator.create(migrationName)
     expect(migration.filename).toContain(migrationName)
 
     await expect(migrator.create(migrationName)).rejects.toThrow(`There is already a migration with name '${migrationName}' in the database`)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should throw "Could not find that migration in the database"', async () => {
     const migrationName = 'create-unicorns'
-    const migrator = new Migrator({ connection, cli: true })
+    const migrator = await Migrator.connect({ uri, cli: true })
     expect(migrator).toBeInstanceOf(Migrator)
 
-    await migrator.connected()
     expect(migrator.connection.readyState).toBe(1)
 
     await expect(migrator.run('down', migrationName)).rejects.toThrow('Could not find that migration in the database')
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should create migrator with mongoose connection', async () => {
-    const migrator = new Migrator({ connection })
+    const migrator = await Migrator.connect({ uri })
     expect(migrator).toBeInstanceOf(Migrator)
 
-    await migrator.connected()
     expect(migrator.connection.readyState).toBe(1)
-
     await migrator.close()
     expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should create migrator with uri', async () => {
-    const migrator = new Migrator({ uri })
+    const migrator = await Migrator.connect({ uri })
     expect(migrator).toBeInstanceOf(Migrator)
 
-    await migrator.connected()
     expect(migrator.connection.readyState).toBe(1)
-
     await migrator.close()
     expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should insert a doc into collection with migrator', async () => {
-    const migrator = new Migrator({ uri, autosync: true })
+    const migrator = await Migrator.connect({ uri, autosync: true })
     await migrator.prune()
 
     const migrationName = `test-migration-creation-${new Types.ObjectId().toHexString()}`
@@ -114,13 +121,13 @@ describe('library', () => {
       ])
     )
 
-    // Close the underlying connection to mongo
+    expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
     expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should prune all migrations', async () => {
-    const migrator = new Migrator({ uri, autosync: true })
+    const migrator = await Migrator.connect({ uri, autosync: true })
 
     const migrationName = 'migration-creation'
     const migration = await migrator.create(migrationName)
@@ -145,77 +152,160 @@ describe('library', () => {
     const migrationsInDB = await migrator.migrationModel.find({})
     expect(migrationsInDB).toHaveLength(0)
 
+    expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
     expect(migrator.connection.readyState).toBe(0)
   })
 
-  it('should throw "No mongoose connection or mongo uri provided to migrator"', () => {
-    expect(() => {
-      const migrator = new Migrator({ uri: '' })
-      expect(migrator).toBeInstanceOf(Migrator)
-    }).toThrow('No mongoose connection or mongo uri provided to migrator')
+  it('should throw "No mongoose connection or mongo uri provided to migrator"', async () => {
+    await expect(Migrator.connect({ uri: '' })).rejects.toThrow('No mongoose connection or mongo uri provided to migrator')
   })
 
   it('should ensure migrations path', async () => {
-    fs.rmdirSync('migrations', { recursive: true })
-    const migrator = new Migrator({ connection })
+    fs.rmSync('migrations', { recursive: true })
+    const migrator = await Migrator.connect({ uri })
     expect(migrator).toBeInstanceOf(Migrator)
     expect(fs.existsSync('migrations')).toBe(true)
+
+    expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should throw "Failed to run migration"', async () => {
-    const migrator = new Migrator({ connection })
+    const migrator = await Migrator.connect({ uri })
     const migration = await migrator.migrationModel.create({
       name: 'test-migration',
       createdAt: new Date()
     })
     await expect(migrator.runMigrations([migration], 'up')).rejects.toThrow(/Cannot find module/)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should log "Adding migration"', async () => {
-    const migrator = new Migrator({ connection })
+    const migrator = await Migrator.connect({ uri })
     const migration = await migrator.create('test-migration')
     clearDirectory('migrations')
     const migrations = await migrator.syncMigrations([migration.filename])
     expect(migrations).toHaveLength(1)
     expect(migrations[0].name).toBe('test-migration')
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should choose first', async () => {
     jest.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
-    const migrator = new Migrator({ connection })
+    const migrator = await Migrator.connect({ uri })
     const answers = await migrator.choseMigrations(['1', '2', '3'], 'Message')
     expect(answers).toEqual(['1'])
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should choose all', async () => {
     jest.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
-    const migrator = new Migrator({ connection, autosync: true })
+    const migrator = await Migrator.connect({ uri, autosync: true })
     const answers = await migrator.choseMigrations(['1', '2', '3'], 'Message')
     expect(answers).toEqual(['1', '2', '3'])
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should throw on sync', async () => {
-    const migrator = new Migrator({ connection, autosync: true })
-    await migrator.connection.asPromise()
+    const migrator = await Migrator.connect({ uri, autosync: true })
     jest.spyOn(migrator, 'getMigrations').mockImplementation(async () => {
       throw new Error('Sync error')
     })
     await expect(migrator.sync()).rejects.toThrow('Sync error')
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('should run sync and find 3 migrations', async () => {
+    const migrator = await Migrator.connect({ uri, autosync: true })
+    await migrator.create('test-migration1')
+    await migrator.create('test-migration2')
+    await migrator.create('test-migration3')
+    await migrator.migrationModel.deleteMany({})
+    const migrations = await migrator.sync()
+    expect(migrations).toBeInstanceOf(Array)
+    expect(migrations).toHaveLength(3)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('should run sync and find 0 migrations', async () => {
+    const migrator = await Migrator.connect({ uri, autosync: true })
+    await migrator.migrationModel.deleteMany({})
+    clearDirectory('migrations')
+    const migrations = await migrator.sync()
+    expect(migrations).toBeInstanceOf(Array)
+    expect(migrations).toHaveLength(0)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('should run prune and find 2 migrations in db that no longer exits in file system', async () => {
+    const migrator = await Migrator.connect({ uri, autosync: true })
+    await migrator.create('test-migration1')
+    await migrator.create('test-migration2')
+    await migrator.run('up', 'test-migration1')
+    await migrator.run('up', 'test-migration2')
+    clearDirectory('migrations')
+    const migrations = await migrator.prune()
+    console.log(migrations)
+    expect(migrations).toBeInstanceOf(Array)
+    expect(migrations).toHaveLength(2)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('should run prune and find 0 migrations in db that no longer exits in file system', async () => {
+    const migrator = await Migrator.connect({ uri, autosync: true })
+    await migrator.create('test-migration1')
+    await migrator.create('test-migration2')
+    await migrator.run('up', 'test-migration1')
+    await migrator.run('up', 'test-migration2')
+    const migrations = await migrator.prune()
+    expect(migrations).toBeInstanceOf(Array)
+    expect(migrations).toHaveLength(0)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should throw on prune', async () => {
-    const migrator = new Migrator({ connection, autosync: true })
-    await migrator.connection.asPromise()
+    const migrator = await Migrator.connect({ uri, autosync: true })
     jest.spyOn(migrator, 'getMigrations').mockImplementation(async () => {
       throw new Error('Sync error')
     })
     await expect(migrator.prune()).rejects.toThrow('Sync error')
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should get migrations', async () => {
-    const migrator = new Migrator({ connection })
+    const migrator = await Migrator.connect({ uri })
     await migrator.create('test-migration1')
     await migrator.create('test-migration2')
     await migrator.create('test-migration3')
@@ -250,6 +340,33 @@ describe('library', () => {
     expect(migrationsInDb[1].filename).toBe(migrationsInFs[1].filename)
     expect(migrationsInDb[2].filename).toBe(migrationsInFs[2].filename)
 
+    expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('should create migrator instance with wrong template path and fallback to default template', async () => {
+    const migrator = await Migrator.connect({ uri, templatePath: 'wrong/path' })
+    const migration = await migrator.create('test-migration')
+    expect(migration.filename).toMatch(/^\d{13,}-test-migration.ts/)
+    const templateContent = fs.readFileSync(path.join(__dirname, '../src/template.ts'), 'utf8')
+    const migrationContent = fs.readFileSync('migrations/' + migration.filename, 'utf8')
+    expect(templateContent).toMatch(migrationContent)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('should run up and run down', async () => {
+    const migrator = await Migrator.connect({ uri })
+    const migration = await migrator.create('test-migration')
+    expect(migration.filename).toMatch(/^\d{13,}-test-migration.ts/)
+    await migrator.run('up', 'test-migration')
+    await migrator.run('down')
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 })

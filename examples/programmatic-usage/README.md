@@ -1,9 +1,11 @@
 # Example of using the library programmatically
 
+Check full example [here using express + typescript 5](https://github.com/ilovepixelart/ts-express-swc)
+
 ```typescript
 import Migrator from 'ts-migrate-mongoose'
 
-const migrator = new Migrator({
+const migrator = await Migrator.connect({
   // This is the only required property you need to set
   // MongoDB connection string URI
   uri: 'mongodb://localhost/my-db',

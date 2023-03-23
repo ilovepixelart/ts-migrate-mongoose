@@ -2,11 +2,11 @@ import fs from 'fs'
 import inquirer from 'inquirer'
 import path from 'path'
 import chalk from 'chalk'
-import { createConnection } from 'mongoose'
+import mongoose from 'mongoose'
 
 import { getMigrationModel } from './model'
 
-import type { Connection, FilterQuery, HydratedDocument, LeanDocument, Model, Mongoose } from 'mongoose'
+import type { Connection, FilterQuery, HydratedDocument, LeanDocument, Model } from 'mongoose'
 import type IMigration from './interfaces/IMigration'
 import type IFileMigration from './interfaces/IFileMigration'
 import type IMigratorOptions from './interfaces/IMigratorOptions'
@@ -23,48 +23,26 @@ import swcrc from './swcrc'
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-var-requires
 require('@swc/register')(swcrc)
 
-export const defaultTemplate = `/* eslint-disable import/first */
-// Orders is important, import your models bellow this two lines, NOT above
-import mongoose from 'mongoose'
-mongoose.set('strictQuery', false) // https://mongoosejs.com/docs/guide.html#strictQuery
-
-// Import your models here
-
-// Make any changes you need to make to the database here
-export async function up () {
-  await this.connect(mongoose)
-  // Write migration here
-}
-
-// Make any changes that UNDO the up function side effects here (if possible)
-export async function down () {
-  await this.connect(mongoose)
-  // Write migration here
-}
-`
-
 /**
  * This class is responsible for running migrations
  * @class Migrator
  */
 class Migrator {
-  uri: string | undefined
-  mongoose: Mongoose | undefined
-  template: string
-  migrationsPath: string
-  connection: Connection
-  collection: string
-  autosync: boolean
-  cli: boolean
-  migrationModel: Model<IMigration>
+  readonly migrationModel: Model<IMigration>
+  readonly connection: Connection
 
-  constructor (options: IMigratorOptions) {
-    this.template = defaultTemplate
+  private uri?: string
+  private template: string
+  private migrationsPath: string
+  private collection: string
+  private autosync: boolean
+  private cli: boolean
 
-    if (options.templatePath && fs.existsSync(options.templatePath)) {
-      this.template = fs.readFileSync(options.templatePath, 'utf8')
-    }
+  private constructor (options: IMigratorOptions) {
+    // https://mongoosejs.com/docs/guide.
+    mongoose.set('strictQuery', false)
 
+    this.template = this.getTemplate(options.templatePath)
     this.migrationsPath = path.resolve(options.migrationsPath ?? DEFAULT_MIGRATE_MIGRATIONS_PATH)
     this.collection = options.collection ?? DEFAULT_MIGRATE_MONGO_COLLECTION
     this.autosync = options.autosync ?? DEFAULT_MIGRATE_AUTOSYNC
@@ -72,11 +50,9 @@ class Migrator {
 
     this.ensureMigrationsPath()
 
-    if (options.connection) {
-      this.connection = options.connection
-    } else if (options.uri) {
+    if (options.uri) {
       this.uri = options.uri
-      this.connection = createConnection(this.uri, { autoCreate: true })
+      this.connection = mongoose.createConnection(this.uri, options.connectOptions)
     } else {
       throw new Error(chalk.red('No mongoose connection or mongo uri provided to migrator'))
     }
@@ -85,163 +61,17 @@ class Migrator {
   }
 
   /**
-   * Logs a message to the console if the migrator is running in cli mode or if force is true
-   * @param logString The string to log
-   * @param force If true, the message will be logged even if the migrator is not running in cli mode
-   * @returns void
+   * Asynchronously creates a new migrator instance
+   * @param options The options to use
+   * @returns A promise that resolves to the created migrator
    * @memberof Migrator
-   */
-  log (logString: string, force = false): void {
-    if (force || this.cli) {
-      console.log(logString)
-    }
-  }
-
-  /**
-   * Logs migration status to the console
-   * @param direction The direction of the migration
-   * @param filename The filename of the migration
-   * @returns void
-   * @memberof Migrator
-   */
-  logMigrationStatus (direction: 'down' | 'up', filename: string): void {
-    this.log(chalk[direction === 'up' ? 'green' : 'red'](`${direction}:`) + ` ${filename} `)
-  }
-
-  /**
-   * Ensures that the migrations path exists
-   * @returns void
-   * @memberof Migrator
-   */
-  ensureMigrationsPath (): void {
-    if (!fs.existsSync(this.migrationsPath)) {
-      fs.mkdirSync(this.migrationsPath, { recursive: true })
-    }
-  }
-
-  /**
-   * Connection status of the migrator
-   * @returns A promise that resolves to the connection status
-   * @memberof Migrator
-   * @async
-   * @example
-   * const migrator = new Migrator({ uri: 'mongodb://localhost:27017' })
-   * const connected = await migrator.connected()
-   * console.log(connected) // true
-   */
-  async connected (): Promise<Connection> {
-    return this.connection.asPromise()
-  }
-
-  /**
-   * Creates a new migration in database to reflect the changes in file system
-   * @param migrationName The name of the migration
-   * @returns A promise that resolves to the created migrations
-   * @memberof Migrator
+   * @static
    * @async
    */
-  async syncMigrations (migrationsInFs: string[]): Promise<IMigration[]> {
-    const promises = migrationsInFs.map(async (filename) => {
-      const filePath = path.join(this.migrationsPath, filename)
-      const timestampSeparatorIndex = filename.indexOf('-')
-      const timestamp = filename.slice(0, timestampSeparatorIndex)
-      const migrationName = filename.slice(timestampSeparatorIndex + 1, filename.lastIndexOf('.'))
-
-      this.log(`Adding migration ${filePath} into database from file system. State is ` + chalk.red('down'))
-      const createdMigration = await this.migrationModel.create({
-        name: migrationName,
-        createdAt: timestamp
-      })
-      return createdMigration.toJSON()
-    })
-
-    return Promise.all(promises)
-  }
-
-  /**
-   * Get migrations in database and in file system at the same time
-   * @returns A promise that resolves to the migrations in database and in file system
-   * @memberof Migrator
-   * @async
-   */
-  async getMigrations (): Promise<{ migrationsInDb: IMigration[], migrationsInFs: IFileMigration[] }> {
-    const files = fs.readdirSync(this.migrationsPath)
-    const migrationsInDb = await this.migrationModel.find({}).exec()
-    const migrationsInFs = files
-      .filter((filename) => /^\d{13,}-/.test(filename) && filename.endsWith('.ts'))
-      .map((filename) => {
-        const timestamp = parseInt(filename.split('-')[0])
-        const createdAt = new Date(timestamp)
-        const existsInDatabase = migrationsInDb.some((migration) => filename === migration.filename)
-        return { createdAt, filename, existsInDatabase }
-      })
-
-    return { migrationsInDb, migrationsInFs }
-  }
-
-  /**
-   * Creates a prompt for the user to chose migrations to run
-   * @param migrations The migrations to chose from
-   * @param message The message to display to the user
-   * @returns A promise that resolves to the chosen migrations or all migrations if autosync is true
-   * @memberof Migrator
-   * @async
-   */
-  async choseMigrations (migrations: string[], message: string): Promise<string[]> {
-    if (!this.autosync && migrations.length) {
-      const answers = await inquirer.prompt<{ chosen: string[] }>({
-        type: 'checkbox',
-        message,
-        name: 'chosen',
-        choices: migrations
-      })
-      return answers.chosen
-    }
-    return migrations
-  }
-
-  /**
-   * Run migrations in a given direction
-   * @param migrationsToRun The migrations to run
-   * @param direction The direction of the migrations
-   * @returns A promise that resolves to the ran migrations
-   * @memberof Migrator
-   * @async
-   */
-  async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'down' | 'up'): Promise<LeanDocument<IMigration>[]> {
-    const migrationsRan: LeanDocument<IMigration>[] = []
-    const connect = async (mongoose: Mongoose): Promise<void> => {
-      if (this.cli && this.uri && mongoose.connection.readyState !== 1) {
-        await mongoose.connect(this.uri)
-        this.mongoose = mongoose
-      }
-    }
-    for await (const migration of migrationsToRun) {
-      const migrationFilePath = path.join(this.migrationsPath, migration.filename)
-      const migrationFunctions = await import(migrationFilePath) as IMigrationModule
-
-      const migrationFunction = migrationFunctions[direction]
-      if (!migrationFunction) {
-        throw new Error(chalk.red(`The '${direction}' export is not defined in ${migration.filename}.`))
-      }
-
-      try {
-        await migrationFunction.apply({
-          connect: (mongoose: Mongoose) => connect(mongoose)
-        })
-
-        this.logMigrationStatus(direction, migration.filename)
-
-        await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
-        migrationsRan.push(migration.toJSON())
-      } catch (err: unknown) {
-        this.log(chalk.red(`Failed to run migration ${migration.name} due to an error`))
-        this.log(chalk.red('Not continuing. Make sure your data is in consistent state'))
-        throw err instanceof (Error) ? err : new Error(err as string)
-      }
-    }
-
-    return migrationsRan
+  static async connect (options: IMigratorOptions): Promise<Migrator> {
+    const migrator = new Migrator(options)
+    await migrator.connected()
+    return migrator
   }
 
   /**
@@ -251,9 +81,25 @@ class Migrator {
    */
   async close (): Promise<void> {
     await this.connection.close()
-    if (this.mongoose) {
-      await this.mongoose.disconnect()
-    }
+  }
+
+  /**
+   * Lists all migrations in the database and their status
+   * @returns A promise that resolves to the migrations
+   * @example
+   *   [
+   *    { name: 'my-migration', filename: '149213223424_my-migration.ts', state: 'up' },
+   *    { name: 'add-cows', filename: '149213223453_add-cows.ts', state: 'down' }
+   *   ]
+   */
+  async list (): Promise<LeanDocument<IMigration>[]> {
+    await this.sync()
+    const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
+    if (!migrations.length) this.log(chalk.yellow('There are no migrations to list'))
+    return migrations.map((migration: HydratedDocument<IMigration>) => {
+      this.logMigrationStatus(migration.state, migration.filename)
+      return migration.toJSON()
+    })
   }
 
   /**
@@ -262,7 +108,6 @@ class Migrator {
    * @returns A promise that resolves to the created migration
    */
   async create (migrationName: string): Promise<HydratedDocument<IMigration>> {
-    await this.connected()
     const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     if (existingMigration) {
       throw new Error(chalk.red(`There is already a migration with name '${migrationName}' in the database`))
@@ -286,7 +131,7 @@ class Migrator {
    * @param migrationName Name of the migration to run to
    * @returns A promise that resolves to the ran migrations
    */
-  async run (direction: 'down' | 'up' = 'up', migrationName?: string): Promise<LeanDocument<IMigration>[]> {
+  async run (direction: 'down' | 'up', migrationName?: string): Promise<LeanDocument<IMigration>[]> {
     await this.sync()
 
     const untilMigration = migrationName
@@ -295,7 +140,7 @@ class Migrator {
 
     if (!untilMigration) {
       if (migrationName) throw new ReferenceError('Could not find that migration in the database')
-      else throw new Error('There are no pending migrations')
+      return this.noPendingMigrations()
     }
 
     let query: FilterQuery<IMigration> = {
@@ -313,10 +158,8 @@ class Migrator {
     const sortDirection = direction === 'up' ? 1 : -1
     const migrationsToRun = await this.migrationModel.find(query).sort({ createdAt: sortDirection }).exec()
 
-    if (!migrationsToRun.length && this.cli) {
-      this.log(chalk.yellow('There are no pending migrations'))
-      this.log('Current migrations status: ')
-      await this.list()
+    if (!migrationsToRun.length) {
+      return this.noPendingMigrations()
     }
 
     const migrationsRan = await this.runMigrations(migrationsToRun, direction)
@@ -335,13 +178,12 @@ class Migrator {
    * @returns A promise that resolves to the imported migrations
    */
   async sync (): Promise<LeanDocument<IMigration>[]> {
-    await this.connected()
     try {
       const { migrationsInFs } = await this.getMigrations()
 
       let migrationsToImport = migrationsInFs
-        .filter((f) => !f.existsInDatabase)
-        .map((f) => f.filename)
+        .filter((file) => !file.existsInDatabase)
+        .map((file) => file.filename)
 
       this.log('Synchronizing database with file system migrations...')
       migrationsToImport = await this.choseMigrations(migrationsToImport, 'The following migrations exist in the migrations folder but not in the database.\nSelect the ones you want to import into the database')
@@ -362,13 +204,12 @@ class Migrator {
    * @returns A promise that resolves to the deleted migrations
    */
   async prune (): Promise<LeanDocument<IMigration>[]> {
-    await this.connected()
     try {
       const { migrationsInDb, migrationsInFs } = await this.getMigrations()
 
       let migrationsToDelete = migrationsInDb
-        .filter((m) => !migrationsInFs.find((f) => f.filename === m.filename))
-        .map((m) => m.name)
+        .filter((migration) => !migrationsInFs.find((file) => file.filename === migration.filename))
+        .map((migration) => migration.name)
 
       migrationsToDelete = await this.choseMigrations(migrationsToDelete, 'The following migrations exist in the database but not in the migrations folder.\nSelect the ones you want to remove from the file system')
 
@@ -387,22 +228,194 @@ class Migrator {
   }
 
   /**
-   * Lists all migrations in the database and their status
-   * @returns A promise that resolves to the migrations
-   * @example
-   *   [
-   *    { name: 'my-migration', filename: '149213223424_my-migration.ts', state: 'up' },
-   *    { name: 'add-cows', filename: '149213223453_add-cows.ts', state: 'down' }
-   *   ]
+   * @returns A promise that resolves to the migrations in the database
+   * @memberof Migrator
+   * @private
+   * @async
    */
-  async list (): Promise<LeanDocument<IMigration>[]> {
-    await this.sync()
-    const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
-    if (!migrations.length) this.log(chalk.yellow('There are no migrations to list'))
-    return migrations.map((migration: HydratedDocument<IMigration>) => {
-      this.logMigrationStatus(migration.state, migration.filename)
-      return migration.toJSON()
+  private async noPendingMigrations (): Promise<LeanDocument<IMigration>[]> {
+    this.log(chalk.yellow('There are no pending migrations'))
+    if (this.cli) {
+      this.log('Current migrations status: ')
+      await this.list()
+    }
+    return []
+  }
+
+  /**
+   * Logs a message to the console if the migrator is running in cli mode or if force is true
+   * @param message The string to log
+   * @returns void
+   * @memberof Migrator
+   * @private
+   */
+  private log (message: string): void {
+    if (this.cli) {
+      console.log(message)
+    }
+  }
+
+  /**
+     * Logs migration status to the console
+     * @param direction The direction of the migration
+     * @param filename The filename of the migration
+     * @returns void
+     * @memberof Migrator
+     * @private
+     */
+  private logMigrationStatus (direction: 'down' | 'up', filename: string): void {
+    this.log(chalk[direction === 'up' ? 'green' : 'red'](`${direction}:`) + ` ${filename} `)
+  }
+
+  /**
+     * Gets template from file system
+     * @param templatePath The path to the template
+     * @returns The template string
+     * @memberof Migrator
+     * @private
+     */
+  private getTemplate (templatePath: string | undefined): string {
+    // Case for local development
+    const defaultTemplatePathTs = path.join(__dirname, 'template.ts')
+    // Case for production after build
+    const defaultTemplatePathJs = path.join(__dirname, 'template.js')
+    if (templatePath && fs.existsSync(templatePath)) return fs.readFileSync(templatePath, 'utf8')
+    if (fs.existsSync(defaultTemplatePathTs)) return fs.readFileSync(defaultTemplatePathTs, 'utf8')
+    return fs.readFileSync(defaultTemplatePathJs, 'utf8')
+  }
+
+  /**
+     * Ensures that the migrations path exists
+     * @returns void
+     * @memberof Migrator
+     * @private
+     */
+  private ensureMigrationsPath (): void {
+    if (!fs.existsSync(this.migrationsPath)) {
+      fs.mkdirSync(this.migrationsPath, { recursive: true })
+    }
+  }
+
+  /**
+     * Connection status of the migrator
+     * @returns A promise that resolves to the connection status
+     * @memberof Migrator
+     * @private
+     * @async
+     * @example
+     * const migrator = new Migrator({ uri: 'mongodb://localhost:27017' })
+     * const connected = await migrator.connected()
+     * console.log(connected) // true
+     */
+  private async connected (): Promise<Connection> {
+    return this.connection.asPromise()
+  }
+
+  /**
+     * Creates a new migration in database to reflect the changes in file system
+     * @param migrationName The name of the migration
+     * @returns A promise that resolves to the created migrations
+     * @memberof Migrator
+     * @private
+     * @async
+     */
+  private async syncMigrations (migrationsInFs: string[]): Promise<IMigration[]> {
+    const promises = migrationsInFs.map(async (filename) => {
+      const filePath = path.join(this.migrationsPath, filename)
+      const timestampSeparatorIndex = filename.indexOf('-')
+      const timestamp = filename.slice(0, timestampSeparatorIndex)
+      const migrationName = filename.slice(timestampSeparatorIndex + 1, filename.lastIndexOf('.'))
+
+      this.log(`Adding migration ${filePath} into database from file system. State is ` + chalk.red('down'))
+      const createdMigration = await this.migrationModel.create({
+        name: migrationName,
+        createdAt: timestamp
+      })
+      return createdMigration.toJSON()
     })
+
+    return Promise.all(promises)
+  }
+
+  /**
+     * Get migrations in database and in file system at the same time
+     * @returns A promise that resolves to the migrations in database and in file system
+     * @memberof Migrator
+     * @private
+     * @async
+     */
+  private async getMigrations (): Promise<{ migrationsInDb: IMigration[], migrationsInFs: IFileMigration[] }> {
+    const files = fs.readdirSync(this.migrationsPath)
+    const migrationsInDb = await this.migrationModel.find({}).exec()
+    const migrationsInFs = files
+      .filter((filename) => /^\d{13,}-/.test(filename) && filename.endsWith('.ts'))
+      .map((filename) => {
+        const timestamp = parseInt(filename.split('-')[0])
+        const createdAt = new Date(timestamp)
+        const existsInDatabase = migrationsInDb.some((migration) => filename === migration.filename)
+        return { createdAt, filename, existsInDatabase }
+      })
+
+    return { migrationsInDb, migrationsInFs }
+  }
+
+  /**
+     * Creates a prompt for the user to chose migrations to run
+     * @param migrations The migrations to chose from
+     * @param message The message to display to the user
+     * @returns A promise that resolves to the chosen migrations or all migrations if autosync is true
+     * @memberof Migrator
+     * @private
+     * @async
+     */
+  private async choseMigrations (migrations: string[], message: string): Promise<string[]> {
+    if (!this.autosync && migrations.length) {
+      const answers = await inquirer.prompt<{ chosen: string[] }>({
+        type: 'checkbox',
+        message,
+        name: 'chosen',
+        choices: migrations
+      })
+      return answers.chosen
+    }
+    return migrations
+  }
+
+  /**
+     * Run migrations in a given direction
+     * @param migrationsToRun The migrations to run
+     * @param direction The direction of the migrations
+     * @returns A promise that resolves to the ran migrations
+     * @memberof Migrator
+     * @private
+     * @async
+     */
+  private async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'down' | 'up'): Promise<LeanDocument<IMigration>[]> {
+    const migrationsRan: LeanDocument<IMigration>[] = []
+    for await (const migration of migrationsToRun) {
+      const migrationFilePath = path.join(this.migrationsPath, migration.filename)
+      const migrationFunctions = await import(migrationFilePath) as IMigrationModule
+
+      const migrationFunction = migrationFunctions[direction]
+      if (!migrationFunction) {
+        throw new Error(chalk.red(`The '${direction}' export is not defined in ${migration.filename}.`))
+      }
+
+      try {
+        await migrationFunction()
+
+        this.logMigrationStatus(direction, migration.filename)
+
+        await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
+        migrationsRan.push(migration.toJSON())
+      } catch (err: unknown) {
+        this.log(chalk.red(`Failed to run migration ${migration.name} due to an error`))
+        this.log(chalk.red('Not continuing. Make sure your data is in consistent state'))
+        throw err
+      }
+    }
+
+    return migrationsRan
   }
 }
 
