@@ -1,3 +1,44 @@
+<a name="v3.0.0"></a>
+# [v3.0.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.0.0) - 23 Mar 2023
+
+- Merge pull request [#60](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/60) from ilovepixelart/feature/static-factory-method  a6ca9d3
+- Docs  865cd55
+- Doc  1d02d4c
+- Link  9b37671
+- Doc  3a5e7d0
+- Cleanup  30a1d86
+- Doc  0d92e99
+- Unused  08b0e10
+- cli  4330644
+- Unused import  5243003
+- Cleanup  73fda88
+- Merge pull request [#61](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/61) from ilovepixelart/dependabot/npm_and_yarn/types/jest-29.5.0  7fb5c86
+- Merge pull request [#63](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/63) from ilovepixelart/dependabot/npm_and_yarn/swc/core-1.3.41  b876cb7
+- Merge pull request [#65](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/65) from ilovepixelart/dependabot/npm_and_yarn/typescript-5.0.2  ec937d1
+- Bump typescript from 4.9.5 to 5.0.2  194dfe5
+- Bump @swc/core from 1.3.40 to 1.3.41  ea7a969
+- Bump @types/jest from 29.4.4 to 29.5.0  fecee1c
+- Connection only uri, templates, ensure strict, closing connection on tests  5ad01c3
+- Cleanup  31eba0a
+- Remove apply  aea221e
+- Typescript 5, template fallbacks  e57c10a
+- Doc  49322d6
+- Doc  7339f9a
+- Doc  3a8131f
+- Keys and folder name  b927aae
+- Recursive  69d6a21
+- Dep  eecbff6
+- More coverage  b7cb320
+- rmdirSync to rmSync, one more test  9918c12
+- 100% coverage  547ce8d
+- Static factory method  ee4f1ac
+- Update changelog for &quot;v2.5.3&quot;  caf2d45
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.3...v3.0.0
+
+[Changes][v3.0.0]
+
+
 <a name="v2.5.3"></a>
 # [v2.5.3](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v2.5.3) - 16 Mar 2023
 
@@ -589,6 +630,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.0.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.3...v3.0.0
 [v2.5.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.2...v2.5.3
 [v2.5.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.1...v2.5.2
 [v2.5.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.4.14...v2.5.1
