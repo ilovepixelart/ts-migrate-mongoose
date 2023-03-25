@@ -1,3 +1,17 @@
+<a name="v3.0.1"></a>
+# [v3.0.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.0.1) - 25 Mar 2023
+
+- Merge pull request [#67](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/67) from ilovepixelart/fix/template  4c0e2ce
+- Fix template  0fb8778
+- Merge pull request [#66](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/66) from ilovepixelart/snyk-upgrade-38755a5b0f9e087eb62120d95217fab6  f9cff03
+- fix: upgrade mongoose from 6.10.0 to 6.10.1  e7b7ed8
+- Update changelog for &quot;v3.0.0&quot;  c836cb9
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.0...v3.0.1
+
+[Changes][v3.0.1]
+
+
 <a name="v3.0.0"></a>
 # [v3.0.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.0.0) - 23 Mar 2023
 
@@ -630,6 +644,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.0.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.0...v3.0.1
 [v3.0.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.3...v3.0.0
 [v2.5.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.2...v2.5.3
 [v2.5.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.1...v2.5.2
