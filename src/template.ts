@@ -1,4 +1,4 @@
-// Import your models here
+export default `// Import your models here
 
 export async function up (): Promise<void> {
   // Write migration here
@@ -7,3 +7,4 @@ export async function up (): Promise<void> {
 export async function down (): Promise<void> {
   // Write migration here
 }
+`

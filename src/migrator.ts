@@ -19,6 +19,8 @@ import {
   DEFAULT_MIGRATE_MONGO_COLLECTION
 } from './defaults'
 
+import defaultTemplate from './template'
+
 import swcrc from './swcrc'
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-var-requires
 require('@swc/register')(swcrc)
@@ -275,13 +277,10 @@ class Migrator {
      * @private
      */
   private getTemplate (templatePath: string | undefined): string {
-    // Case for local development
-    const defaultTemplatePathTs = path.join(__dirname, 'template.ts')
-    // Case for production after build
-    const defaultTemplatePathJs = path.join(__dirname, 'template.js')
-    if (templatePath && fs.existsSync(templatePath)) return fs.readFileSync(templatePath, 'utf8')
-    if (fs.existsSync(defaultTemplatePathTs)) return fs.readFileSync(defaultTemplatePathTs, 'utf8')
-    return fs.readFileSync(defaultTemplatePathJs, 'utf8')
+    if (templatePath && fs.existsSync(templatePath)) {
+      return fs.readFileSync(templatePath, 'utf8')
+    }
+    return defaultTemplate
   }
 
   /**

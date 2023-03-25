@@ -4,6 +4,7 @@ import mongoose from 'mongoose'
 
 import { getMigrator, Migrate } from '../src/commander'
 import { clearDirectory } from './utils/filesystem'
+import defaultTemplate from '../src/template'
 
 import type { Connection } from 'mongoose'
 
@@ -148,7 +149,6 @@ describe('cli', () => {
   it('should disable strict', async () => {
     clearDirectory('migrations')
     await connection.collection('migrations').deleteMany({})
-    const defaultTemplate = fs.readFileSync('./src/template.ts', 'utf8')
     const testModel = `import { model, Schema } from 'mongoose'
 
 export interface IExample {
