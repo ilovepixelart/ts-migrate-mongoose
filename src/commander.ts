@@ -105,7 +105,7 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
  */
 export class Migrate {
   private program: Command
-  private migrator: Migrator | undefined
+  private migrator!: Migrator
 
   constructor () {
     this.program = new Command()
@@ -129,14 +129,14 @@ export class Migrate {
       .description('list all migrations')
       .action(async () => {
         console.log(chalk.cyan('Listing migrations'))
-        await this.migrator?.list()
+        await this.migrator.list()
       })
 
     this.program
       .command('create <migration-name>')
       .description('create a new migration file')
       .action(async (migrationName: string) => {
-        await this.migrator?.create(migrationName)
+        await this.migrator.create(migrationName)
         console.log('Migration created. Run ' + chalk.cyan(`migrate up ${migrationName}`) + ' to apply the migration')
       })
 
@@ -144,22 +144,44 @@ export class Migrate {
       .command('up [migration-name]')
       .description('run all migrations or a specific migration if name provided')
       .action(async (migrationName: string) => {
-        await this.migrator?.run('up', migrationName)
+        await this.migrator.run('up', migrationName)
       })
 
     this.program
       .command('down <migration-name>')
       .description('roll back migrations down to given name')
       .action(async (migrationName: string) => {
-        await this.migrator?.run('down', migrationName)
+        await this.migrator.run('down', migrationName)
       })
 
     this.program
       .command('prune')
       .description('delete extraneous migrations from migration folder or database')
       .action(async () => {
-        await this.migrator?.prune()
+        await this.migrator.prune()
       })
+  }
+
+  /**
+   * Finish the CLI
+   * @param error The error to log
+   * @returns The parsed console arguments
+   * @throws Error if error is provided
+   */
+  public async finish (exit: boolean, error?: Error): Promise<IOptions> {
+    if (this.migrator instanceof Migrator) {
+      await this.migrator.close()
+    }
+
+    if (error) {
+      console.error(chalk.red(error.message))
+      if (exit) process.exit(1)
+      throw error
+    }
+
+    if (exit) process.exit(0)
+
+    return this.program.opts<IOptions>()
   }
 
   /**
@@ -169,16 +191,11 @@ export class Migrate {
    */
   public async run (exit = true): Promise<IOptions> {
     return this.program.parseAsync(process.argv)
-      .then(async () => {
-        await this.migrator?.close()
-        if (exit) return process.exit(0)
-        return this.program.opts<IOptions>()
+      .then(() => {
+        return this.finish(exit)
       })
-      .catch(async (err: Error) => {
-        await this.migrator?.close()
-        console.error(chalk.red(err.message))
-        if (exit) return process.exit(1)
-        throw err
+      .catch((error: Error) => {
+        return this.finish(exit, error)
       })
   }
 }

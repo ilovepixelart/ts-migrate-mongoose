@@ -17,7 +17,7 @@ const exec = (...args: string[]) => {
 const execExit = (...args: string[]) => {
   const migrate = new Migrate()
   process.argv = ['node', 'migrate', ...args]
-  return migrate.run(true)
+  return migrate.run()
 }
 
 describe('cli', () => {
