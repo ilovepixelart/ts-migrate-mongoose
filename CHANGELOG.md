@@ -1,3 +1,15 @@
+<a name="v3.0.2"></a>
+# [v3.0.2](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.0.2) - 25 Mar 2023
+
+- Merge pull request [#68](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/68) from ilovepixelart/feature/refactor-commander-run  52af033
+- Refactor commander run, 100% coverage  31cfec5
+- Update changelog for &quot;v3.0.1&quot;  c36f0c6
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.1...v3.0.2
+
+[Changes][v3.0.2]
+
+
 <a name="v3.0.1"></a>
 # [v3.0.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.0.1) - 25 Mar 2023
 
@@ -644,6 +656,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.0.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.1...v3.0.2
 [v3.0.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.0...v3.0.1
 [v3.0.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.3...v3.0.0
 [v2.5.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v2.5.2...v2.5.3
