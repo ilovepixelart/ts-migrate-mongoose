@@ -213,7 +213,7 @@ class Migrator {
         .filter((migration) => !migrationsInFs.find((file) => file.filename === migration.filename))
         .map((migration) => migration.name)
 
-      migrationsToDelete = await this.choseMigrations(migrationsToDelete, 'The following migrations exist in the database but not in the migrations folder.\nSelect the ones you want to remove from the file system')
+      migrationsToDelete = await this.choseMigrations(migrationsToDelete, 'The following migrations exist in the database but not in the migrations folder.\nSelect the ones you want to remove from the database')
 
       const migrationsToDeleteDocs = await this.migrationModel.find({ name: { $in: migrationsToDelete } }).lean().exec()
 
