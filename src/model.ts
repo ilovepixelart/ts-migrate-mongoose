@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose'
 
-import type { Connection, HydratedDocument, Model } from 'mongoose'
+import type { Connection, Model } from 'mongoose'
 import type IMigration from './interfaces/IMigration'
 
 /**
@@ -20,14 +20,6 @@ export const getMigrationModel = (connection: Connection, collection: string): M
     createdAt: Date
   }, {
     collection,
-    toJSON: {
-      virtuals: true,
-      transform: function (doc, ret: HydratedDocument<IMigration>): HydratedDocument<IMigration> {
-        delete ret.id
-        delete ret.__v
-        return ret
-      }
-    },
     autoCreate: true
   })
 

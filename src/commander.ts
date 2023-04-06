@@ -34,7 +34,7 @@ export const getConfig = async (configPath: string): Promise<IOptions> => {
       if (module.default) {
         fileOptions = module.default
       }
-    } catch (err) {
+    } catch {
       fileOptions = {}
     }
   }

@@ -6,7 +6,7 @@ import mongoose from 'mongoose'
 
 import { getMigrationModel } from './model'
 
-import type { Connection, FilterQuery, HydratedDocument, LeanDocument, Model } from 'mongoose'
+import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
 import type IMigration from './interfaces/IMigration'
 import type IFileMigration from './interfaces/IFileMigration'
 import type IMigratorOptions from './interfaces/IMigratorOptions'
@@ -94,13 +94,13 @@ class Migrator {
    *    { name: 'add-cows', filename: '149213223453_add-cows.ts', state: 'down' }
    *   ]
    */
-  async list (): Promise<LeanDocument<IMigration>[]> {
+  async list (): Promise<HydratedDocument<IMigration>[]> {
     await this.sync()
     const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
     if (!migrations.length) this.log(chalk.yellow('There are no migrations to list'))
     return migrations.map((migration: HydratedDocument<IMigration>) => {
       this.logMigrationStatus(migration.state, migration.filename)
-      return migration.toJSON()
+      return migration
     })
   }
 
@@ -133,7 +133,7 @@ class Migrator {
    * @param migrationName Name of the migration to run to
    * @returns A promise that resolves to the ran migrations
    */
-  async run (direction: 'down' | 'up', migrationName?: string): Promise<LeanDocument<IMigration>[]> {
+  async run (direction: 'down' | 'up', migrationName?: string): Promise<HydratedDocument<IMigration>[]> {
     await this.sync()
 
     const untilMigration = migrationName
@@ -141,7 +141,7 @@ class Migrator {
       : await this.migrationModel.findOne().sort({ createdAt: direction === 'up' ? -1 : 1 }).exec()
 
     if (!untilMigration) {
-      if (migrationName) throw new ReferenceError('Could not find that migration in the database')
+      if (migrationName) throw new ReferenceError(chalk.red('Could not find that migration in the database'))
       return this.noPendingMigrations()
     }
 
@@ -179,7 +179,7 @@ class Migrator {
    * This functionality is opposite of prune()
    * @returns A promise that resolves to the imported migrations
    */
-  async sync (): Promise<LeanDocument<IMigration>[]> {
+  async sync (): Promise<HydratedDocument<HydratedDocument<IMigration>>[]> {
     try {
       const { migrationsInFs } = await this.getMigrations()
 
@@ -192,7 +192,10 @@ class Migrator {
 
       return this.syncMigrations(migrationsToImport)
     } catch (error) {
-      this.log(chalk.red('Could not synchronize migrations in the migrations folder up to the database'))
+      const message = 'Could not synchronize migrations in the migrations folder up to the database'
+      if (error instanceof Error) {
+        error.message = `${message}\n${error.message}`
+      }
       throw error
     }
   }
@@ -205,8 +208,10 @@ class Migrator {
    * This functionality is opposite of sync().
    * @returns A promise that resolves to the deleted migrations
    */
-  async prune (): Promise<LeanDocument<IMigration>[]> {
+  async prune (): Promise<HydratedDocument<IMigration>[]> {
     try {
+      let migrationsDeleted: HydratedDocument<IMigration>[] = []
+
       const { migrationsInDb, migrationsInFs } = await this.getMigrations()
 
       let migrationsToDelete = migrationsInDb
@@ -215,16 +220,18 @@ class Migrator {
 
       migrationsToDelete = await this.choseMigrations(migrationsToDelete, 'The following migrations exist in the database but not in the migrations folder.\nSelect the ones you want to remove from the database')
 
-      const migrationsToDeleteDocs = await this.migrationModel.find({ name: { $in: migrationsToDelete } }).lean().exec()
-
       if (migrationsToDelete.length) {
+        migrationsDeleted = await this.migrationModel.find({ name: { $in: migrationsToDelete } }).exec()
         this.log(`Removing migration(s) from database: \n${chalk.cyan(migrationsToDelete.join('\n'))} `)
         await this.migrationModel.deleteMany({ name: { $in: migrationsToDelete } }).exec()
       }
 
-      return migrationsToDeleteDocs
+      return migrationsDeleted
     } catch (error) {
-      this.log(chalk.red('Could not prune extraneous migrations from database'))
+      const message = 'Could not prune extraneous migrations from database'
+      if (error instanceof Error) {
+        error.message = `${message}\n${error.message}`
+      }
       throw error
     }
   }
@@ -235,7 +242,7 @@ class Migrator {
    * @private
    * @async
    */
-  private async noPendingMigrations (): Promise<LeanDocument<IMigration>[]> {
+  private async noPendingMigrations (): Promise<HydratedDocument<IMigration>[]> {
     this.log(chalk.yellow('There are no pending migrations'))
     if (this.cli) {
       this.log('Current migrations status: ')
@@ -318,7 +325,7 @@ class Migrator {
      * @private
      * @async
      */
-  private async syncMigrations (migrationsInFs: string[]): Promise<IMigration[]> {
+  private async syncMigrations (migrationsInFs: string[]): Promise<HydratedDocument<IMigration>[]> {
     const promises = migrationsInFs.map(async (filename) => {
       const filePath = path.join(this.migrationsPath, filename)
       const timestampSeparatorIndex = filename.indexOf('-')
@@ -330,7 +337,7 @@ class Migrator {
         name: migrationName,
         createdAt: timestamp
       })
-      return createdMigration.toJSON()
+      return createdMigration
     })
 
     return Promise.all(promises)
@@ -389,8 +396,8 @@ class Migrator {
      * @private
      * @async
      */
-  private async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'down' | 'up'): Promise<LeanDocument<IMigration>[]> {
-    const migrationsRan: LeanDocument<IMigration>[] = []
+  private async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'down' | 'up'): Promise<HydratedDocument<IMigration>[]> {
+    const migrationsRan: HydratedDocument<IMigration>[] = []
     for await (const migration of migrationsToRun) {
       const migrationFilePath = path.join(this.migrationsPath, migration.filename)
       const migrationFunctions = await import(migrationFilePath) as IMigrationModule
@@ -406,11 +413,13 @@ class Migrator {
         this.logMigrationStatus(direction, migration.filename)
 
         await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
-        migrationsRan.push(migration.toJSON())
-      } catch (err: unknown) {
-        this.log(chalk.red(`Failed to run migration ${migration.name} due to an error`))
-        this.log(chalk.red('Not continuing. Make sure your data is in consistent state'))
-        throw err
+        migrationsRan.push(migration)
+      } catch (error) {
+        const message = `Failed to run migration ${migration.name} due to an error\nFailed to run migration ${migration.name} due to an error`
+        if (error instanceof Error) {
+          error.message = `${message}\n${error.message}`
+        }
+        throw error
       }
     }
 
