@@ -1,4 +1,6 @@
-export default {
+import type { Swcrc } from '@swc/core'
+
+const swcrc: Swcrc = {
   jsc: {
     parser: {
       syntax: 'typescript',
@@ -19,3 +21,5 @@ export default {
   },
   sourceMaps: true
 }
+
+export default swcrc
