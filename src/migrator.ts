@@ -56,7 +56,8 @@ class Migrator {
       this.uri = options.uri
       this.connection = mongoose.createConnection(this.uri, options.connectOptions)
     } else {
-      throw new Error(chalk.red('No mongoose connection or mongo uri provided to migrator'))
+      const message = chalk.red('No mongoose connection or mongo uri provided to migrator')
+      throw new Error(message)
     }
 
     this.migrationModel = getMigrationModel(this.connection, this.collection)
@@ -112,7 +113,8 @@ class Migrator {
   async create (migrationName: string): Promise<HydratedDocument<IMigration>> {
     const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     if (existingMigration) {
-      throw new Error(chalk.red(`There is already a migration with name '${migrationName}' in the database`))
+      const message = chalk.red(`There is already a migration with name '${migrationName}' in the database`)
+      throw new Error(message)
     }
 
     await this.sync()
@@ -141,7 +143,10 @@ class Migrator {
       : await this.migrationModel.findOne().sort({ createdAt: direction === 'up' ? -1 : 1 }).exec()
 
     if (!untilMigration) {
-      if (migrationName) throw new ReferenceError(chalk.red('Could not find that migration in the database'))
+      if (migrationName) {
+        const message = chalk.red(`Could not find migration with name '${migrationName}' in the database`)
+        throw new ReferenceError(message)
+      }
       return this.noPendingMigrations()
     }
 
@@ -404,7 +409,8 @@ class Migrator {
 
       const migrationFunction = migrationFunctions[direction]
       if (!migrationFunction) {
-        throw new Error(chalk.red(`The '${direction}' export is not defined in ${migration.filename}.`))
+        const message = chalk.red(`The '${direction}' export is not defined in ${migration.filename}.`)
+        throw new Error(message)
       }
 
       try {
@@ -415,7 +421,7 @@ class Migrator {
         await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
         migrationsRan.push(migration)
       } catch (error) {
-        const message = `Failed to run migration ${migration.name} due to an error`
+        const message = `Failed to run migration with name '${migration.name}' due to an error`
         if (error instanceof Error) {
           error.message = `${message}\n${error.message}`
         }

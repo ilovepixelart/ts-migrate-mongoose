@@ -55,14 +55,14 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     expect(migrator.connection.readyState).toBe(0)
   })
 
-  it('should throw "Could not find that migration in the database"', async () => {
+  it('should throw "Could not find migration with name \'create-unicorns\' in the database"', async () => {
     const migrationName = 'create-unicorns'
     const migrator = await Migrator.connect({ uri, cli: true })
     expect(migrator).toBeInstanceOf(Migrator)
 
     expect(migrator.connection.readyState).toBe(1)
 
-    await expect(migrator.run('down', migrationName)).rejects.toThrow('Could not find that migration in the database')
+    await expect(migrator.run('down', migrationName)).rejects.toThrow(`Could not find migration with name '${migrationName}' in the database`)
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
