@@ -1,3 +1,17 @@
+<a name="v3.0.6"></a>
+# [v3.0.6](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.0.6) - 06 Apr 2023
+
+- Merge pull request [#77](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/77) from ilovepixelart/feature/errors  0880c1c
+- With name  bfa4584
+- Errors  3ecbbeb
+- Dupe  2c07b99
+- Update changelog for &quot;v3.0.5&quot;  874ce33
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.5...v3.0.6
+
+[Changes][v3.0.6]
+
+
 <a name="v3.0.5"></a>
 # [v3.0.5](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.0.5) - 06 Apr 2023
 
@@ -701,6 +715,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.0.6]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.5...v3.0.6
 [v3.0.5]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.4...v3.0.5
 [v3.0.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.3...v3.0.4
 [v3.0.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.2...v3.0.3
