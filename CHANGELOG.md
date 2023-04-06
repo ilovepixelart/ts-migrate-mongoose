@@ -1,3 +1,21 @@
+<a name="v3.0.5"></a>
+# [v3.0.5](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.0.5) - 06 Apr 2023
+
+- Merge pull request [#76](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/76) from ilovepixelart/feature/better-errors  22ffbad
+- Switch to hydrated, dep, cleanup, better errors  d6cdae6
+- Merge pull request [#75](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/75) from ilovepixelart/snyk-upgrade-2b2f1703728cf2433d5e1d958123c161  ea78f51
+- fix: upgrade mongoose from 6.10.2 to 6.10.3  3de59db
+- Merge pull request [#73](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/73) from ilovepixelart/dependabot/npm_and_yarn/swc/core-1.3.44  a49cf19
+- Merge pull request [#74](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/74) from ilovepixelart/dependabot/npm_and_yarn/typescript-5.0.3  32af5ac
+- Bump typescript from 5.0.2 to 5.0.3  6237346
+- Bump @swc/core from 1.3.42 to 1.3.44  bf07f5e
+- Update changelog for &quot;v3.0.4&quot;  66509b3
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.4...v3.0.5
+
+[Changes][v3.0.5]
+
+
 <a name="v3.0.4"></a>
 # [v3.0.4](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.0.4) - 30 Mar 2023
 
@@ -683,6 +701,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.0.5]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.4...v3.0.5
 [v3.0.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.3...v3.0.4
 [v3.0.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.2...v3.0.3
 [v3.0.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.1...v3.0.2
