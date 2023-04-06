@@ -421,7 +421,7 @@ class Migrator {
         await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
         migrationsRan.push(migration)
       } catch (error) {
-        const message = `Failed to run migration ${migration.name} due to an error`
+        const message = `Failed to run migration with name '${migration.name}' due to an error`
         if (error instanceof Error) {
           error.message = `${message}\n${error.message}`
         }
