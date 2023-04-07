@@ -1,3 +1,16 @@
+<a name="v3.0.7"></a>
+# [v3.0.7](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.0.7) - 07 Apr 2023
+
+- Merge pull request [#78](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/78) from ilovepixelart/feature/enforce-types  2199651
+- Reorder  5e926ce
+- Mongoose 7, updated tsconfig stricter options, register.d.ts  72f7b5d
+- Update changelog for &quot;v3.0.6&quot;  6303670
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.6...v3.0.7
+
+[Changes][v3.0.7]
+
+
 <a name="v3.0.6"></a>
 # [v3.0.6](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.0.6) - 06 Apr 2023
 
@@ -715,6 +728,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.0.7]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.6...v3.0.7
 [v3.0.6]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.5...v3.0.6
 [v3.0.5]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.4...v3.0.5
 [v3.0.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.3...v3.0.4
