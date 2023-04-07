@@ -1,4 +1,4 @@
-import dotenv from 'dotenv'
+import { config } from 'dotenv'
 import path from 'path'
 import chalk from 'chalk'
 import { Command } from 'commander'
@@ -14,11 +14,11 @@ import {
   DEFAULT_MIGRATE_MONGO_COLLECTION
 } from './defaults'
 
+import register from '@swc/register'
 import swcrc from './swcrc'
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-var-requires
-require('@swc/register')(swcrc)
 
-dotenv.config()
+register(swcrc)
+config()
 
 /**
  * Get the options from the config file

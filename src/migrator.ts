@@ -21,9 +21,10 @@ import {
 
 import defaultTemplate from './template'
 
+import register from '@swc/register'
 import swcrc from './swcrc'
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-var-requires
-require('@swc/register')(swcrc)
+
+register(swcrc)
 
 /**
  * This class is responsible for running migrations
