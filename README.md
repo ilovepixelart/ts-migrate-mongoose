@@ -235,12 +235,11 @@ const getModels = async () => {
   mongoose.set('strictQuery', false)
 
   // Ensure connection is open so we can run migrations
-  if (mongoose.connection.readyState !== 1) {
-    await mongoose.connect(process.env.MIGRATE_MONGO_URI ?? 'mongodb://localhost:27017/express', mongooseOptions)
-  }
+  await mongoose.connect(process.env.MIGRATE_MONGO_URI ?? 'mongodb://localhost/my-db', mongooseOptions)
 
   // Return models that will be used in migration methods
   return {
+    mongoose,
     User
   }
 }
