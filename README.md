@@ -107,7 +107,7 @@ migrateAutosync=false
 | templatePath         | MIGRATE_TEMPLATE_PATH    | -            | No       | template file to use when creating a migration   |
 | autosync             | MIGRATE_AUTOSYNC         | false        | No       | automatically sync new migrations without prompt |
 
-## Getting Started with the CLI
+## Getting started with the CLI
 
 ```bash
 yarn migrate help
@@ -157,13 +157,13 @@ npx migrate prune -d mongodb://localhost/my-db
 npx migrate list --config settings.json
 ```
 
-## Options Override Order
+## Options override order
 
 Note that options are overridden in the following order:
 
 - Command line args > Env vars > Config file
 
-## Migration Files
+## Migration files
 
 This example demonstrates how you can create a migration file using the CLI
 \
@@ -280,3 +280,7 @@ export async function down () {
 - Example: `-d mongodb://localhost:27017/development`
 - If you don't want to pass it in every time feel free to use `migrate.ts` or `migrate.json` config file or an environment variable
 - Feel Free to check out the `/examples` folder in the project to get a better idea of usage in Programmatic and CLI mode
+
+## Check my other projects
+
+- [ts-migrate-mongoose](https://github.com/ilovepixelart/ts-patch-mongoose) - Patch history & events plugin for mongoose
