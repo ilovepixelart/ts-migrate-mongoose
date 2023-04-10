@@ -8,7 +8,7 @@ yarn migrate <command> <options>
 npx migrate <command> <options>
 ```
 
-## Creating a Migration
+## Creating a migration
 
 You can simply create a new migration (e.g. `my-new-migration`) by running
 
@@ -18,7 +18,7 @@ npx migrate <options> create my-new-migration
 
 where `<options>` must at a MINIMUM contain the database url (using the `-d`/`--uri` option).
 
-## Listing Migrations
+## Listing migrations
 
 This shows you the migrations with their current states.
 
@@ -29,7 +29,7 @@ This shows you the migrations with their current states.
 npx migrate list <options>
 ```
 
-## Running a Migration (Migrate up)
+## Running a migration (migrate up)
 
 Let's say your `migrate list` command shows
 
@@ -61,7 +61,7 @@ up: 1463003345598-add_processed_credit_cards.ts
 up: 1463603842010-add_default_regional_settings.ts
 ```
 
-## Undoing Migrations (Migrate down)
+## Undoing migrations (migrate down)
 
 What if you want to undo the previous step?
 
@@ -83,7 +83,7 @@ down: 1463003345598-add_processed_credit_cards.ts
 down: 1463603842010-add_default_regional_settings.ts
 ```
 
-## Synchronizing Your DB with new Migrations
+## Synchronizing your DB with new migrations
 
 Lets say you `git pull` the latest changes from your project and someone had made a new migration called `add_unicorns` which adds much requested unicorns to your app.
 

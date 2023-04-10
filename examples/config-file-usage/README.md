@@ -23,7 +23,7 @@ npx migrate create my-new-migration
 You can change the name of the config file to expect by providing the `config` option e.g. `--config custom-config-file-name.json`
 Note that this file has to be a valid `JSON` or `TypeScript` file with default export.
 
-## Options Override Order
+## Options override order
 
 Note that options are overridden in the following order:
 
