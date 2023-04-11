@@ -50,21 +50,31 @@
   "bin": {
     "migrate": "dist/cjs/bin.js"
   },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/esm/types/migrator.d.ts",
+        "default": "./lib/esm/migrator.mjs"
+      },
+      "require": {
+        "types": "./lib/cjs/types/migrator.d.ts",
+        "default": "./lib/cjs/migrator.js"
+      }
+    }
+  },
   "main": "dist/cjs/migrator.js",
-  "module": "dist/esm/migrator.js",
-  "types": "dist/types/migrator.d.js",
+  "types": "dist/cjs/types/migrator.d.ts",
   "scripts": {
+    "migrate": "node -r @swc/register src/bin.ts",
     "lint": "eslint . --ext .js,.ts",
     "lint:fix": "eslint . --fix --ext .js,.ts",
-    "cleanup": "node -r @swc/register tools/cleanup.ts",
-    "build": "npm run build:cjs && npm run build:esm && npm run build:types && scripts/chmod.sh",
-    "build:cjs": "npm run cleanup cjs && tsc -p config/tsconfig.cjs.json",
-    "build:esm": "npm run cleanup esm && tsc -p config/tsconfig.esm.json",
-    "build:types": "npm run cleanup types && tsc -p config/tsconfig.types.json",
-    "package": "npm run build && npm pack",
-    "migrate": "node -r @swc/register src/bin.ts",
     "test": "jest --config jest.config.ts --detectOpenHandles --coverage",
-    "test:open": "npm run test && open-cli coverage/lcov-report/index.html"
+    "test:open": "npm run test && open-cli coverage/lcov-report/index.html",
+    "clean": "rm -rf ./dist",
+    "build": "npm run clean && npm run build:cjs && npm run build:esm",
+    "build:cjs": "tsc -p config/tsconfig.cjs.json",
+    "build:esm": "tsc -p config/tsconfig.esm.json && mv ./dist/esm/migrator.js ./dist/esm/migrator.mjs",
+    "release": "npm run lint && npm run build && np"
   },
   "dependencies": {
     "@swc/core": "1.3.49",
