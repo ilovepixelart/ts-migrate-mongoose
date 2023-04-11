@@ -283,4 +283,4 @@ export async function down () {
 
 ## Check my other projects
 
-- [ts-migrate-mongoose](https://github.com/ilovepixelart/ts-patch-mongoose) - Patch history & events plugin for mongoose
+- [ts-patch-mongoose](https://github.com/ilovepixelart/ts-patch-mongoose) - Patch history & events plugin for mongoose
