@@ -53,12 +53,12 @@
   "exports": {
     ".": {
       "import": {
-        "types": "./lib/esm/types/migrator.d.ts",
-        "default": "./lib/esm/migrator.mjs"
+        "types": "./dist/esm/types/migrator.d.ts",
+        "default": "./dist/esm/migrator.mjs"
       },
       "require": {
-        "types": "./lib/cjs/types/migrator.d.ts",
-        "default": "./lib/cjs/migrator.js"
+        "types": "./dist/cjs/types/migrator.d.ts",
+        "default": "./dist/cjs/migrator.js"
       }
     }
   },
