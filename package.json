@@ -77,10 +77,10 @@
     "release": "npm run lint && npm run build && np"
   },
   "dependencies": {
-    "@swc/core": "1.3.49",
+    "@swc/core": "1.3.50",
     "@swc/register": "0.1.10",
     "chalk": "4.1.2",
-    "commander": "10.0.0",
+    "commander": "10.0.1",
     "dotenv": "16.0.3",
     "inquirer": "8.2.5",
     "mongoose": "7.0.3"
@@ -89,7 +89,7 @@
     "@shelf/jest-mongodb": "4.1.7",
     "@swc/cli": "0.1.62",
     "@swc/helpers": "0.5.0",
-    "@swc/jest": "0.2.24",
+    "@swc/jest": "0.2.26",
     "@types/inquirer": "8.2.5",
     "@types/jest": "29.5.0",
     "@types/node": "18.15.11",
