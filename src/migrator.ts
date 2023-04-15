@@ -339,11 +339,10 @@ class Migrator {
       const migrationName = filename.slice(timestampSeparatorIndex + 1, filename.lastIndexOf('.'))
 
       this.log(`Adding migration ${filePath} into database from file system. State is ` + chalk.red('down'))
-      const createdMigration = await this.migrationModel.create({
+      return this.migrationModel.create({
         name: migrationName,
         createdAt: timestamp
       })
-      return createdMigration
     })
 
     return Promise.all(promises)
