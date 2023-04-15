@@ -10,13 +10,15 @@
   "plugins": [
     "@typescript-eslint",
     "jest",
-    "jest-formatting"
+    "jest-formatting",
+    "sonarjs"
   ],
   "extends": [
     "standard",
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:sonarjs/recommended"
   ],
   "globals": {
     "Atomics": "readonly",
@@ -61,7 +63,10 @@
         "plugin:jest/style",
         "plugin:jest/recommended",
         "plugin:jest-formatting/recommended"
-      ]
+      ],
+      "rules": {
+        "sonarjs/no-duplicate-string": "off"
+      }
     },
     {
       "parserOptions": {

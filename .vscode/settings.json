@@ -28,6 +28,7 @@
     "npmignore",
     "parens",
     "sonarcloud",
+    "sonarjs",
     "sonarsource",
     "swcrc",
     "virtuals"
