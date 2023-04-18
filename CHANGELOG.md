@@ -1,3 +1,21 @@
+<a name="v3.1.2"></a>
+# [v3.1.2](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.1.2) - 18 Apr 2023
+
+- Merge pull request [#88](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/88) from ilovepixelart/feature/dep  c1312e7
+- Dep  e53c97e
+- Merge pull request [#87](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/87) from ilovepixelart/dependabot/npm_and_yarn/swc/core-1.3.51  22d01c7
+- Bump @swc/core from 1.3.50 to 1.3.51  809eb7e
+- Merge pull request [#86](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/86) from ilovepixelart/feature/dep  5c64a24
+- Dep  8b7c9f3
+- Merge pull request [#85](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/85) from ilovepixelart/feature/sonar-linter  4a0a689
+- Sonar lint  0b50cad
+- Update changelog for &quot;v3.1.1&quot;  06f2e23
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.1...v3.1.2
+
+[Changes][v3.1.2]
+
+
 <a name="v3.1.1"></a>
 # [v3.1.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.1.1) - 13 Apr 2023
 
@@ -782,6 +800,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.1.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.1...v3.1.2
 [v3.1.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.0...v3.1.1
 [v3.1.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.9...v3.1.0
 [v3.0.9]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.0.8...v3.0.9
