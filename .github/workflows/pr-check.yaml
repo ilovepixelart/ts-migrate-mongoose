@@ -78,5 +78,4 @@ jobs:
             -Dsonar.tests=tests
             -Dsonar.test.exclusions=tests/**
             -Dsonar.coverage.exclusions=tests/**
-            -Dsonar.verbose=true
 
