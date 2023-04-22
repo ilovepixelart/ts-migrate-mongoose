@@ -8,33 +8,63 @@ on:
     branches:
       - master
       - feature*
+
   pull_request:
       types: [opened, synchronize, reopened]
       
 jobs:
   tests:
+    name: Coverage
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [16.x, 18.x]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           # Disabling shallow clone is recommended for improving relevancy of reporting
           fetch-depth: 0
+  
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+  
       - name: Installing dependencies
         run: npm ci
-      - name: Lint
-        run: npm run lint
+
       - name: Coverage
         run: npm run test
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
+  sonar:
+    name: Coverage & Sonar
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Installing dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Coverage
+        run: npm run test
+
+      - name: Scan
+        uses: sonarsource/sonarcloud-github-action@v1.8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -47,5 +77,4 @@ jobs:
             -Dsonar.tests=tests
             -Dsonar.test.exclusions=tests/**
             -Dsonar.coverage.exclusions=tests/**
-            -Dsonar.verbose=true
 
