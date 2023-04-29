@@ -30,6 +30,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          cache: npm
   
       - name: Installing dependencies
         run: npm ci
@@ -53,6 +54,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          cache: npm
 
       - name: Installing dependencies
         run: npm ci
