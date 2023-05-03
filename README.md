@@ -218,7 +218,7 @@ const UserSchema = new Schema<IUser>({
   }
 })
 
-export default models.User ?? model<IUser>('user', UserSchema)
+export default models.User ?? model<IUser>('User', UserSchema)
 ```
 
 - models/index.ts - ensures that all models are exported and you establish a connection to the database

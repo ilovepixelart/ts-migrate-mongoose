@@ -15,4 +15,4 @@ const UserSchema = new Schema<IUser>({
   }
 })
 
-export default models.User ?? model<IUser>('user', UserSchema)
+export default models.User ?? model<IUser>('User', UserSchema)
