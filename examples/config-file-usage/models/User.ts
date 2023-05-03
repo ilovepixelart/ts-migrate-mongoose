@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose'
+import { Schema, model, models } from 'mongoose'
 
 interface IUser {
   firstName: string
@@ -15,4 +15,4 @@ const UserSchema = new Schema<IUser>({
   }
 })
 
-export default model<IUser>('user', UserSchema)
+export default models.User ?? model<IUser>('user', UserSchema)

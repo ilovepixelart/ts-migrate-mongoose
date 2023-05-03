@@ -201,7 +201,7 @@ Below is an example of a typical setup in a mongoose project:
 - models/User.ts - defines the User model
 
 ```typescript
-import { Schema, model } from 'mongoose'
+import { Schema, model, models } from 'mongoose'
 
 interface IUser {
   firstName: string
@@ -218,7 +218,7 @@ const UserSchema = new Schema<IUser>({
   }
 })
 
-export default model<IUser>('user', UserSchema)
+export default models.User ?? model<IUser>('user', UserSchema)
 ```
 
 - models/index.ts - ensures that all models are exported and you establish a connection to the database

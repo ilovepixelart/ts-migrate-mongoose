@@ -149,7 +149,7 @@ describe('cli', () => {
   it('should disable strict', async () => {
     clearDirectory('migrations')
     await connection.collection('migrations').deleteMany({})
-    const testModel = `import { model, Schema } from 'mongoose'
+    const testModel = `import { Schema, model, models } from 'mongoose'
 
 export interface IExample {
   name: string
@@ -167,7 +167,7 @@ export let ExampleSchema = new Schema({
   },
 })
 
-export default model<IExample>('Example', ExampleSchema)`
+export default models.User ?? model<IExample>('Example', ExampleSchema)`
 
     const testTemplate = defaultTemplate
       .replace('// Import your models here', `
