@@ -1,3 +1,24 @@
+<a name="v3.1.5"></a>
+# [v3.1.5](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.1.5) - 03 May 2023
+
+- Merge pull request [#100](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/100) from ilovepixelart/feature/doc  91a7e93
+- Doc  893d505
+- Doc  ef87f61
+- Merge pull request [#96](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/96) from ilovepixelart/feature/dep  e24ef6a
+- Dep  a13634a
+- Update README.md  3baff52
+- Merge pull request [#94](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/94) from ilovepixelart/dependabot/npm_and_yarn/types/node-18.16.3  eb92f88
+- Merge pull request [#95](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/95) from ilovepixelart/dependabot/npm_and_yarn/swc/core-1.3.56  3bde6e6
+- Bump @swc/core from 1.3.55 to 1.3.56  4d80b0f
+- Bump @types/node from 18.16.2 to 18.16.3  f85b824
+- Cache npm  d8874e4
+- Update changelog for &quot;v3.1.4&quot;  23e8263
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.4...v3.1.5
+
+[Changes][v3.1.5]
+
+
 <a name="v3.1.4"></a>
 # [v3.1.4](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.1.4) - 29 Apr 2023
 
@@ -827,6 +848,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.1.5]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.4...v3.1.5
 [v3.1.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.3...v3.1.4
 [v3.1.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.2...v3.1.3
 [v3.1.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.1...v3.1.2
