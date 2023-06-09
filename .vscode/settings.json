@@ -6,6 +6,10 @@
     "editor.tabSize": 2,
     "editor.insertSpaces": true
   },
+  "[typescript]": {
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
   "eslint.options": {
     "extensions": [
       ".js",
@@ -13,7 +17,8 @@
     ]
   },
   "eslint.validate": [
-    "javascript"
+    "javascript",
+    "typescript"
   ],
   "cSpell.words": [
     "autosync",
