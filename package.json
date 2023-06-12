@@ -84,7 +84,7 @@
     "commander": "10.0.1",
     "dotenv": "16.1.4",
     "inquirer": "8.2.5",
-    "mongoose": "7.2.2"
+    "mongoose": "7.2.3"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "4.1.7",
