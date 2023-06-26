@@ -82,7 +82,7 @@
     "@swc/register": "0.1.10",
     "chalk": "4.1.2",
     "commander": "11.0.0",
-    "dotenv": "16.1.4",
+    "dotenv": "16.3.1",
     "inquirer": "8.2.5",
     "mongoose": "7.3.0"
   },
