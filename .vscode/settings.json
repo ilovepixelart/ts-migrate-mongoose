@@ -37,5 +37,9 @@
     "sonarsource",
     "swcrc",
     "virtuals"
-  ]
+  ],
+  "sonarlint.connectedMode.project": {
+    "connectionId": "ilovepixelart",
+    "projectKey": "ilovepixelart_ts-migrate-mongoose"
+  }
 }
