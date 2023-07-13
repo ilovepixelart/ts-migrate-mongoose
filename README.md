@@ -22,7 +22,7 @@ ts-migrate-mongoose is a migration framework for projects which are already usin
 ## Features
 
 - Stores migration state in MongoDB
-- Flexibility in configuration `migrate.json` / `migrate.ts` or `.env`
+- Flexibility in configuration `migrate.json` or `migrate.ts` or `.env` and/or `.env.local`
 - Ability to use mongoose models when running migrations
 - Ability to use of async/await in migrations
 - Ability to run migrations from the CLI
