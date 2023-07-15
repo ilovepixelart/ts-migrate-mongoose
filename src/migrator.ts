@@ -248,10 +248,13 @@ class Migrator {
    * Switch to another database, it's recommended when you have multi-tenant databases.
    * you can keep the same connection to change
    * @param dbName Database name
+   * @param options Switch database options
+   * @see https://mongoosejs.com/docs/api/connection.html#Connection.prototype.useDb()
    */
-  useDb (dbName: string): void {
-    this.connection = this.connection.useDb(dbName)
+  useDb: Connection['useDb'] = (dbName, options) => {
+    this.connection = this.connection.useDb(dbName, options)
     this.migrationModel = getMigrationModel(this.connection, this.collection)
+    return this.connection
   }
 
   /**
@@ -426,7 +429,7 @@ class Migrator {
       }
 
       try {
-        await migrationFunction()
+        await migrationFunction(this.connection)
 
         this.logMigrationStatus(direction, migration.filename)
 

@@ -371,11 +371,10 @@ describe('Tests for Migrator class - Programmatic approach', () => {
 
   it('should swich database', async () => {
     const migrator = await Migrator.connect({ uri })
-    migrator.useDb('db-changed')
-    expect(migrator.connection.db.databaseName).toBe('db-changed')
-
-    expect(migrator.connection.readyState).toBe(1)
+    const connection = migrator.useDb('db-changed')
+    expect(connection.db.databaseName).toBe('db-changed')
+    expect(connection.readyState).toBe(1)
     await migrator.close()
-    expect(migrator.connection.readyState).toBe(0)
+    expect(connection.readyState).toBe(0)
   })
 })
