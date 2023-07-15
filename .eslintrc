@@ -33,7 +33,6 @@
     "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/method-signature-style": "error",
     "@typescript-eslint/consistent-indexed-object-style": "error",
-    "@typescript-eslint/sort-type-union-intersection-members": "error",
     "indent": [
       "error",
       2
