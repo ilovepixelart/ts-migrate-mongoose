@@ -1,3 +1,39 @@
+<a name="v3.1.9"></a>
+# [v3.1.9](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.1.9) - 15 Jul 2023
+
+- Merge pull request [#161](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/161) from ilovepixelart/feature/typescript  ca2af47
+- Typescript  1285367
+- Merge pull request [#160](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/160) from ilovepixelart/feature/prepublish  39d2497
+- Check if file exists  9fbc8ca
+- Check if file exists  373176d
+- Chmod &amp; prepublish  6d19f9c
+- Merge pull request [#158](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/158) from ilovepixelart/feature/dep  418a0a9
+- Deprecated  5d486fc
+- Dep  d901499
+- Merge pull request [#157](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/157) from ilovepixelart/feature/docs-swcrc  e600d43
+- Merge pull request [#154](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/154) from ilovepixelart/feature/env-local  241455f
+- Merge pull request [#156](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/156) from ilovepixelart/feature/export-i-options  bdc3eb3
+- Docs .swcrc  60c5dfc
+- Export IOptions  47abd8f
+- Doc  5880a3b
+- Env local  27edfd7
+- Merge pull request [#150](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/150) from ilovepixelart/dependabot/npm_and_yarn/typescript-eslint/parser-5.62.0  d990b52
+- Bump @typescript-eslint/parser from 5.60.1 to 5.62.0  8c0249f
+- Merge pull request [#145](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/145) from ilovepixelart/dependabot/npm_and_yarn/mongoose-7.3.2  913986c
+- Merge pull request [#147](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/147) from ilovepixelart/dependabot/npm_and_yarn/jest-29.6.1  138cfcc
+- Merge pull request [#148](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/148) from ilovepixelart/dependabot/npm_and_yarn/typescript-eslint/eslint-plugin-5.61.0  c07fada
+- Bump @typescript-eslint/eslint-plugin from 5.60.1 to 5.61.0  9134112
+- Bump jest from 29.5.0 to 29.6.1  48161f6
+- Bump mongoose from 7.3.1 to 7.3.2  4236bbb
+- Merge pull request [#141](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/141) from ilovepixelart/dependabot/npm_and_yarn/eslint-8.44.0  3f5d078
+- Bump eslint from 8.43.0 to 8.44.0  4b9201e
+- Update changelog for &quot;v3.1.8&quot;  c2fee99
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.8...v3.1.9
+
+[Changes][v3.1.9]
+
+
 <a name="v3.1.8"></a>
 # [v3.1.8](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.1.8) - 30 Jun 2023
 
@@ -940,6 +976,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.1.9]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.8...v3.1.9
 [v3.1.8]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.7...v3.1.8
 [v3.1.7]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.6...v3.1.7
 [v3.1.6]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.5...v3.1.6
