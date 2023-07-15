@@ -24,6 +24,8 @@ import defaultTemplate from './template'
 import register from '@swc/register'
 import swcrc from './swcrc'
 
+export * as IOptions from './interfaces/IOptions'
+
 register(swcrc)
 
 /**
