@@ -66,13 +66,14 @@
   "main": "dist/cjs/migrator.js",
   "types": "dist/cjs/types/migrator.d.ts",
   "scripts": {
+    "prepublish": "scripts/chmod.sh",
     "migrate": "node -r @swc/register src/bin.ts",
     "lint": "eslint . --ext .js,.ts",
     "lint:fix": "eslint . --fix --ext .js,.ts",
     "test": "jest --config jest.config.ts --detectOpenHandles --coverage",
     "test:open": "npm run test && open-cli coverage/lcov-report/index.html",
     "clean": "rm -rf ./dist",
-    "build": "npm run clean && npm run build:cjs && npm run build:esm",
+    "build": "npm run clean && npm run build:cjs && npm run build:esm && scripts/chmod.sh",
     "build:cjs": "tsc -p config/tsconfig.cjs.json",
     "build:esm": "tsc -p config/tsconfig.esm.json && mv ./dist/esm/migrator.js ./dist/esm/migrator.mjs",
     "release": "npm run lint && npm run build && np"
@@ -91,7 +92,7 @@
     "@swc/cli": "0.1.62",
     "@swc/helpers": "0.5.1",
     "@swc/jest": "0.2.26",
-    "@types/inquirer": "8.2.5",
+    "@types/inquirer": "8.2.6",
     "@types/jest": "29.5.3",
     "@types/node": "18",
     "@typescript-eslint/eslint-plugin": "6.0.0",
@@ -109,6 +110,6 @@
     "merge": "2.1.1",
     "open-cli": "7.2.0",
     "ts-node": "10.9.1",
-    "typescript": "5.0.4"
+    "typescript": "5.1.6"
   }
 }
