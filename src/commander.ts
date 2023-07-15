@@ -18,7 +18,6 @@ import register from '@swc/register'
 import swcrc from './swcrc'
 
 register(swcrc)
-config()
 
 /**
  * Get the options from the config file
@@ -48,6 +47,9 @@ export const getConfig = async (configPath: string): Promise<IOptions> => {
  * @throws Error if the uri is not provided in the config file, environment or CLI
  */
 export const getMigrator = async (options: IOptions): Promise<Migrator> => {
+  config({ path: '.env' })
+  config({ path: '.env.local', override: true })
+
   const configPath = options.configPath ??
     process.env.MIGRATE_CONFIG_PATH ??
     process.env.migrateConfigPath ??
