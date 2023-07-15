@@ -50,6 +50,45 @@ yarn global add ts-migrate-mongoose
 npm install -g ts-migrate-mongoose
 ```
 
+## Migrations and alias imports
+
+If you are using alias imports in your project, you can use `tsconfig.json` paths to resolve them for you project.
+\
+But `ts-migrate-mongoose` uses `swc` to compile the migrations internally
+\
+So you also need to add `.swcrc` file to project root with the following content:
+
+```json
+{
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "decorators": true,
+      "dynamicImport": true
+    },
+    "target": "es2022",
+    "keepClassNames": true,
+    "loose": true,
+    // Important part bellow, copy it from your tsconfig.json
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "env": {
+    "targets": {
+      "node": 18
+    }
+  },
+  "module": {
+    "type": "commonjs"
+  },
+  "sourceMaps": true
+}
+```
+
+Now your migrations will be compiled with `swc` and you can use alias imports in your migrations.
+
 ## Configuration
 
 If you don't want to provide `-d` or `--uri` flag in CLI or Programmatic mode, you can configure it.
