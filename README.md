@@ -305,6 +305,12 @@ export async function up () {
     }
   ])
 }
+
+export async function down () {
+  const { User } = await getModels()
+  // Write migration here
+  await User.deleteMany({ firstName: { $in: ['Jane', 'John'] } }).exec()
+}
 ```
 
 ## Multi-tenant
@@ -336,7 +342,7 @@ for (db of databases) {
 
 ## Notes
 
-- Currently, the `-d` or `--uri` must include the database to use for migrations in the uri.
+- Currently, the `-d` or `--uri`  must include the database to use for migrations in the uri.
 - Example: `-d mongodb://localhost:27017/development`
 - If you don't want to pass it in every time feel free to use `migrate.ts` or `migrate.json` config file or an environment variable
 - Feel Free to check out the `/examples` folder in the project to get a better idea of usage in Programmatic and CLI mode
