@@ -305,17 +305,38 @@ export async function up () {
     }
   ])
 }
+```
 
-export async function down () {
-  const { User } = await getModels()
-  // Write migration here
-  await User.deleteMany({ firstName: { $in: ['Jane', 'John'] } }).exec()
+## Multi-tenant
+
+```typescript
+import Migrator from "ts-migrate-mongoose";
+
+const migrator = await Migrator.connect({
+  // This is the only required property you need to set
+  // MongoDB connection string URI
+  uri: "mongodb://localhost/my-db",
+  // All the options below are optional
+  // Collection name to use for migrations (defaults to 'migrations')
+  collection: "migrations",
+  // Path to migrations directory, default is ./migrations
+  migrationsPath: "/path/to/migrations/",
+  // The template to use when creating migrations needs up and down functions exposed
+  // No need to specify unless you want to use a custom template
+  templatePath: "/path/to/template.ts",
+  // Ff making a CLI app, set this to false to prompt the user, otherwise true
+  autosync: true,
+});
+
+for (db of databases) {
+  migrator.useDb(db);
+  migrator.run("<COMMAND>");
 }
 ```
 
 ## Notes
 
-- Currently, the `-d` or `--uri`  must include the database to use for migrations in the uri.
+- Currently, the `-d` or `--uri` must include the database to use for migrations in the uri.
 - Example: `-d mongodb://localhost:27017/development`
 - If you don't want to pass it in every time feel free to use `migrate.ts` or `migrate.json` config file or an environment variable
 - Feel Free to check out the `/examples` folder in the project to get a better idea of usage in Programmatic and CLI mode

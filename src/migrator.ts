@@ -33,8 +33,8 @@ register(swcrc)
  * @class Migrator
  */
 class Migrator {
-  readonly migrationModel: Model<IMigration>
-  readonly connection: Connection
+  private migrationModel: Model<IMigration>
+  private connection: Connection
 
   private uri?: string
   private template: string
@@ -242,6 +242,16 @@ class Migrator {
       }
       throw error
     }
+  }
+
+  /**
+   * Switch to another database, it's recommended when you have multi-tenant databases.
+   * you can keep the same connection to change
+   * @param dbName Database name
+   */
+  useDb (dbName: string): void {
+    this.connection = this.connection.useDb(dbName)
+    this.migrationModel = getMigrationModel(this.connection, this.collection)
   }
 
   /**
