@@ -84,7 +84,7 @@
     "chalk": "4.1.2",
     "commander": "11.0.0",
     "dotenv": "16.3.1",
-    "inquirer": "8.2.5",
+    "inquirer": "9.2.8",
     "mongoose": "7.3.4"
   },
   "devDependencies": {
@@ -92,7 +92,7 @@
     "@swc/cli": "0.1.62",
     "@swc/helpers": "0.5.1",
     "@swc/jest": "0.2.26",
-    "@types/inquirer": "8.2.6",
+    "@types/inquirer": "9.0.3",
     "@types/jest": "29.5.3",
     "@types/node": "18",
     "@typescript-eslint/eslint-plugin": "6.0.0",
