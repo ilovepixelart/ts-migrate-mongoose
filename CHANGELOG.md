@@ -1,3 +1,24 @@
+<a name="v3.3.0"></a>
+# [v3.3.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.3.0) - 05 Aug 2023
+
+- Doc  8038a47
+- Doc  cd419a9
+- Merge pull request [#173](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/173) from ilovepixelart/feature/dep  1455d55
+- Doc  02e779f
+- SWC  b0cb647
+- Merge pull request [#172](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/172) from ilovepixelart/feature/dep  704f71d
+- Dep + new version of swc - Remove env use target in .swcrc  f05dd77
+- Merge pull request [#167](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/167) from ilovepixelart/dependabot/npm_and_yarn/jest-29.6.2  338da68
+- Merge pull request [#168](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/168) from ilovepixelart/dependabot/npm_and_yarn/eslint-8.46.0  4952bf4
+- Bump eslint from 8.45.0 to 8.46.0  af9a867
+- Bump jest from 29.6.1 to 29.6.2  391e980
+- Update changelog for &quot;v3.2.0&quot;  158d947
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.2.0...v3.3.0
+
+[Changes][v3.3.0]
+
+
 <a name="v3.2.0"></a>
 # [v3.2.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.2.0) - 24 Jul 2023
 
@@ -991,6 +1012,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.3.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.2.0...v3.3.0
 [v3.2.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.9...v3.2.0
 [v3.1.9]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.8...v3.1.9
 [v3.1.8]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.1.7...v3.1.8
