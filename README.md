@@ -66,18 +66,13 @@ So you also need to add `.swcrc` file to project root with the following content
       "decorators": true,
       "dynamicImport": true
     },
-    "target": "es2022",
+    "target": "es2021",
     "keepClassNames": true,
     "loose": true,
     // Important part bellow, copy it from your tsconfig.json
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
-  },
-  "env": {
-    "targets": {
-      "node": 18
     }
   },
   "module": {
