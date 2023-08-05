@@ -11,11 +11,6 @@ const swcrc: Swcrc = {
     keepClassNames: true,
     loose: true
   },
-  env: {
-    targets: {
-      node: 16
-    }
-  },
   module: {
     type: 'commonjs'
   },
