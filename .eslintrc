@@ -30,6 +30,7 @@
     "sourceType": "module"
   },
   "rules": {
+    "comma-dangle": ["error", "never"],
     "@typescript-eslint/array-type": "error",
     "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/method-signature-style": "error",
