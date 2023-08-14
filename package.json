@@ -94,7 +94,7 @@
     "@swc/jest": "0.2.29",
     "@types/inquirer": "8.2.6",
     "@types/jest": "29.5.3",
-    "@types/node": "18",
+    "@types/node": "20",
     "@typescript-eslint/eslint-plugin": "6.3.0",
     "@typescript-eslint/parser": "6.3.0",
     "eslint": "8.47.0",
