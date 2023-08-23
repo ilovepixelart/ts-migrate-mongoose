@@ -85,7 +85,7 @@
     "commander": "11.0.0",
     "dotenv": "16.3.1",
     "inquirer": "8.2.6",
-    "mongoose": "7.4.3"
+    "mongoose": "7.4.4"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "4.1.7",
@@ -93,15 +93,15 @@
     "@swc/helpers": "0.5.1",
     "@swc/jest": "0.2.29",
     "@types/inquirer": "8.2.6",
-    "@types/jest": "29.5.3",
+    "@types/jest": "29.5.4",
     "@types/node": "18",
-    "@typescript-eslint/eslint-plugin": "6.4.0",
+    "@typescript-eslint/eslint-plugin": "6.4.1",
     "@typescript-eslint/parser": "6.4.1",
     "eslint": "8.47.0",
     "eslint-plugin-jest": "27.2.3",
     "eslint-plugin-jest-formatting": "3.1.0",
     "eslint-plugin-sonarjs": "0.20.0",
-    "jest": "29.6.2",
+    "jest": "29.6.3",
     "merge": "2.1.1",
     "open-cli": "7.2.0",
     "ts-node": "10.9.1",
