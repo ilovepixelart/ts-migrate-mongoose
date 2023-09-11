@@ -90,7 +90,7 @@
   "devDependencies": {
     "@shelf/jest-mongodb": "4.1.7",
     "@swc/cli": "0.1.62",
-    "@swc/helpers": "0.5.1",
+    "@swc/helpers": "0.5.2",
     "@swc/jest": "0.2.29",
     "@types/inquirer": "8.2.6",
     "@types/jest": "29.5.4",
