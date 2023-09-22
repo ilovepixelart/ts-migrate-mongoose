@@ -79,7 +79,7 @@
     "release": "npm run lint && npm run build && np"
   },
   "dependencies": {
-    "@swc/core": "1.3.78",
+    "@swc/core": "1.3.82",
     "@swc/register": "0.1.10",
     "chalk": "4.1.2",
     "commander": "11.0.0",
