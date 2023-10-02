@@ -1,7 +1,6 @@
-// For a detailed explanation regarding each configuration property, visit:
-// https://jestjs.io/docs/en/configuration.html
-import { recursive } from 'merge'
-import mongo from '@shelf/jest-mongodb/jest-preset'
+/* eslint-disable @typescript-eslint/no-var-requires */
+const { recursive } = require('merge')
+const mongo = require('@shelf/jest-mongodb/jest-preset')
 
 const config = recursive(mongo, {
   roots: [
@@ -32,4 +31,4 @@ const config = recursive(mongo, {
   ]
 })
 
-export default config
+module.exports = config
