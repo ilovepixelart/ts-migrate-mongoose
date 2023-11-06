@@ -1,3 +1,17 @@
+<a name="v3.4.2"></a>
+# [v3.4.2](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.4.2) - 06 Nov 2023
+
+- Merge pull request [#225](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/225) from ilovepixelart/feature/dep  4c01a87
+- Dep  f61511a
+- Merge pull request [#218](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/218) from ilovepixelart/dependabot/npm_and_yarn/babel/traverse-7.23.2  dc434f1
+- Bump @babel/traverse from 7.22.17 to 7.23.2  0f9b569
+- Update changelog for &quot;v3.4.1&quot;  d73b1ba
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.4.1...v3.4.2
+
+[Changes][v3.4.2]
+
+
 <a name="v3.4.1"></a>
 # [v3.4.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.4.1) - 16 Oct 2023
 
@@ -1085,6 +1099,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.4.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.4.1...v3.4.2
 [v3.4.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.4.0...v3.4.1
 [v3.4.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.3.3...v3.4.0
 [v3.3.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.3.2...v3.3.3
