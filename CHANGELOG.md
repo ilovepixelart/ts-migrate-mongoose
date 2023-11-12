@@ -1,3 +1,17 @@
+<a name="v3.5.0"></a>
+# [v3.5.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.5.0) - 12 Nov 2023
+
+- Merge pull request [#227](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/227) from ilovepixelart/feature/tsconfig-eslint  9b1f7fb
+- Dep  17a8666
+- Engines  3a75ff7
+- Tsconfig strictest rules  43ea154
+- Update changelog for &quot;v3.4.2&quot;  64d5dca
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.4.2...v3.5.0
+
+[Changes][v3.5.0]
+
+
 <a name="v3.4.2"></a>
 # [v3.4.2](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.4.2) - 06 Nov 2023
 
@@ -1099,6 +1113,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.5.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.4.2...v3.5.0
 [v3.4.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.4.1...v3.4.2
 [v3.4.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.4.0...v3.4.1
 [v3.4.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.3.3...v3.4.0
