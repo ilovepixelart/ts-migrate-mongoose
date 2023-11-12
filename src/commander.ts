@@ -6,6 +6,7 @@ import Migrator from './migrator'
 
 import type IOptions from './interfaces/IOptions'
 import type IConfigModule from './interfaces/IConfigModule'
+import type IMigratorOptions from './interfaces/IMigratorOptions'
 
 import {
   DEFAULT_MIGRATE_AUTOSYNC,
@@ -51,39 +52,39 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   config({ path: '.env.local', override: true })
 
   const configPath = options.configPath ??
-    process.env.MIGRATE_CONFIG_PATH ??
-    process.env.migrateConfigPath ??
+    process.env['MIGRATE_CONFIG_PATH'] ??
+    process.env['migrateConfigPath'] ??
     DEFAULT_MIGRATE_CONFIG_PATH
 
   const fileOptions = await getConfig(configPath)
 
   const uri = options.uri ??
-    process.env.MIGRATE_MONGO_URI ??
-    process.env.migrateMongoUri ??
+    process.env['MIGRATE_MONGO_URI'] ??
+    process.env['migrateMongoUri'] ??
     fileOptions.uri
     // no default value always required
 
   const collection = options.collection ??
-    process.env.MIGRATE_MONGO_COLLECTION ??
-    process.env.migrateMongoCollection ??
+    process.env['MIGRATE_MONGO_COLLECTION'] ??
+    process.env['migrateMongoCollection'] ??
     fileOptions.collection ??
     DEFAULT_MIGRATE_MONGO_COLLECTION
 
   const migrationsPath = options.migrationsPath ??
-    process.env.MIGRATE_MIGRATIONS_PATH ??
-    process.env.migrateMigrationsPath ??
+    process.env['MIGRATE_MIGRATIONS_PATH'] ??
+    process.env['migrateMigrationsPath'] ??
     fileOptions.migrationsPath ??
     DEFAULT_MIGRATE_MIGRATIONS_PATH
 
   const templatePath = options.templatePath ??
-    process.env.MIGRATE_TEMPLATE_PATH ??
-    process.env.migrateTemplatePath ??
+    process.env['MIGRATE_TEMPLATE_PATH'] ??
+    process.env['migrateTemplatePath'] ??
     fileOptions.templatePath
     // can be empty then we use default template
 
   const autosync = Boolean(options.autosync ??
-    process.env.MIGRATE_AUTOSYNC ??
-    process.env.migrateAutosync ??
+    process.env['MIGRATE_AUTOSYNC'] ??
+    process.env['migrateAutosync'] ??
     fileOptions.autosync ??
     DEFAULT_MIGRATE_AUTOSYNC)
 
@@ -92,14 +93,19 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
     throw new Error(message)
   }
 
-  return Migrator.connect({
+  const migratorOptions: IMigratorOptions = {
     migrationsPath,
-    templatePath,
     uri,
     collection,
     autosync,
     cli: true
-  })
+  }
+
+  if (templatePath) {
+    migratorOptions.templatePath = templatePath
+  }
+
+  return Migrator.connect(migratorOptions)
 }
 
 /**
