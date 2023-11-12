@@ -9,16 +9,11 @@
   "parser": "@typescript-eslint/parser",
   "plugins": [
     "@typescript-eslint",
-    "jest",
-    "jest-formatting",
     "sonarjs"
   ],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/strict",
-    "plugin:@typescript-eslint/stylistic",
     "plugin:sonarjs/recommended"
   ],
   "globals": {
@@ -60,7 +55,14 @@
       "files": [
         "tests/**/*.test.ts"
       ],
+      "plugins": [
+        "jest",
+        "jest-formatting"
+      ],
       "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/strict",
+        "plugin:@typescript-eslint/stylistic",
         "plugin:jest/style",
         "plugin:jest/recommended",
         "plugin:jest-formatting/recommended"

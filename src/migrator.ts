@@ -363,7 +363,8 @@ class Migrator {
     const migrationsInFs = files
       .filter((filename) => /^\d{13,}-/.test(filename) && filename.endsWith('.ts'))
       .map((filename) => {
-        const timestamp = parseInt(filename.split('-')[0])
+        const [time] = filename.split('-')
+        const timestamp = parseInt(time ?? '')
         const createdAt = new Date(timestamp)
         const existsInDatabase = migrationsInDb.some((migration) => filename === migration.filename)
         return { createdAt, filename, existsInDatabase }
