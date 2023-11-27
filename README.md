@@ -32,7 +32,10 @@ ts-migrate-mongoose is a migration framework for projects which are already usin
 
 ## Example
 
-How to use it with express [ts-express-swc](https://github.com/ilovepixelart/ts-express-swc)
+How to use it with:
+
+- Express: [ts-express-swc](https://github.com/ilovepixelart/ts-express-swc), [ts-express-esbuild](https://github.com/ilovepixelart/ts-express-esbuild)
+- Nest: [ts-express-nest](https://github.com/ilovepixelart/ts-express-nest)
 
 ## Installation
 
@@ -41,6 +44,7 @@ How to use it with express [ts-express-swc](https://github.com/ilovepixelart/ts-
 ```bash
 yarn add ts-migrate-mongoose
 npm install ts-migrate-mongoose
+pnpm add ts-migrate-mongoose
 ```
 
 - Install it globally
@@ -48,6 +52,7 @@ npm install ts-migrate-mongoose
 ```bash
 yarn global add ts-migrate-mongoose
 npm install -g ts-migrate-mongoose
+pnpm add -g ts-migrate-mongoose
 ```
 
 ## Migrations and alias imports
@@ -146,6 +151,7 @@ migrateAutosync=false
 ```bash
 yarn migrate help
 npx migrate help
+pnpm migrate help
 ```
 
 ```text
@@ -191,6 +197,17 @@ npx migrate prune -d mongodb://localhost/my-db
 npx migrate list --config settings.json
 ```
 
+- Examples pnpm
+
+```bash
+pnpm migrate list -d mongodb://localhost/my-db
+pnpm migrate create add_users -d mongodb://localhost/my-db
+pnpm migrate up add_user -d mongodb://localhost/my-db
+pnpm migrate down delete_names -d mongodb://localhost/my-db
+pnpm migrate prune -d mongodb://localhost/my-db
+pnpm migrate list --config settings.json
+```
+
 ## Options override order
 
 Note that options are overridden in the following order:
@@ -208,6 +225,7 @@ Here's an example of a migration created using:
 ```bash
 yarn migrate create first-migration-demo
 npx migrate create first-migration-demo
+pnpm migrate create first-migration-demo
 ```
 
 Executing the above command will create a migration file in the `./migrations` folder with the following content:
