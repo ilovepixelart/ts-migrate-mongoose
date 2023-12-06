@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es2021",
+    "target": "ES2021",
     "lib": [
-      "es2021"
+      "ES2021"
     ],
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "outDir": "dist",
     "strict": true,
     "allowSyntheticDefaultImports": true,

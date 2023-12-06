@@ -55,7 +55,7 @@
     ".": {
       "import": {
         "types": "./dist/esm/types/migrator.d.ts",
-        "default": "./dist/esm/migrator.mjs"
+        "default": "./dist/esm/migrator.js"
       },
       "require": {
         "types": "./dist/cjs/types/migrator.d.ts",
@@ -64,28 +64,29 @@
     }
   },
   "main": "dist/cjs/migrator.js",
+  "module": "dist/esm/migrator.js",
   "types": "dist/cjs/types/migrator.d.ts",
   "scripts": {
-    "prepublish": "scripts/chmod.sh",
+    "prepublish": "bash/chmod.sh",
     "migrate": "node -r @swc/register src/bin.ts",
     "lint": "eslint . --ext .js,.ts",
     "lint:fix": "eslint . --fix --ext .js,.ts",
     "test": "jest --config jest.config.ts --detectOpenHandles --coverage",
     "test:open": "npm run test && open-cli coverage/lcov-report/index.html",
     "clean": "rm -rf ./dist",
-    "build": "npm run clean && npm run build:cjs && npm run build:esm && scripts/chmod.sh",
+    "build": "npm run clean && npm run build:cjs && npm run build:esm && bash/chmod.sh",
     "build:cjs": "tsc -p config/tsconfig.cjs.json",
-    "build:esm": "tsc -p config/tsconfig.esm.json && mv ./dist/esm/migrator.js ./dist/esm/migrator.mjs",
+    "build:esm": "tsc -p config/tsconfig.esm.json && bash/esm.sh",
     "release": "npm run lint && npm run build && np"
   },
   "dependencies": {
-    "@swc/core": "1.3.99",
+    "@swc/core": "1.3.100",
     "@swc/register": "0.1.10",
     "chalk": "4.1.2",
     "commander": "11.1.0",
     "dotenv": "16.3.1",
     "inquirer": "8.2.6",
-    "mongoose": "8.0.1"
+    "mongoose": "8.0.2"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "4.2.0",
@@ -93,11 +94,11 @@
     "@swc/helpers": "0.5.3",
     "@swc/jest": "0.2.29",
     "@types/inquirer": "8.2.6",
-    "@types/jest": "29.5.10",
+    "@types/jest": "29.5.11",
     "@types/node": "20",
-    "@typescript-eslint/eslint-plugin": "6.13.0",
-    "@typescript-eslint/parser": "6.13.0",
-    "eslint": "8.54.0",
+    "@typescript-eslint/eslint-plugin": "6.13.2",
+    "@typescript-eslint/parser": "6.13.2",
+    "eslint": "8.55.0",
     "eslint-plugin-jest": "27.6.0",
     "eslint-plugin-jest-formatting": "3.1.0",
     "eslint-plugin-sonarjs": "0.23.0",
