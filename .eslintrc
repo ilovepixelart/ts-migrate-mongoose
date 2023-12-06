@@ -25,7 +25,10 @@
     "sourceType": "module"
   },
   "rules": {
-    "comma-dangle": ["error", "never"],
+    "comma-dangle": [
+      "error",
+      "never"
+    ],
     "@typescript-eslint/array-type": "error",
     "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/method-signature-style": "error",
@@ -86,6 +89,19 @@
         "plugin:@typescript-eslint/stylistic-type-checked"
       ],
       "rules": {
+        "@typescript-eslint/member-delimiter-style": [
+          "error",
+          {
+            "multiline": {
+              "delimiter": "none",
+              "requireLast": true
+            },
+            "singleline": {
+              "delimiter": "comma",
+              "requireLast": false
+            }
+          }
+        ],
         "@typescript-eslint/consistent-type-exports": "error",
         "@typescript-eslint/explicit-function-return-type": "error",
         "@typescript-eslint/explicit-module-boundary-types": "error",
