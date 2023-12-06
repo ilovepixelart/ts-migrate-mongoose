@@ -1,3 +1,7 @@
+# System files
+.DS_Store
+Thumbs.db
+
 # Dependency directory
 node_modules
 dist
