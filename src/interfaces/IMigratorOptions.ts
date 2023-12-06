@@ -1,7 +1,7 @@
 import type { ConnectOptions } from 'mongoose'
 
 interface IMigratorOptions {
-  uri: string,
+  uri: string
   connectOptions?: ConnectOptions
   templatePath?: string
   migrationsPath?: string
