@@ -1,3 +1,17 @@
+<a name="v3.5.4"></a>
+# [v3.5.4](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.5.4) - 14 Dec 2023
+
+- Merge pull request [#239](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/239) from ilovepixelart/feature/patch-for-swcrc-es6  f98fe6f
+- Settings  61958df
+- Patch swcrc.js  22ac2ae
+- Dep  335da95
+- Update changelog for &quot;v3.5.3&quot;  35f703b
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.3...v3.5.4
+
+[Changes][v3.5.4]
+
+
 <a name="v3.5.3"></a>
 # [v3.5.3](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.5.3) - 06 Dec 2023
 
@@ -1155,6 +1169,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.5.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.3...v3.5.4
 [v3.5.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.2...v3.5.3
 [v3.5.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.1...v3.5.2
 [v3.5.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.0...v3.5.1
