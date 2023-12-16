@@ -78,9 +78,10 @@ describe('commander', () => {
   })
 
   it('should check if connectionOptions are passed', async () => {
-    const connectSpy = jest.spyOn(Migrator, 'connect')
+    // Mocking connect method to avoid connecting to database
+    const connectSpy = jest.spyOn(Migrator, 'connect').mockImplementation()
     // Only providing configPath, connectOptions should come from config file
-    const migrator = await getMigrator({
+    await getMigrator({
       configPath: './examples/config-file-usage/migrate.ts'
     })
   
@@ -98,6 +99,5 @@ describe('commander', () => {
     })
 
     connectSpy.mockRestore()
-    await migrator.close()
   })
 })
