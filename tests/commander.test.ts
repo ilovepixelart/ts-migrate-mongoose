@@ -15,8 +15,6 @@ describe('commander', () => {
   const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
   let connection: Connection
 
-  const connectSpy = jest.spyOn(Migrator, 'connect')
-
   beforeEach(async () => {
     clearDirectory('migrations')
     connection = await mongoose.createConnection(uri).asPromise()
@@ -24,7 +22,6 @@ describe('commander', () => {
   })
 
   afterEach(async () => {
-    connectSpy.mockRestore()
     if (connection.readyState !== 0) {
       await connection.close()
     }
@@ -81,8 +78,9 @@ describe('commander', () => {
   })
 
   it('should check if connectionOptions are passed', async () => {
+    const connectSpy = jest.spyOn(Migrator, 'connect')
     // Only providing configPath, connectOptions should come from config file
-    await getMigrator({
+    const migrator = await getMigrator({
       configPath: './examples/config-file-usage/migrate.ts'
     })
   
@@ -98,5 +96,8 @@ describe('commander', () => {
         useUnifiedTopology: true
       }
     })
+
+    connectSpy.mockRestore()
+    await migrator.close()
   })
 })
