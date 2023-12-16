@@ -1,7 +1,8 @@
 import chalk from 'chalk'
 import mongoose from 'mongoose'
 
-import { migrate, getConfig } from '../src/commander'
+import Migrator from '../src/migrator'
+import { migrate, getConfig, getMigrator } from '../src/commander'
 import { clearDirectory } from './utils/filesystem'
 
 import type { Connection } from 'mongoose'
@@ -14,6 +15,8 @@ describe('commander', () => {
   const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
   let connection: Connection
 
+  const connectSpy = jest.spyOn(Migrator, 'connect')
+
   beforeEach(async () => {
     clearDirectory('migrations')
     connection = await mongoose.createConnection(uri).asPromise()
@@ -21,6 +24,7 @@ describe('commander', () => {
   })
 
   afterEach(async () => {
+    connectSpy.mockRestore()
     if (connection.readyState !== 0) {
       await connection.close()
     }
@@ -62,12 +66,37 @@ describe('commander', () => {
     const config = await getConfig('./examples/config-file-usage/migrate.ts')
     expect(config).toEqual({
       uri: 'mongodb://localhost/my-db',
-      migrationsPath: 'migrations'
+      migrationsPath: 'migrations',
+      connectOptions: {
+        autoIndex: true,
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      }
     })
   })
 
   it('should getConfig .js options', async () => {
     const config = await getConfig('./examples/config-file-usage/migrate.js')
     expect(config).toEqual({})
+  })
+
+  it('should check if connectionOptions are passed', async () => {
+    // Only providing configPath, connectOptions should come from config file
+    await getMigrator({
+      configPath: './examples/config-file-usage/migrate.ts'
+    })
+  
+    expect(connectSpy).toHaveBeenCalledWith({
+      migrationsPath: 'migrations',
+      uri: 'mongodb://localhost/my-db',
+      autosync: false,
+      cli: true,
+      collection: 'migrations',
+      connectOptions: {
+        autoIndex: true,
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      }
+    })
   })
 })

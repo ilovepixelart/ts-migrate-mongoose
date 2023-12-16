@@ -1,10 +1,13 @@
+import type { ConnectOptions } from 'mongoose'
+
 interface IOptions {
-  configPath?: string
   uri?: string
+  connectOptions?: ConnectOptions
+  migrationsPath?: string
+  templatePath?: string
   collection?: string
   autosync?: boolean
-  templatePath?: string
-  migrationsPath?: string
+  configPath?: string
 }
 
 export default IOptions
