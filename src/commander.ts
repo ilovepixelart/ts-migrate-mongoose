@@ -64,6 +64,9 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
     fileOptions.uri
     // no default value always required
 
+  // Connect options can be only provided in the config file for cli usage
+  const connectOptions = fileOptions.connectOptions
+
   const collection = options.collection ??
     process.env['MIGRATE_MONGO_COLLECTION'] ??
     process.env['migrateMongoCollection'] ??
@@ -103,6 +106,10 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
 
   if (templatePath) {
     migratorOptions.templatePath = templatePath
+  }
+
+  if (connectOptions) {
+    migratorOptions.connectOptions = connectOptions
   }
 
   return Migrator.connect(migratorOptions)
