@@ -1,3 +1,17 @@
+<a name="v3.5.5"></a>
+# [v3.5.5](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.5.5) - 16 Dec 2023
+
+- Merge pull request [#241](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/241) from ilovepixelart/feature/commander-connect-options  aef0562
+- Test  dc16aa4
+- Test  082261b
+- Commander connect options fix  d61e11b
+- Update changelog for &quot;v3.5.4&quot;  be241e5
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.4...v3.5.5
+
+[Changes][v3.5.5]
+
+
 <a name="v3.5.4"></a>
 # [v3.5.4](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.5.4) - 14 Dec 2023
 
@@ -1169,6 +1183,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.5.5]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.4...v3.5.5
 [v3.5.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.3...v3.5.4
 [v3.5.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.2...v3.5.3
 [v3.5.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.1...v3.5.2
