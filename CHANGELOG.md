@@ -1,3 +1,15 @@
+<a name="v3.5.6"></a>
+# [v3.5.6](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.5.6) - 05 Jan 2024
+
+- Merge pull request [#248](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/248) from ilovepixelart/feature/esm-problem-with-export  87ae9b3
+- ESM problem with export  3973897
+- Update changelog for &quot;v3.5.5&quot;  9f0dc7a
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.5...v3.5.6
+
+[Changes][v3.5.6]
+
+
 <a name="v3.5.5"></a>
 # [v3.5.5](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.5.5) - 16 Dec 2023
 
@@ -1183,6 +1195,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.5.6]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.5...v3.5.6
 [v3.5.5]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.4...v3.5.5
 [v3.5.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.3...v3.5.4
 [v3.5.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.2...v3.5.3
