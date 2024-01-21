@@ -143,7 +143,7 @@ class Migrator {
 
     const untilMigration = migrationName
       ? await this.migrationModel.findOne({ name: migrationName }).exec()
-      : await this.migrationModel.findOne().sort({ createdAt: direction === 'up' ? -1 : 1 }).exec()
+      : await this.migrationModel.findOne({ state: direction === 'down' ? 'up' : 'down' }).sort({ createdAt: -1 }).exec()
 
     if (!untilMigration) {
       if (migrationName) {
