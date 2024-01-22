@@ -159,14 +159,14 @@ export class Migrate {
     this.program
       .command('up [migration-name]')
       .description('run all migrations or a specific migration if name provided')
-      .action(async (migrationName: string) => {
+      .action(async (migrationName?: string) => {
         await this.migrator.run('up', migrationName)
       })
 
     this.program
-      .command('down <migration-name>')
+      .command('down [migration-name]')
       .description('roll back migrations down to given name')
-      .action(async (migrationName: string) => {
+      .action(async (migrationName?: string) => {
         await this.migrator.run('down', migrationName)
       })
 

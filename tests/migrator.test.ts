@@ -368,4 +368,93 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     await migrator.close()
     expect(migrator.connection.readyState).toBe(0)
   })
+
+  it('should run up all 3 at oce and run down one by one using migrate down', async () => {
+    const migrator = await Migrator.connect({ uri, cli: true })
+    const migration1 = await migrator.create('test-migration1')
+    const migration2 = await migrator.create('test-migration2')
+    const migration3 = await migrator.create('test-migration3')
+    expect(migration1.filename).toMatch(/^\d{13,}-test-migration1.ts/)
+    expect(migration2.filename).toMatch(/^\d{13,}-test-migration2.ts/)
+    expect(migration3.filename).toMatch(/^\d{13,}-test-migration3.ts/)
+    await migrator.run('up')
+    const migrationListUp = await migrator.list()
+    expect(migrationListUp).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'test-migration1',
+          state: 'up'
+        }),
+        expect.objectContaining({
+          name: 'test-migration2',
+          state: 'up'
+        }),
+        expect.objectContaining({
+          name: 'test-migration3',
+          state: 'up'
+        })
+      ])
+    )
+
+    await migrator.run('down')
+    const migrationListDown1 = await migrator.list()
+    expect(migrationListDown1).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'test-migration1',
+          state: 'up'
+        }),
+        expect.objectContaining({
+          name: 'test-migration2',
+          state: 'up'
+        }),
+        expect.objectContaining({
+          name: 'test-migration3',
+          state: 'down'
+        })
+      ])
+    )
+
+    await migrator.run('down')
+    const migrationListDown2 = await migrator.list()
+    expect(migrationListDown2).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'test-migration1',
+          state: 'up'
+        }),
+        expect.objectContaining({
+          name: 'test-migration2',
+          state: 'down'
+        }),
+        expect.objectContaining({
+          name: 'test-migration3',
+          state: 'down'
+        })
+      ])
+    )
+
+    await migrator.run('down')
+    const migrationListDown3 = await migrator.list()
+    expect(migrationListDown3).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'test-migration1',
+          state: 'down'
+        }),
+        expect.objectContaining({
+          name: 'test-migration2',
+          state: 'down'
+        }),
+        expect.objectContaining({
+          name: 'test-migration3',
+          state: 'down'
+        })
+      ])
+    )
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
 })
