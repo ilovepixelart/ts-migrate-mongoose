@@ -183,6 +183,7 @@ yarn migrate list -d mongodb://localhost/my-db
 yarn migrate create add_users -d mongodb://localhost/my-db
 yarn migrate up add_user -d mongodb://localhost/my-db
 yarn migrate down delete_names -d mongodb://localhost/my-db
+yarn migrate down # will rollback one migration
 yarn migrate prune -d mongodb://localhost/my-db
 yarn migrate list --config settings.json
 ```
@@ -190,12 +191,13 @@ yarn migrate list --config settings.json
 - Examples npm
 
 ```bash
-npx migrate list -d mongodb://localhost/my-db
-npx migrate create add_users -d mongodb://localhost/my-db
-npx migrate up add_user -d mongodb://localhost/my-db
-npx migrate down delete_names -d mongodb://localhost/my-db
-npx migrate prune -d mongodb://localhost/my-db
-npx migrate list --config settings.json
+npm run migrate list -d mongodb://localhost/my-db
+npm run migrate create add_users -d mongodb://localhost/my-db
+npm run migrate up add_user -d mongodb://localhost/my-db
+npm run migrate down delete_names -d mongodb://localhost/my-db
+npm run migrate down # will rollback one migration
+npm run migrate prune -d mongodb://localhost/my-db
+npm run migrate list --config settings.json
 ```
 
 - Examples pnpm
@@ -205,6 +207,7 @@ pnpm migrate list -d mongodb://localhost/my-db
 pnpm migrate create add_users -d mongodb://localhost/my-db
 pnpm migrate up add_user -d mongodb://localhost/my-db
 pnpm migrate down delete_names -d mongodb://localhost/my-db
+pnpm migrate down # will rollback one migration
 pnpm migrate prune -d mongodb://localhost/my-db
 pnpm migrate list --config settings.json
 ```
