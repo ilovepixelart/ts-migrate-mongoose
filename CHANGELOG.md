@@ -1,3 +1,23 @@
+<a name="v3.6.1"></a>
+# [v3.6.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.6.1) - 24 Feb 2024
+
+- Merge pull request [#263](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/263) from ilovepixelart/dependabot/npm_and_yarn/eslint-8.57.0  48f6a0b
+- Merge pull request [#264](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/264) from ilovepixelart/dependabot/npm_and_yarn/types/node-20.11.20  37b79d7
+- Bump @types/node from 20.8.10 to 20.11.20  6bbcecb
+- Bump eslint from 8.56.0 to 8.57.0  b79d3ae
+- Dependabot ignore  f3b43aa
+- Merge pull request [#262](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/262) from ilovepixelart/feature/dep  830a16c
+- Dep  e092c9e
+- Merge pull request [#260](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/260) from ilovepixelart/feature/dep  7782eae
+- Doc  9381c61
+- Dep  5c509cc
+- Update changelog for v3.6.0  e871939
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.0...v3.6.1
+
+[Changes][v3.6.1]
+
+
 <a name="v3.6.0"></a>
 # [v3.6.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.6.0) - 28 Jan 2024
 
@@ -1226,6 +1246,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.6.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.0...v3.6.1
 [v3.6.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.7...v3.6.0
 [v3.5.7]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.6...v3.5.7
 [v3.5.6]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.5...v3.5.6
