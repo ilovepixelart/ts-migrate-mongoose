@@ -9,3 +9,10 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "monthly"
+    ignore:
+      - dependency-name: "inquirer"
+        versions: ["9.x"]
+      - dependency-name: "@types/inquirer"
+        versions: ["9.x"]
+      - dependency-name: "chalk"
+        versions: ["5.x"]
