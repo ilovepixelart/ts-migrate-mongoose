@@ -116,9 +116,9 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     expect(migrationList).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          name: migrationName
-        })
-      ])
+          name: migrationName,
+        }),
+      ]),
     )
 
     expect(migrator.connection.readyState).toBe(1)
@@ -176,7 +176,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     const migrator = await Migrator.connect({ uri })
     const migration = await migrator.migrationModel.create({
       name: 'test-migration',
-      createdAt: new Date()
+      createdAt: new Date(),
     })
     await expect(migrator.runMigrations([migration], 'up')).rejects.toThrow(/Cannot find module/)
 
@@ -383,17 +383,17 @@ describe('Tests for Migrator class - Programmatic approach', () => {
       expect.arrayContaining([
         expect.objectContaining({
           name: 'test-migration1',
-          state: 'up'
+          state: 'up',
         }),
         expect.objectContaining({
           name: 'test-migration2',
-          state: 'up'
+          state: 'up',
         }),
         expect.objectContaining({
           name: 'test-migration3',
-          state: 'up'
-        })
-      ])
+          state: 'up',
+        }),
+      ]),
     )
 
     await migrator.run('down')
@@ -402,17 +402,17 @@ describe('Tests for Migrator class - Programmatic approach', () => {
       expect.arrayContaining([
         expect.objectContaining({
           name: 'test-migration1',
-          state: 'up'
+          state: 'up',
         }),
         expect.objectContaining({
           name: 'test-migration2',
-          state: 'up'
+          state: 'up',
         }),
         expect.objectContaining({
           name: 'test-migration3',
-          state: 'down'
-        })
-      ])
+          state: 'down',
+        }),
+      ]),
     )
 
     await migrator.run('down')
@@ -421,17 +421,17 @@ describe('Tests for Migrator class - Programmatic approach', () => {
       expect.arrayContaining([
         expect.objectContaining({
           name: 'test-migration1',
-          state: 'up'
+          state: 'up',
         }),
         expect.objectContaining({
           name: 'test-migration2',
-          state: 'down'
+          state: 'down',
         }),
         expect.objectContaining({
           name: 'test-migration3',
-          state: 'down'
-        })
-      ])
+          state: 'down',
+        }),
+      ]),
     )
 
     await migrator.run('down')
@@ -440,17 +440,17 @@ describe('Tests for Migrator class - Programmatic approach', () => {
       expect.arrayContaining([
         expect.objectContaining({
           name: 'test-migration1',
-          state: 'down'
+          state: 'down',
         }),
         expect.objectContaining({
           name: 'test-migration2',
-          state: 'down'
+          state: 'down',
         }),
         expect.objectContaining({
           name: 'test-migration3',
-          state: 'down'
-        })
-      ])
+          state: 'down',
+        }),
+      ]),
     )
 
     expect(migrator.connection.readyState).toBe(1)

@@ -28,7 +28,9 @@ describe('commander', () => {
   })
 
   it('should exit 0', async () => {
-    const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => { throw new Error('process.exit: ' + number) })
+    const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => {
+      throw new Error('process.exit: ' + number)
+    })
     setProcessArgv('list', '-d', uri)
     await expect(migrate.run(true)).rejects.toThrow()
     expect(mockExit).toHaveBeenCalledWith(0)
@@ -36,7 +38,9 @@ describe('commander', () => {
   })
 
   it('should exit 1', async () => {
-    const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => { throw new Error('process.exit: ' + number) })
+    const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => {
+      throw new Error('process.exit: ' + number)
+    })
     setProcessArgv('list', '-d', uri, '--invalid')
     await expect(migrate.run(true)).rejects.toThrow()
     expect(mockExit).toHaveBeenCalledWith(1)
@@ -55,7 +59,7 @@ describe('commander', () => {
     const config = await getConfig('./examples/config-file-usage/migrate.json')
     expect(config).toEqual({
       uri: 'mongodb://localhost/my-db',
-      migrationsPath: 'migrations'
+      migrationsPath: 'migrations',
     })
   })
 
@@ -67,8 +71,8 @@ describe('commander', () => {
       connectOptions: {
         autoIndex: true,
         useNewUrlParser: true,
-        useUnifiedTopology: true
-      }
+        useUnifiedTopology: true,
+      },
     })
   })
 
@@ -82,9 +86,9 @@ describe('commander', () => {
     const connectSpy = jest.spyOn(Migrator, 'connect').mockImplementation()
     // Only providing configPath, connectOptions should come from config file
     await getMigrator({
-      configPath: './examples/config-file-usage/migrate.ts'
+      configPath: './examples/config-file-usage/migrate.ts',
     })
-  
+
     expect(connectSpy).toHaveBeenCalledWith({
       migrationsPath: 'migrations',
       uri: 'mongodb://localhost/my-db',
@@ -94,8 +98,8 @@ describe('commander', () => {
       connectOptions: {
         autoIndex: true,
         useNewUrlParser: true,
-        useUnifiedTopology: true
-      }
+        useUnifiedTopology: true,
+      },
     })
 
     connectSpy.mockRestore()

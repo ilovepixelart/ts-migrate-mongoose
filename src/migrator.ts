@@ -16,7 +16,7 @@ import {
   DEFAULT_MIGRATE_AUTOSYNC,
   DEFAULT_MIGRATE_CLI,
   DEFAULT_MIGRATE_MIGRATIONS_PATH,
-  DEFAULT_MIGRATE_MONGO_COLLECTION
+  DEFAULT_MIGRATE_MONGO_COLLECTION,
 } from './defaults'
 
 import defaultTemplate from './template'
@@ -43,7 +43,7 @@ class Migrator {
   private autosync: boolean
   private cli: boolean
 
-  private constructor (options: IMigratorOptions) {
+  private constructor(options: IMigratorOptions) {
     // https://mongoosejs.com/docs/guide.
     mongoose.set('strictQuery', false)
 
@@ -74,7 +74,7 @@ class Migrator {
    * @static
    * @async
    */
-  static async connect (options: IMigratorOptions): Promise<Migrator> {
+  static async connect(options: IMigratorOptions): Promise<Migrator> {
     const migrator = new Migrator(options)
     await migrator.connected()
     return migrator
@@ -85,7 +85,7 @@ class Migrator {
    * @memberof Migrator
    * @async
    */
-  async close (): Promise<void> {
+  async close(): Promise<void> {
     await this.connection.close()
   }
 
@@ -98,7 +98,7 @@ class Migrator {
    *    { name: 'add-cows', filename: '149213223453_add-cows.ts', state: 'down' }
    *   ]
    */
-  async list (): Promise<HydratedDocument<IMigration>[]> {
+  async list(): Promise<HydratedDocument<IMigration>[]> {
     await this.sync()
     const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
     if (!migrations.length) this.log(chalk.yellow('There are no migrations to list'))
@@ -113,7 +113,7 @@ class Migrator {
    * @param migrationName Name of the migration
    * @returns A promise that resolves to the created migration
    */
-  async create (migrationName: string): Promise<HydratedDocument<IMigration>> {
+  async create(migrationName: string): Promise<HydratedDocument<IMigration>> {
     const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     if (existingMigration) {
       const message = chalk.red(`There is already a migration with name '${migrationName}' in the database`)
@@ -126,7 +126,7 @@ class Migrator {
     fs.writeFileSync(path.join(this.migrationsPath, newMigrationFile), this.template)
     const migrationCreated = await this.migrationModel.create({
       name: migrationName,
-      createdAt: now
+      createdAt: now,
     })
     this.log(`Created migration ${migrationName} in ${this.migrationsPath}`)
     return migrationCreated
@@ -138,7 +138,7 @@ class Migrator {
    * @param migrationName Name of the migration to run to
    * @returns A promise that resolves to the ran migrations
    */
-  async run (direction: 'down' | 'up', migrationName?: string): Promise<HydratedDocument<IMigration>[]> {
+  async run(direction: 'down' | 'up', migrationName?: string): Promise<HydratedDocument<IMigration>[]> {
     await this.sync()
 
     const untilMigration = migrationName
@@ -155,13 +155,13 @@ class Migrator {
 
     let query: FilterQuery<IMigration> = {
       createdAt: { $lte: untilMigration.createdAt },
-      state: 'down'
+      state: 'down',
     }
 
     if (direction === 'down') {
       query = {
         createdAt: { $gte: untilMigration.createdAt },
-        state: 'up'
+        state: 'up',
       }
     }
 
@@ -187,7 +187,7 @@ class Migrator {
    * This functionality is opposite of prune()
    * @returns A promise that resolves to the imported migrations
    */
-  async sync (): Promise<HydratedDocument<HydratedDocument<IMigration>>[]> {
+  async sync(): Promise<HydratedDocument<HydratedDocument<IMigration>>[]> {
     try {
       const { migrationsInFs } = await this.getMigrations()
 
@@ -216,7 +216,7 @@ class Migrator {
    * This functionality is opposite of sync().
    * @returns A promise that resolves to the deleted migrations
    */
-  async prune (): Promise<HydratedDocument<IMigration>[]> {
+  async prune(): Promise<HydratedDocument<IMigration>[]> {
     try {
       let migrationsDeleted: HydratedDocument<IMigration>[] = []
 
@@ -250,7 +250,7 @@ class Migrator {
    * @private
    * @async
    */
-  private async noPendingMigrations (): Promise<HydratedDocument<IMigration>[]> {
+  private async noPendingMigrations(): Promise<HydratedDocument<IMigration>[]> {
     this.log(chalk.yellow('There are no pending migrations'))
     if (this.cli) {
       this.log('Current migrations status: ')
@@ -266,7 +266,7 @@ class Migrator {
    * @memberof Migrator
    * @private
    */
-  private log (message: string): void {
+  private log(message: string): void {
     if (this.cli) {
       console.log(message)
     }
@@ -280,7 +280,7 @@ class Migrator {
      * @memberof Migrator
      * @private
      */
-  private logMigrationStatus (direction: 'down' | 'up', filename: string): void {
+  private logMigrationStatus(direction: 'down' | 'up', filename: string): void {
     this.log(chalk[direction === 'up' ? 'green' : 'red'](`${direction}:`) + ` ${filename} `)
   }
 
@@ -291,7 +291,7 @@ class Migrator {
      * @memberof Migrator
      * @private
      */
-  private getTemplate (templatePath: string | undefined): string {
+  private getTemplate(templatePath: string | undefined): string {
     if (templatePath && fs.existsSync(templatePath)) {
       return fs.readFileSync(templatePath, 'utf8')
     }
@@ -304,7 +304,7 @@ class Migrator {
      * @memberof Migrator
      * @private
      */
-  private ensureMigrationsPath (): void {
+  private ensureMigrationsPath(): void {
     if (!fs.existsSync(this.migrationsPath)) {
       fs.mkdirSync(this.migrationsPath, { recursive: true })
     }
@@ -321,7 +321,7 @@ class Migrator {
      * const connected = await migrator.connected()
      * console.log(connected) // true
      */
-  private async connected (): Promise<Connection> {
+  private async connected(): Promise<Connection> {
     return this.connection.asPromise()
   }
 
@@ -333,7 +333,7 @@ class Migrator {
      * @private
      * @async
      */
-  private async syncMigrations (migrationsInFs: string[]): Promise<HydratedDocument<IMigration>[]> {
+  private async syncMigrations(migrationsInFs: string[]): Promise<HydratedDocument<IMigration>[]> {
     const promises = migrationsInFs.map(async (filename) => {
       const filePath = path.join(this.migrationsPath, filename)
       const timestampSeparatorIndex = filename.indexOf('-')
@@ -343,7 +343,7 @@ class Migrator {
       this.log(`Adding migration ${filePath} into database from file system. State is ` + chalk.red('down'))
       return this.migrationModel.create({
         name: migrationName,
-        createdAt: timestamp
+        createdAt: timestamp,
       })
     })
 
@@ -357,7 +357,7 @@ class Migrator {
      * @private
      * @async
      */
-  private async getMigrations (): Promise<{ migrationsInDb: IMigration[], migrationsInFs: IFileMigration[] }> {
+  private async getMigrations(): Promise<{ migrationsInDb: IMigration[], migrationsInFs: IFileMigration[] }> {
     const files = fs.readdirSync(this.migrationsPath)
     const migrationsInDb = await this.migrationModel.find({}).exec()
     const migrationsInFs = files
@@ -382,13 +382,13 @@ class Migrator {
      * @private
      * @async
      */
-  private async choseMigrations (migrations: string[], message: string): Promise<string[]> {
+  private async choseMigrations(migrations: string[], message: string): Promise<string[]> {
     if (!this.autosync && migrations.length) {
       const answers = await inquirer.prompt<{ chosen: string[] }>({
         type: 'checkbox',
         message,
         name: 'chosen',
-        choices: migrations
+        choices: migrations,
       })
       return answers.chosen
     }
@@ -404,7 +404,7 @@ class Migrator {
      * @private
      * @async
      */
-  private async runMigrations (migrationsToRun: HydratedDocument<IMigration>[], direction: 'down' | 'up'): Promise<HydratedDocument<IMigration>[]> {
+  private async runMigrations(migrationsToRun: HydratedDocument<IMigration>[], direction: 'down' | 'up'): Promise<HydratedDocument<IMigration>[]> {
     const migrationsRan: HydratedDocument<IMigration>[] = []
     for await (const migration of migrationsToRun) {
       const migrationFilePath = path.join(this.migrationsPath, migration.filename)

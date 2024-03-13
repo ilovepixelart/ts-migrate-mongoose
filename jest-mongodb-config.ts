@@ -1,10 +1,10 @@
 export default {
   mongodbMemoryServerOptions: {
     binary: {
-      skipMD5: true
+      skipMD5: true,
     },
     autoStart: false,
-    instance: {}
+    instance: {},
   },
-  useSharedDBForAllJestWorkers: false
+  useSharedDBForAllJestWorkers: false,
 }

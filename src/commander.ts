@@ -12,7 +12,7 @@ import {
   DEFAULT_MIGRATE_AUTOSYNC,
   DEFAULT_MIGRATE_CONFIG_PATH,
   DEFAULT_MIGRATE_MIGRATIONS_PATH,
-  DEFAULT_MIGRATE_MONGO_COLLECTION
+  DEFAULT_MIGRATE_MONGO_COLLECTION,
 } from './defaults'
 
 import register from '@swc/register'
@@ -51,45 +51,45 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   config({ path: '.env' })
   config({ path: '.env.local', override: true })
 
-  const configPath = options.configPath ??
-    process.env['MIGRATE_CONFIG_PATH'] ??
-    process.env['migrateConfigPath'] ??
-    DEFAULT_MIGRATE_CONFIG_PATH
+  const configPath = options.configPath
+    ?? process.env['MIGRATE_CONFIG_PATH']
+    ?? process.env['migrateConfigPath']
+    ?? DEFAULT_MIGRATE_CONFIG_PATH
 
   const fileOptions = await getConfig(configPath)
 
-  const uri = options.uri ??
-    process.env['MIGRATE_MONGO_URI'] ??
-    process.env['migrateMongoUri'] ??
-    fileOptions.uri
+  const uri = options.uri
+    ?? process.env['MIGRATE_MONGO_URI']
+    ?? process.env['migrateMongoUri']
+    ?? fileOptions.uri
     // no default value always required
 
   // Connect options can be only provided in the config file for cli usage
   const connectOptions = fileOptions.connectOptions
 
-  const collection = options.collection ??
-    process.env['MIGRATE_MONGO_COLLECTION'] ??
-    process.env['migrateMongoCollection'] ??
-    fileOptions.collection ??
-    DEFAULT_MIGRATE_MONGO_COLLECTION
+  const collection = options.collection
+    ?? process.env['MIGRATE_MONGO_COLLECTION']
+    ?? process.env['migrateMongoCollection']
+    ?? fileOptions.collection
+    ?? DEFAULT_MIGRATE_MONGO_COLLECTION
 
-  const migrationsPath = options.migrationsPath ??
-    process.env['MIGRATE_MIGRATIONS_PATH'] ??
-    process.env['migrateMigrationsPath'] ??
-    fileOptions.migrationsPath ??
-    DEFAULT_MIGRATE_MIGRATIONS_PATH
+  const migrationsPath = options.migrationsPath
+    ?? process.env['MIGRATE_MIGRATIONS_PATH']
+    ?? process.env['migrateMigrationsPath']
+    ?? fileOptions.migrationsPath
+    ?? DEFAULT_MIGRATE_MIGRATIONS_PATH
 
-  const templatePath = options.templatePath ??
-    process.env['MIGRATE_TEMPLATE_PATH'] ??
-    process.env['migrateTemplatePath'] ??
-    fileOptions.templatePath
+  const templatePath = options.templatePath
+    ?? process.env['MIGRATE_TEMPLATE_PATH']
+    ?? process.env['migrateTemplatePath']
+    ?? fileOptions.templatePath
     // can be empty then we use default template
 
-  const autosync = Boolean(options.autosync ??
-    process.env['MIGRATE_AUTOSYNC'] ??
-    process.env['migrateAutosync'] ??
-    fileOptions.autosync ??
-    DEFAULT_MIGRATE_AUTOSYNC)
+  const autosync = Boolean(options.autosync
+    ?? process.env['MIGRATE_AUTOSYNC']
+    ?? process.env['migrateAutosync']
+    ?? fileOptions.autosync
+    ?? DEFAULT_MIGRATE_AUTOSYNC)
 
   if (!uri) {
     const message = chalk.red('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.')
@@ -101,7 +101,7 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
     uri,
     collection,
     autosync,
-    cli: true
+    cli: true,
   }
 
   if (templatePath) {
@@ -123,7 +123,7 @@ export class Migrate {
   private program: Command
   private migrator!: Migrator
 
-  constructor () {
+  constructor() {
     this.program = new Command()
 
     this.program
@@ -184,7 +184,7 @@ export class Migrate {
    * @returns The parsed console arguments
    * @throws Error if error is provided
    */
-  public async finish (exit: boolean, error?: Error): Promise<IOptions> {
+  public async finish(exit: boolean, error?: Error): Promise<IOptions> {
     if (this.migrator instanceof Migrator) {
       await this.migrator.close()
     }
@@ -205,7 +205,7 @@ export class Migrate {
    * @param exit Whether to exit the process after running the command, defaults to true
    * @returns The parsed options or void if exit is true
    */
-  public async run (exit = true): Promise<IOptions> {
+  public async run(exit = true): Promise<IOptions> {
     return this.program.parseAsync(process.argv)
       .then(() => {
         return this.finish(exit)

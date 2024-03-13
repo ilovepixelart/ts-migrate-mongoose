@@ -8,11 +8,11 @@ interface IUser {
 const UserSchema = new Schema<IUser>({
   firstName: {
     type: String,
-    required: true
+    required: true,
   },
   lastName: {
-    type: String
-  }
+    type: String,
+  },
 })
 
 export default models.User ?? model<IUser>('User', UserSchema)

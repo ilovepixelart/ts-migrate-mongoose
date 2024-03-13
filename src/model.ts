@@ -15,12 +15,12 @@ export const getMigrationModel = (connection: Connection, collection: string): M
     state: {
       type: String,
       enum: ['down', 'up'],
-      default: 'down'
+      default: 'down',
     },
-    createdAt: Date
+    createdAt: Date,
   }, {
     collection,
-    autoCreate: true
+    autoCreate: true,
   })
 
   MigrationSchema.virtual('filename').get(function () {
