@@ -14,7 +14,7 @@ const getModels = async () => {
   // Return models that will be used in migration methods
   return {
     mongoose,
-    User
+    User,
   }
 }
 

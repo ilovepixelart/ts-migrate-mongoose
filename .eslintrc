@@ -13,8 +13,9 @@
   ],
   "extends": [
     "eslint:recommended",
+    "plugin:sonarjs/recommended",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:sonarjs/recommended"
+    "plugin:@stylistic/recommended-extends"
   ],
   "globals": {
     "Atomics": "readonly",
@@ -25,33 +26,13 @@
     "sourceType": "module"
   },
   "rules": {
-    "comma-dangle": [
-      "error",
-      "never"
-    ],
+    
+    "@stylistic/arrow-parens": ["error", "always"],
+    "@stylistic/brace-style": ["error", "1tbs"],
     "@typescript-eslint/array-type": "error",
     "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/method-signature-style": "error",
-    "@typescript-eslint/consistent-indexed-object-style": "error",
-    "indent": [
-      "error",
-      2
-    ],
-    "arrow-parens": [
-      "error"
-    ],
-    "linebreak-style": [
-      "error",
-      "unix"
-    ],
-    "quotes": [
-      "error",
-      "single"
-    ],
-    "semi": [
-      "error",
-      "never"
-    ]
+    "@typescript-eslint/consistent-indexed-object-style": "error"
   },
   "overrides": [
     {

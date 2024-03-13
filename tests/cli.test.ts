@@ -109,14 +109,18 @@ describe('cli', () => {
   })
 
   it('should exit with code 1', async () => {
-    const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => { throw new Error('process.exit: ' + number) })
+    const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => {
+      throw new Error('process.exit: ' + number)
+    })
     await expect(execExit('up')).rejects.toThrow()
     expect(mockExit).toHaveBeenCalledWith(1)
     mockExit.mockRestore()
   })
 
   it('should exit with code 0', async () => {
-    const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => { throw new Error('process.exit: ' + number) })
+    const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => {
+      throw new Error('process.exit: ' + number)
+    })
     await expect(execExit('list', '-d', uri)).rejects.toThrow()
     expect(mockExit).toHaveBeenCalledWith(0)
     mockExit.mockRestore()

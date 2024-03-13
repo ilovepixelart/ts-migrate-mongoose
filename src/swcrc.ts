@@ -5,16 +5,16 @@ const swcrc: Swcrc = {
     parser: {
       syntax: 'typescript',
       decorators: true,
-      dynamicImport: true
+      dynamicImport: true,
     },
     target: 'es2021',
     keepClassNames: true,
-    loose: true
+    loose: true,
   },
   module: {
-    type: 'commonjs'
+    type: 'commonjs',
   },
-  sourceMaps: true
+  sourceMaps: true,
 }
 
 export default swcrc

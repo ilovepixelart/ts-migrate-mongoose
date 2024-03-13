@@ -1,5 +1,5 @@
 export default {
   autoIndex: true,
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 }

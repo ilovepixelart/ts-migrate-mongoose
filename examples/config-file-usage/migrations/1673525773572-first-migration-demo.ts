@@ -1,21 +1,21 @@
 import getModels from '../models'
 
-export async function up () {
+export async function up() {
   const { User } = await getModels()
   // Write migration here
   await User.create([
     {
       firstName: 'John',
-      lastName: 'Doe'
+      lastName: 'Doe',
     },
     {
       firstName: 'Jane',
-      lastName: 'Doe'
-    }
+      lastName: 'Doe',
+    },
   ])
 }
 
-export async function down () {
+export async function down() {
   const { User } = await getModels()
   // Write migration here
   await User.deleteMany({ firstName: { $in: ['Jane', 'John'] } }).exec()
