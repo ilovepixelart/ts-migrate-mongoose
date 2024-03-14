@@ -1,3 +1,28 @@
+<a name="v3.6.2"></a>
+# [v3.6.2](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.6.2) - 14 Mar 2024
+
+- Merge pull request [#271](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/271) from ilovepixelart/feature/dep  c21324a
+- tsconfig  5225bcf
+- Dep  02c2c28
+- Merge pull request [#270](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/270) from ilovepixelart/feature/lint  c40d08f
+- Lint  2603db6
+- Merge pull request [#268](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/268) from ilovepixelart/dependabot/npm_and_yarn/typescript-eslint/parser-7.1.0  85fb5e8
+- Bump @typescript-eslint/parser from 7.0.2 to 7.1.0  32c71f7
+- Merge pull request [#267](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/267) from ilovepixelart/dependabot/npm_and_yarn/typescript-eslint/eslint-plugin-7.1.0  d824a5d
+- Merge pull request [#266](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/266) from ilovepixelart/dependabot/npm_and_yarn/types/node-20.11.24  f38314d
+- Merge pull request [#265](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/265) from ilovepixelart/dependabot/npm_and_yarn/swc/cli-0.3.10  90ca057
+- Bump @typescript-eslint/eslint-plugin from 7.0.2 to 7.1.0  52e7916
+- Bump @types/node from 20.11.20 to 20.11.24  3f137d0
+- Bump @swc/cli from 0.3.9 to 0.3.10  5d070cb
+- Delete .devcontainer folder  a49153d
+- Skip sonar for forked PRs  78f17de
+- Update changelog for v3.6.1  d62dc53
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.1...v3.6.2
+
+[Changes][v3.6.2]
+
+
 <a name="v3.6.1"></a>
 # [v3.6.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.6.1) - 24 Feb 2024
 
@@ -1246,6 +1271,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.6.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.1...v3.6.2
 [v3.6.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.0...v3.6.1
 [v3.6.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.7...v3.6.0
 [v3.5.7]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.5.6...v3.5.7
