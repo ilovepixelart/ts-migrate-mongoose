@@ -32,9 +32,10 @@
     "sourceMap": true
   },
   "include": [
-    "src/**/*"
+    "src"
   ],
   "exclude": [
+    "tests",
     "dist",
     "coverage",
     "node_modules"
