@@ -210,8 +210,8 @@ export class Migrate {
       .then(() => {
         return this.finish(exit)
       })
-      .catch((error: Error) => {
-        return this.finish(exit, error)
+      .catch((error: unknown) => {
+        return this.finish(exit, error instanceof Error ? error : new Error('An unknown error occurred'))
       })
   }
 }

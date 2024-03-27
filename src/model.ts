@@ -17,14 +17,17 @@ export const getMigrationModel = (connection: Connection, collection: string): M
       enum: ['down', 'up'],
       default: 'down',
     },
-    createdAt: { type: Date, index: true },
+    createdAt: {
+      type: Date,
+      index: true,
+    },
   }, {
     collection,
     autoCreate: true,
   })
 
   MigrationSchema.virtual('filename').get(function () {
-    return `${this.createdAt.getTime()}-${this.name}.ts`
+    return `${this.createdAt.getTime().toString()}-${this.name}.ts`
   })
 
   return connection.model<IMigration>(collection, MigrationSchema)
