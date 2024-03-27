@@ -122,7 +122,7 @@ class Migrator {
 
     await this.sync()
     const now = Date.now()
-    const newMigrationFile = `${now}-${migrationName}.ts`
+    const newMigrationFile = `${now.toString()}-${migrationName}.ts`
     fs.writeFileSync(path.join(this.migrationsPath, newMigrationFile), this.template)
     const migrationCreated = await this.migrationModel.create({
       name: migrationName,

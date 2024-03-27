@@ -27,7 +27,7 @@ export const getMigrationModel = (connection: Connection, collection: string): M
   })
 
   MigrationSchema.virtual('filename').get(function () {
-    return `${this.createdAt.getTime()}-${this.name}.ts`
+    return `${this.createdAt.getTime().toString()}-${this.name}.ts`
   })
 
   return connection.model<IMigration>(collection, MigrationSchema)
