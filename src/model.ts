@@ -17,7 +17,7 @@ export const getMigrationModel = (connection: Connection, collection: string): M
       enum: ['down', 'up'],
       default: 'down',
     },
-    createdAt: Date,
+    createdAt: { type: Date, index: true },
   }, {
     collection,
     autoCreate: true,
