@@ -211,8 +211,7 @@ export class Migrate {
         return this.finish(exit)
       })
       .catch((error: unknown) => {
-        const message = chalk.red('An unknown error occurred')
-        return this.finish(exit, error instanceof Error ? error : new Error(message))
+        return this.finish(exit, error instanceof Error ? error : new Error('An unknown error occurred'))
       })
   }
 }
