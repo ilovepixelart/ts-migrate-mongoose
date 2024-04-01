@@ -91,7 +91,7 @@
   "devDependencies": {
     "@shelf/jest-mongodb": "4.2.0",
     "@stylistic/eslint-plugin": "1.7.0",
-    "@swc/cli": "0.3.10",
+    "@swc/cli": "0.3.12",
     "@swc/helpers": "0.5.8",
     "@swc/jest": "0.2.36",
     "@types/inquirer": "8.2.6",
