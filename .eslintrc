@@ -26,7 +26,6 @@
     "sourceType": "module"
   },
   "rules": {
-    
     "@stylistic/arrow-parens": ["error", "always"],
     "@stylistic/brace-style": ["error", "1tbs"],
     "@typescript-eslint/array-type": "error",
