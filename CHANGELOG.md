@@ -1,3 +1,23 @@
+<a name="v3.6.4"></a>
+# [v3.6.4](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.6.4) - 01 Apr 2024
+
+- Merge pull request [#280](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/280) from ilovepixelart/feature/dep  6b3a42b
+- Dep, eslint  4714ff6
+- Merge pull request [#276](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/276) from ilovepixelart/dependabot/npm_and_yarn/types/node-20.12.2  58c0256
+- Merge pull request [#277](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/277) from ilovepixelart/dependabot/npm_and_yarn/eslint-plugin-sonarjs-0.25.0  5471b42
+- Merge pull request [#278](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/278) from ilovepixelart/dependabot/npm_and_yarn/swc/helpers-0.5.8  b060411
+- Merge pull request [#279](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/279) from ilovepixelart/dependabot/npm_and_yarn/mongoose-8.2.4  425b78e
+- Bump mongoose from 8.2.3 to 8.2.4  8fd3141
+- Bump @swc/helpers from 0.5.7 to 0.5.8  902c79e
+- Bump eslint-plugin-sonarjs from 0.24.0 to 0.25.0  db0a899
+- Bump @types/node from 20.11.24 to 20.12.2  8ea6840
+- Update changelog for v3.6.3  3828217
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.3...v3.6.4
+
+[Changes][v3.6.4]
+
+
 <a name="v3.6.3"></a>
 # [v3.6.3](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.6.3) - 27 Mar 2024
 
@@ -1287,6 +1307,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.6.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.3...v3.6.4
 [v3.6.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.2...v3.6.3
 [v3.6.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.1...v3.6.2
 [v3.6.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.0...v3.6.1
