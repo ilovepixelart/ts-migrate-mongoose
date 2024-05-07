@@ -51,9 +51,13 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   config({ path: '.env' })
   config({ path: '.env.local', override: true })
 
-  if (options.mode) {
-    config({ path: `.env.${options.mode}`, override: true })
-    config({ path: `.env.${options.mode}.local`, override: true })
+  const mode = options.mode
+    ?? process.env['MIGRATE_MODE']
+    ?? process.env['migrateMode']
+
+  if (mode) {
+    config({ path: `.env.${mode}`, override: true })
+    config({ path: `.env.${mode}.local`, override: true })
   }
 
   const configPath = options.configPath
