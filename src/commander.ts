@@ -51,6 +51,15 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   config({ path: '.env' })
   config({ path: '.env.local', override: true })
 
+  const mode = options.mode
+    ?? process.env['MIGRATE_MODE']
+    ?? process.env['migrateMode']
+
+  if (mode) {
+    config({ path: `.env.${mode}`, override: true })
+    config({ path: `.env.${mode}.local`, override: true })
+  }
+
   const configPath = options.configPath
     ?? process.env['MIGRATE_CONFIG_PATH']
     ?? process.env['migrateConfigPath']
@@ -135,6 +144,7 @@ export class Migrate {
       .option('-a, --autosync <boolean>', 'automatically sync new migrations without prompt')
       .option('-m, --migrations-path <path>', 'path to the migration files')
       .option('-t, --template-path <path>', 'template file to use when creating a migration')
+      .option('--mode <string>', 'environment mode to use .env.[mode] file')
       .hook('preAction', async () => {
         const opts = this.program.opts<IOptions>()
         this.migrator = await getMigrator(opts)

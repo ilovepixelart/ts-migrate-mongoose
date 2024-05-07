@@ -123,6 +123,9 @@ export default {
 - `.env`
 
 ```bash
+# If provided, will use .env.development file, if not will use .env
+# In case you using env files, no reason to use migrate.json or migrate.ts and vice versa
+MIGRATE_MODE=development
 MIGRATE_MONGO_URI=mongodb://localhost/my-db
 MIGRATE_MONGO_COLLECTION=migrations
 MIGRATE_CONFIG_PATH=./migrate
@@ -130,6 +133,7 @@ MIGRATE_MIGRATIONS_PATH=./migrations
 MIGRATE_TEMPLATE_PATH=./migrations/template.ts
 MIGRATE_AUTOSYNC=false
 # or 
+migrateMode=development
 migrateMongoUri=mongodb://localhost/my-db
 migrateMongoCollection=migrations
 migrateConfigPath=./migrate
@@ -140,6 +144,7 @@ migrateAutosync=false
 
 | Config file          | `.env` / export          | Default      | Required | Description                                      |
 | -------------------- | ------------------------ | ------------ | -------- | ------------------------------------------------ |
+| mode                 | MIGRATE_MODE             | -            | No       | environment mode to use .env.[mode] file         |
 | uri                  | MIGRATE_MONGO_URI        | -            | Yes      | mongo connection string                          |
 | collection           | MIGRATE_MONGO_COLLECTION | migrations   | No       | collection name to use for the migrations        |
 | configPath           | MIGRATE_CONFIG_PATH      | ./migrate    | No       | path to the config file                          |
@@ -165,6 +170,7 @@ Options:
   -a, --autosync <boolean>      automatically sync new migrations without prompt (default: false)
   -m, --migrations-path <path>  path to the migration files (default: "./migrations")
   -t, --template-path <path>    template file to use when creating a migration
+  --mode <string>               environment mode to use .env.[mode] file
   -h, --help                    display help for command
 
 Commands:

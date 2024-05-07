@@ -8,6 +8,7 @@ interface IOptions {
   collection?: string
   autosync?: boolean
   configPath?: string
+  mode?: string
 }
 
 export default IOptions
