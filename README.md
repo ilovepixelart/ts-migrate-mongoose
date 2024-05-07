@@ -123,23 +123,23 @@ export default {
 - `.env`
 
 ```bash
+# If provided, will use .env.development file, if not will use .env
+# In case you using env files, no reason to use migrate.json or migrate.ts and vice versa
+MIGRATE_MODE=development
 MIGRATE_MONGO_URI=mongodb://localhost/my-db
 MIGRATE_MONGO_COLLECTION=migrations
 MIGRATE_CONFIG_PATH=./migrate
 MIGRATE_MIGRATIONS_PATH=./migrations
 MIGRATE_TEMPLATE_PATH=./migrations/template.ts
 MIGRATE_AUTOSYNC=false
-# If provided, will use .env.development file, if not will use .env
-# In case you using env files, no reason to use migrate.json or migrate.ts and vice versa
-MIGRATE_MODE=development
 # or 
+migrateMode=development
 migrateMongoUri=mongodb://localhost/my-db
 migrateMongoCollection=migrations
 migrateConfigPath=./migrate
 migrateMigrationsPath=./migrations
 migrateTemplatePath=./migrations/template.ts
 migrateAutosync=false
-migrateMode=development
 ```
 
 | Config file          | `.env` / export          | Default      | Required | Description                                      |
