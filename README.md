@@ -123,10 +123,9 @@ export default {
 - `.env`
 
 ```bash
+# Also available ass --mode flag in CLI mode to switch between different development environments
 MIGRATE_MODE=development
 ```
-
-With environment files you can use mode to switch between different environments
 
 ```bash
 .env                # loaded in all cases
