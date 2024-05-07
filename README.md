@@ -123,7 +123,8 @@ export default {
 - `.env`
 
 ```bash
-# Also available ass --mode flag in CLI mode to switch between different development environments
+# You can set this variable or in your CI/CD pipeline
+# Or use --mode flag in CLI mode to switch between .env files
 MIGRATE_MODE=development
 ```
 
@@ -135,6 +136,7 @@ MIGRATE_MODE=development
 ```
 
 ```bash
+# Example .env file content
 MIGRATE_MONGO_URI=mongodb://localhost/my-db
 MIGRATE_MONGO_COLLECTION=migrations
 MIGRATE_CONFIG_PATH=./migrate
