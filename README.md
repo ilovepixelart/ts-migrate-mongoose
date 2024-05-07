@@ -123,9 +123,19 @@ export default {
 - `.env`
 
 ```bash
-# If provided, will use .env.development file, if not will use .env
-# In case you using env files, no reason to use migrate.json or migrate.ts and vice versa
 MIGRATE_MODE=development
+```
+
+With environment files you can use mode to switch between different environments
+
+```bash
+.env                # loaded in all cases
+.env.local          # loaded in all cases (used as override for local development)
+.env.[mode]         # only loaded in specified mode
+.env.[mode].local   # only loaded in specified mode (used as override for local development)
+```
+
+```bash
 MIGRATE_MONGO_URI=mongodb://localhost/my-db
 MIGRATE_MONGO_COLLECTION=migrations
 MIGRATE_CONFIG_PATH=./migrate
