@@ -128,6 +128,12 @@ export default {
 MIGRATE_MODE=development
 ```
 
+If mode is set, it will look for `.env.[mode]` file in the root of your project
+\
+For example, if `MIGRATE_MODE=development` it will look for `.env.development` file
+\
+If mode is not set, it will look for `.env` file in the root of your project
+
 ```bash
 .env                # loaded in all cases
 .env.local          # loaded in all cases (used as override for local development)
