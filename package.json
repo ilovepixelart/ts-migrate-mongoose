@@ -80,25 +80,25 @@
     "release": "npm run lint && npm run build && np"
   },
   "dependencies": {
-    "@swc/core": "1.5.3",
+    "@swc/core": "1.5.7",
     "@swc/register": "0.1.10",
     "chalk": "4.1.2",
-    "commander": "12.0.0",
+    "commander": "12.1.0",
     "dotenv": "16.4.5",
     "inquirer": "8.2.6",
-    "mongoose": "8.3.4"
+    "mongoose": "8.4.0"
   },
   "devDependencies": {
-    "@shelf/jest-mongodb": "4.3.1",
-    "@stylistic/eslint-plugin": "1.8.0",
+    "@shelf/jest-mongodb": "4.3.2",
+    "@stylistic/eslint-plugin": "2.1.0",
     "@swc/cli": "0.3.12",
     "@swc/helpers": "0.5.11",
     "@swc/jest": "0.2.36",
     "@types/inquirer": "8.2.6",
     "@types/jest": "29.5.12",
     "@types/node": "20",
-    "@typescript-eslint/eslint-plugin": "7.8.0",
-    "@typescript-eslint/parser": "7.8.0",
+    "@typescript-eslint/eslint-plugin": "7.9.0",
+    "@typescript-eslint/parser": "7.9.0",
     "eslint": "8.57.0",
     "eslint-plugin-jest": "28.5.0",
     "eslint-plugin-jest-formatting": "3.1.0",
