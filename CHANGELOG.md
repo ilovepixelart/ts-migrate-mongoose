@@ -1,3 +1,17 @@
+<a name="v3.7.1"></a>
+# [v3.7.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.7.1) - 18 May 2024
+
+- Merge pull request [#293](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/293) from ilovepixelart/feature/node22  5ef8ad2
+- Node 22  192c73d
+- Merge pull request [#292](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/292) from ilovepixelart/feature/dep  51d425b
+- Dep  4a21e6e
+- Update changelog for v3.7.0  a33639d
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.7.0...v3.7.1
+
+[Changes][v3.7.1]
+
+
 <a name="v3.7.0"></a>
 # [v3.7.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.7.0) - 07 May 2024
 
@@ -1337,6 +1351,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.7.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.7.0...v3.7.1
 [v3.7.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.4...v3.7.0
 [v3.6.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.3...v3.6.4
 [v3.6.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.2...v3.6.3
