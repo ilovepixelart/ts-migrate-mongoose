@@ -98,7 +98,7 @@
     "@types/jest": "29.5.12",
     "@types/node": "20",
     "@typescript-eslint/eslint-plugin": "7.9.0",
-    "@typescript-eslint/parser": "7.9.0",
+    "@typescript-eslint/parser": "7.11.0",
     "eslint": "8.57.0",
     "eslint-plugin-jest": "28.5.0",
     "eslint-plugin-jest-formatting": "3.1.0",
