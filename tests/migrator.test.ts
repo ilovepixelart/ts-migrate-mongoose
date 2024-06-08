@@ -396,7 +396,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
       ]),
     )
 
-    await migrator.run('down')
+    await migrator.run('down', undefined, true)
     const migrationListDown1 = await migrator.list()
     expect(migrationListDown1).toEqual(
       expect.arrayContaining([
@@ -415,7 +415,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
       ]),
     )
 
-    await migrator.run('down')
+    await migrator.run('down', undefined, true)
     const migrationListDown2 = await migrator.list()
     expect(migrationListDown2).toEqual(
       expect.arrayContaining([
@@ -434,7 +434,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
       ]),
     )
 
-    await migrator.run('down')
+    await migrator.run('down', undefined, true)
     const migrationListDown3 = await migrator.list()
     expect(migrationListDown3).toEqual(
       expect.arrayContaining([

@@ -138,12 +138,22 @@ class Migrator {
    * @param migrationName Name of the migration to run to
    * @returns A promise that resolves to the ran migrations
    */
-  async run(direction: 'down' | 'up', migrationName?: string): Promise<HydratedDocument<IMigration>[]> {
+  async run(direction: 'up' | 'down', migrationName?: string, single = false): Promise<HydratedDocument<IMigration>[]> {
+    console.log(single)
     await this.sync()
 
-    const untilMigration = migrationName
-      ? await this.migrationModel.findOne({ name: migrationName }).exec()
-      : await this.migrationModel.findOne({ state: direction === 'down' ? 'up' : 'down' }).sort({ createdAt: -1 }).exec()
+    let untilMigration: HydratedDocument<IMigration> | null = null
+    const state = direction === 'up' ? 'down' : 'up'
+    const key = direction === 'up' ? '$lte' : '$gte'
+    const sort = direction === 'up' ? 1 : -1
+    const sortReverse = direction === 'up' ? -1 : 1
+
+    if (migrationName) {
+      untilMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
+    } else {
+      const createdAt = single ? sort : sortReverse
+      untilMigration = await this.migrationModel.findOne({ state }).sort({ createdAt }).exec()
+    }
 
     if (!untilMigration) {
       if (migrationName) {
@@ -153,20 +163,19 @@ class Migrator {
       return this.noPendingMigrations()
     }
 
-    let query: FilterQuery<IMigration> = {
-      createdAt: { $lte: untilMigration.createdAt },
-      state: 'down',
+    const query: FilterQuery<IMigration> = {
+      createdAt: { [key]: untilMigration.createdAt },
+      state,
     }
 
-    if (direction === 'down') {
-      query = {
-        createdAt: { $gte: untilMigration.createdAt },
-        state: 'up',
-      }
-    }
+    const migrationsToRun = []
 
-    const sortDirection = direction === 'up' ? 1 : -1
-    const migrationsToRun = await this.migrationModel.find(query).sort({ createdAt: sortDirection }).exec()
+    if (single) {
+      migrationsToRun.push(untilMigration)
+    } else {
+      const migrations = await this.migrationModel.find(query).sort({ createdAt: sort }).exec()
+      migrationsToRun.push(...migrations)
+    }
 
     if (!migrationsToRun.length) {
       return this.noPendingMigrations()

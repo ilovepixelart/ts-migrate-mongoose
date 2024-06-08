@@ -21,9 +21,13 @@ export const getMigrationModel = (connection: Connection, collection: string): M
       type: Date,
       index: true,
     },
+    updatedAt: {
+      type: Date,
+    },
   }, {
     collection,
     autoCreate: true,
+    timestamps: true,
   })
 
   MigrationSchema.virtual('filename').get(function () {
