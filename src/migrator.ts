@@ -139,19 +139,17 @@ class Migrator {
    * @returns A promise that resolves to the ran migrations
    */
   async run(direction: 'up' | 'down', migrationName?: string, single = false): Promise<HydratedDocument<IMigration>[]> {
-    console.log(single)
     await this.sync()
 
     let untilMigration: HydratedDocument<IMigration> | null = null
     const state = direction === 'up' ? 'down' : 'up'
     const key = direction === 'up' ? '$lte' : '$gte'
     const sort = direction === 'up' ? 1 : -1
-    const sortReverse = direction === 'up' ? -1 : 1
 
     if (migrationName) {
       untilMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     } else {
-      const createdAt = single ? sort : sortReverse
+      const createdAt = single ? sort : -sort as -1 | 1
       untilMigration = await this.migrationModel.findOne({ state }).sort({ createdAt }).exec()
     }
 
