@@ -149,8 +149,7 @@ class Migrator {
     if (migrationName) {
       untilMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     } else {
-      const createdAt = single ? sort : -sort as -1 | 1
-      untilMigration = await this.migrationModel.findOne({ state }).sort({ createdAt }).exec()
+      untilMigration = await this.migrationModel.findOne({ state }).sort({ createdAt: single ? sort : -sort as -1 | 1 }).exec()
     }
 
     if (!untilMigration) {
