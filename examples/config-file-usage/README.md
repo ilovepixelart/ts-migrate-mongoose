@@ -9,15 +9,13 @@ Now instead of running this command to create a new migration
 Directory in this example is **not** the default `./migrations` but `./my-custom/migrations`.
 
 ```bash
-yarn migrate create my-new-migration -d mongodb://localhost/my-db
-npx migrate create my-new-migration -d mongodb://localhost/my-db
+npm run migrate create my-new-migration -d mongodb://localhost/my-db
 ```
 
 We can simply run
 
 ```bash
-yarn migrate create my-new-migration
-npx migrate create my-new-migration
+npm run migrate create my-new-migration
 ```
 
 You can change the name of the config file to expect by providing the `config` option e.g. `--config custom-config-file-name.json`

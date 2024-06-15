@@ -1,11 +1,10 @@
 # Example for CLI
 
-After running `npm install ts-migrate-mongoose`, you will have the migration binary available to you as `./node_modules/.bin/migrate`.
+After running `npm i ts-migrate-mongoose`, you will have the migration binary available to you as `./node_modules/.bin/migrate`.
 You can run it with:
 
 ```bash
-yarn migrate <command> <options> 
-npx migrate <command> <options>
+npm run migrate <command> <options>
 ```
 
 ## Creating a migration
@@ -13,7 +12,7 @@ npx migrate <command> <options>
 You can simply create a new migration (e.g. `my-new-migration`) by running
 
 ```bash
-npx migrate <options> create my-new-migration
+npm run migrate <options> create my-new-migration
 ```
 
 where `<options>` must at a MINIMUM contain the database url (using the `-d`/`--uri` option).
@@ -26,7 +25,7 @@ This shows you the migrations with their current states.
 *up* means the migration has run and won't be running again
 
 ```bash
-npx migrate list <options>
+npm run migrate list <options>
 ```
 
 ## Running a migration (migrate up)
@@ -46,7 +45,7 @@ This means the first 3 migrations have run. You need to run the next 2 to be all
 simply run
 
 ```bash
-npx migrate up add_default_regional_settings <options>
+npm run migrate up add_default_regional_settings <options>
 ```
 
 To migrate *up TO (and including)*  `1463603842010-add_default_regional_settings.ts`
@@ -68,7 +67,7 @@ What if you want to undo the previous step?
 Simply run
 
 ```bash
-npx migrate down add_processed_credit_cards <options>
+npm run migrate down add_processed_credit_cards <options>
 ```
 
 and you'll migrate *down TO (and including)* `1463003345598-add_processed_credit_cards.ts`
@@ -104,7 +103,7 @@ Once imported, the default state is down so you'll have to `migrate up add_unico
 **IF ON THE OTHER HAND** you don't want this migration, simply run
 
 ```bash
-npx migrate prune
+npm run migrate prune
 ```
 
 and you'll be prompted to remove it from the **FILE SYSTEM**.
