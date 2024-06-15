@@ -80,7 +80,7 @@
     "release": "npm run lint && npm run build && np"
   },
   "dependencies": {
-    "@swc/core": "1.5.25",
+    "@swc/core": "1.5.29",
     "@swc/register": "0.1.10",
     "chalk": "4.1.2",
     "commander": "12.1.0",
@@ -97,8 +97,8 @@
     "@types/inquirer": "8.2.6",
     "@types/jest": "29.5.12",
     "@types/node": "20",
-    "@typescript-eslint/eslint-plugin": "7.12.0",
-    "@typescript-eslint/parser": "7.12.0",
+    "@typescript-eslint/eslint-plugin": "7.13.0",
+    "@typescript-eslint/parser": "7.13.0",
     "eslint": "8.57.0",
     "eslint-plugin-jest": "28.6.0",
     "eslint-plugin-jest-formatting": "3.1.0",
