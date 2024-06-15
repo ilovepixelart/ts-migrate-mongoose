@@ -1,3 +1,31 @@
+<a name="v3.8.0"></a>
+# [v3.8.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.8.0) - 15 Jun 2024
+
+- npm  7e3a2e6
+- Merge pull request [#301](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/301) from ilovepixelart/feature/single-migration-flag  cf3eded
+- Merge remote-tracking branch &[#39](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/39);origin/main&[#39](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/39); into feature/single-migration-flag  376ef41
+- Merge pull request [#303](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/303) from ilovepixelart/feature/dep  7b2785f
+- Dep  03bcb5c
+- Merge pull request [#302](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/302) from ilovepixelart/feature/upgrade-actions  a887899
+- Upgrade actions  7d3df68
+- One liner  d526478
+- Simplify  47cabcd
+- --single flag for up &amp; down + updatedAt date property on migration  6ad2543
+- Merge pull request [#296](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/296) from ilovepixelart/dependabot/npm_and_yarn/typescript-eslint/eslint-plugin-7.11.0  2b6e8f0
+- Bump @typescript-eslint/eslint-plugin from 7.9.0 to 7.11.0  477a57e
+- Merge pull request [#295](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/295) from ilovepixelart/dependabot/npm_and_yarn/typescript-eslint/parser-7.11.0  95c0f28
+- Merge pull request [#297](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/297) from ilovepixelart/dependabot/npm_and_yarn/mongoose-8.4.1  e49d437
+- Merge pull request [#298](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/298) from ilovepixelart/dependabot/npm_and_yarn/swc/core-1.5.24  61c1e81
+- Bump @swc/core from 1.5.7 to 1.5.24  1494ae6
+- Bump mongoose from 8.4.0 to 8.4.1  bbd9d91
+- Bump @typescript-eslint/parser from 7.9.0 to 7.11.0  fb4a53f
+- Update changelog for v3.7.1  6ef64e9
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.7.1...v3.8.0
+
+[Changes][v3.8.0]
+
+
 <a name="v3.7.1"></a>
 # [v3.7.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.7.1) - 18 May 2024
 
@@ -1351,6 +1379,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.8.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.7.1...v3.8.0
 [v3.7.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.7.0...v3.7.1
 [v3.7.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.4...v3.7.0
 [v3.6.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.3...v3.6.4
