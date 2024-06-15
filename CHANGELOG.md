@@ -1,3 +1,17 @@
+<a name="v3.8.1"></a>
+# [v3.8.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.8.1) - 15 Jun 2024
+
+- Merge pull request [#304](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/304) from ilovepixelart/feature/down-only-with-name-and-doc-for-single  337e42e
+- Doc  7658ad0
+- Doc  4248c82
+- Down only with name &amp; doc for --single  ab36874
+- Update changelog for v3.8.0  c0d0e1d
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.0...v3.8.1
+
+[Changes][v3.8.1]
+
+
 <a name="v3.8.0"></a>
 # [v3.8.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.8.0) - 15 Jun 2024
 
@@ -1379,6 +1393,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.8.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.0...v3.8.1
 [v3.8.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.7.1...v3.8.0
 [v3.7.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.7.0...v3.7.1
 [v3.7.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.6.4...v3.7.0
