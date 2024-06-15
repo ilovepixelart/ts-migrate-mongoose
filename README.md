@@ -175,7 +175,7 @@ migrateAutosync=false
 
 ## Getting started with the CLI
 
-Explore and lear commands, rest of the tutorial will be in npm
+Explore and lear commands, rest of the tutorial will be using npm
 
 ```bash
 npm run migrate -h
@@ -239,15 +239,15 @@ By default, ts-migrate-mongoose assumes your migration folder exists (if it does
 Here's an example of a migration created using:
 
 ```bash
-npm run migrate create first-migration-demo
-pnpm migrate create first-migration-demo
-yarn migrate create first-migration-demo
-bun run migrate create first-migration-demo
+npm run migrate create first-migration
+pnpm migrate create first-migration
+yarn migrate create first-migration
+bun run migrate create first-migration
 ```
 
 Executing the above command will create a migration file in the `./migrations` folder with the following content:
 
-- 1673525773572-first-migration-demo.ts
+- 1673525773572-first-migration.ts
 
 ```typescript
 // Import your models here
