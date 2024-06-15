@@ -29,6 +29,7 @@ ts-migrate-mongoose is a migration framework for projects which are already usin
 - [x] Run migrations programmatically
 - [x] Prune old migrations, and sync new migrations
 - [x] Create custom templates for migrations
+- [x] Run individual migration up/down using -s, --single
 - [x] Supports ~~ESM~~ (not yet) and CommonJS
 
 ## Example
@@ -43,17 +44,19 @@ How to use it with:
 - Locally inside your project
 
 ```bash
-yarn add ts-migrate-mongoose
 npm install ts-migrate-mongoose
 pnpm add ts-migrate-mongoose
+yarn add ts-migrate-mongoose
+bun add ts-migrate-mongoose
 ```
 
 - Install it globally
 
 ```bash
-yarn global add ts-migrate-mongoose
 npm install -g ts-migrate-mongoose
 pnpm add -g ts-migrate-mongoose
+yarn global add ts-migrate-mongoose
+bun add -g ts-migrate-mongoose
 ```
 
 ## Migrations and alias imports
@@ -80,6 +83,7 @@ Starting from `"@swc/core": "1.3.74"`, you need to use `target` or `env` not bot
     "paths": {
       "@/*": ["src/*"]
     }
+    // Important part above, copy it from your tsconfig.json
   },
   "module": {
     "type": "commonjs"
@@ -171,68 +175,53 @@ migrateAutosync=false
 
 ## Getting started with the CLI
 
+Explore and lear commands, rest of the tutorial will be in npm
+
 ```bash
-yarn migrate help
-npx migrate help
-pnpm migrate help
+npm run migrate -h
+pnpm migrate -h
+yarn migrate -h
+bun run migrate -h
 ```
 
 ```text
 CLI migration tool for mongoose
 
 Options:
-  -f, --config-path <path>      path to the config file (default: "migrate")
-  -d, --uri <string>            mongo connection string
-  -c, --collection <string>     collection name to use for the migrations (default: "migrations")
-  -a, --autosync <boolean>      automatically sync new migrations without prompt (default: false)
-  -m, --migrations-path <path>  path to the migration files (default: "./migrations")
-  -t, --template-path <path>    template file to use when creating a migration
-  --mode <string>               environment mode to use .env.[mode] file
-  -h, --help                    display help for command
+  -f, --config-path <path>         path to the config file
+  -d, --uri <string>               mongo connection string
+  -c, --collection <string>        collection name to use for the migrations
+  -a, --autosync <boolean>         automatically sync new migrations without prompt
+  -m, --migrations-path <path>     path to the migration files
+  -t, --template-path <path>       template file to use when creating a migration
+  --mode <string>                  environment mode to use .env.[mode] file
+  -h, --help                       display help for command
 
 Commands:
-  list                          list all migrations
-  create <migration-name>       create a new migration file
-  up [migration-name]           run all migrations or a specific migration if name provided
-  down <migration-name>         roll back migrations down to given name
-  prune                         delete extraneous migrations from migration folder or database
-  help [command]                display help for command
+  list                             list all migrations
+  create <migration-name>          create a new migration file
+  up [options] [migration-name]    run all migrations or a specific migration if name provided
+  down [options] <migration-name>  roll back migrations down to given name
+  prune                            delete extraneous migrations from migration folder or database
+  help [command]                   display help for command
 ```
 
-- Examples yarn
+Before you start make sure you setup .env file or migrate.ts/json file so you don't need to provide -d on each command
 
 ```bash
-yarn migrate list -d mongodb://localhost/my-db
-yarn migrate create add_users -d mongodb://localhost/my-db
-yarn migrate up add_user -d mongodb://localhost/my-db
-yarn migrate down delete_names -d mongodb://localhost/my-db
-yarn migrate down # will rollback one migration
-yarn migrate prune -d mongodb://localhost/my-db
-yarn migrate list --config settings.json
+npm run migrate create add-users -d mongodb://localhost/my-db
 ```
 
-- Examples npm
+In case you want to run just one migration up or down use option --single
 
 ```bash
-npm run migrate list -d mongodb://localhost/my-db
-npm run migrate create add_users -d mongodb://localhost/my-db
-npm run migrate up add_user -d mongodb://localhost/my-db
-npm run migrate down delete_names -d mongodb://localhost/my-db
-npm run migrate down # will rollback one migration
-npm run migrate prune -d mongodb://localhost/my-db
-npm run migrate list --config settings.json
-```
-
-- Examples pnpm
-
-```bash
-pnpm migrate list -d mongodb://localhost/my-db
-pnpm migrate create add_users -d mongodb://localhost/my-db
-pnpm migrate up add_user -d mongodb://localhost/my-db
-pnpm migrate down delete_names -d mongodb://localhost/my-db
-pnpm migrate down # will rollback one migration
-pnpm migrate prune -d mongodb://localhost/my-db
-pnpm migrate list --config settings.json
+npm run migrate create first-migration
+npm run migrate create second-migration
+npm run migrate list
+npm run migrate up second-migration -s # will up only second-migration
+npm run migrate down second-migration -s # will down only second-migration
+npm run migrate up -s # will up first-migration
+npm run migrate
 ```
 
 ## Options override order
@@ -250,9 +239,10 @@ By default, ts-migrate-mongoose assumes your migration folder exists (if it does
 Here's an example of a migration created using:
 
 ```bash
-yarn migrate create first-migration-demo
-npx migrate create first-migration-demo
+npm run migrate create first-migration-demo
 pnpm migrate create first-migration-demo
+yarn migrate create first-migration-demo
+bun run migrate create first-migration-demo
 ```
 
 Executing the above command will create a migration file in the `./migrations` folder with the following content:
@@ -355,7 +345,7 @@ export async function down () {
 
 ## Notes
 
-- Currently, the `-d` or `--uri`  must include the database to use for migrations in the uri.
+- Currently, the `-d` or `--uri` must include the database to use for migrations in the uri.
 - Example: `-d mongodb://localhost:27017/development`
 - If you don't want to pass it in every time feel free to use `migrate.ts` or `migrate.json` config file or an environment variable
 - Feel Free to check out the `/examples` folder in the project to get a better idea of usage in Programmatic and CLI mode

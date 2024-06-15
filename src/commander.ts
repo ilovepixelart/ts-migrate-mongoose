@@ -169,15 +169,15 @@ export class Migrate {
     this.program
       .command('up [migration-name]')
       .description('run all migrations or a specific migration if name provided')
-      .option('--single', 'run single migration', false)
+      .option('-s, --single', 'run single migration', false)
       .action(async (migrationName?: string, options?: { single: boolean }) => {
         await this.migrator.run('up', migrationName, options?.single)
       })
 
     this.program
-      .command('down [migration-name]')
+      .command('down <migration-name>')
       .description('roll back migrations down to given name')
-      .option('--single', 'run single migration', false)
+      .option('-s, --single', 'run single migration', false)
       .action(async (migrationName?: string, options?: { single: boolean }) => {
         await this.migrator.run('down', migrationName, options?.single)
       })
