@@ -90,7 +90,7 @@
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "4.3.2",
-    "@stylistic/eslint-plugin": "2.3.0",
+    "@stylistic/eslint-plugin": "2.6.0",
     "@swc/cli": "0.4.0",
     "@swc/helpers": "0.5.11",
     "@swc/jest": "0.2.36",
