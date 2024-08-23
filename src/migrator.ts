@@ -21,12 +21,10 @@ import {
 
 import defaultTemplate from './template'
 
-import register from '@swc/register'
-import swcrc from './swcrc'
+import { register } from '@swc-node/register/register'
+register()
 
 export * as IOptions from './interfaces/IOptions'
-
-register(swcrc)
 
 /**
  * This class is responsible for running migrations

@@ -15,10 +15,8 @@ import {
   DEFAULT_MIGRATE_MONGO_COLLECTION,
 } from './defaults'
 
-import register from '@swc/register'
-import swcrc from './swcrc'
-
-register(swcrc)
+import { register } from '@swc-node/register/register'
+register()
 
 /**
  * Get the options from the config file
@@ -31,8 +29,12 @@ export const getConfig = async (configPath: string): Promise<IOptions> => {
     try {
       const file = path.resolve(configPath)
       const module = await import(file) as IConfigModule
-      if (module.default) {
-        fileOptions = module.default
+      // In case of ESM module, default is nested twice
+      const esm = module.default as IConfigModule | undefined
+      if (esm?.default) {
+        fileOptions = esm.default ?? {}
+      } else {
+        fileOptions = module.default ?? {}
       }
     } catch {
       fileOptions = {}
