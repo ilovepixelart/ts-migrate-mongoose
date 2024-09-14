@@ -30,7 +30,7 @@ ts-migrate-mongoose is a migration framework for projects that are already using
 - [x] Prune old migrations, and sync new migrations
 - [x] Create custom templates for migrations
 - [x] Run individual migration up/down using -s, --single
-- [x] Supports ESM and CommonJS
+- [x] Supports CommonJS
 
 ## Example
 
