@@ -85,14 +85,14 @@
     "commander": "12.1.0",
     "dotenv": "16.4.5",
     "inquirer": "8.2.6",
-    "mongoose": "8.6.1"
+    "mongoose": "8.6.2"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "4.3.2",
     "@stylistic/eslint-plugin": "2.8.0",
     "@swc-node/jest": "1.8.12",
     "@types/inquirer": "8.2.6",
-    "@types/jest": "29.5.12",
+    "@types/jest": "29.5.13",
     "@types/node": "22",
     "@typescript-eslint/eslint-plugin": "7.18.0",
     "@typescript-eslint/parser": "7.18.0",
