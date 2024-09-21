@@ -1,3 +1,21 @@
+<a name="v3.8.4"></a>
+# [v3.8.4](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.8.4) - 21 Sep 2024
+
+- Remove patch for file  743399a
+- Type  4989a8e
+- Merge pull request [#335](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/335) from ilovepixelart/feature/switch-to-new-swc-packages  0fdc21b
+- Dep  2ac9a27
+- Doc  ae4fd86
+- Dep  27cd035
+- Audit  0d570b4
+- Switch to new swc packages  7732d4a
+- Update changelog for v3.8.3  bc3c126
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.3...v3.8.4
+
+[Changes][v3.8.4]
+
+
 <a name="v3.8.3"></a>
 # [v3.8.3](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.8.3) - 01 Aug 2024
 
@@ -1417,6 +1435,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.8.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.3...v3.8.4
 [v3.8.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.2...v3.8.3
 [v3.8.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.1...v3.8.2
 [v3.8.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.0...v3.8.1
