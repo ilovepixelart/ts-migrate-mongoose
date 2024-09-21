@@ -191,7 +191,7 @@ class Migrator {
    * This functionality is opposite of prune()
    * @returns A promise that resolves to the imported migrations
    */
-  async sync(): Promise<HydratedDocument<HydratedDocument<IMigration>>[]> {
+  async sync(): Promise<HydratedDocument<IMigration>[]> {
     try {
       const { migrationsInFs } = await this.getMigrations()
 
