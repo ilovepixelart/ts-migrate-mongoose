@@ -15,11 +15,6 @@ echo -e "\nCreating package.json file in $root_directory"
 # Create a package.json file to indicate that this is an ESM package
 echo '{ "type": "module" }' > "$root_directory/package.json"
 
-# Patch swcrc.js to user es6 module
-echo -e "\nPatching swcrc.js to use es6 module"
-# Use sed to replace 'commonjs' with 'es6'
-sed -i.bak 's/type: '\''commonjs'\''/type: '\''es6'\''/' "$root_directory/swcrc.js"
-
 # Remove all backup files
 find "$root_directory" -type f -name "*.bak" -exec rm {} +
 
