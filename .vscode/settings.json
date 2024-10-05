@@ -1,6 +1,9 @@
 {
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports.biome": "explicit"
+  },
   "cSpell.words": [
     "autosync",
     "biomejs",

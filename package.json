@@ -72,6 +72,8 @@
     "lint:fix": "npx @biomejs/biome lint --write ./",
     "check": "npx @biomejs/biome check",
     "check:fix": "npx @biomejs/biome check --write ./",
+    "format": "npx @biomejs/biome format",
+    "format:fix": "npx @biomejs/biome format --write ./",
     "test": "jest --config jest.config.ts --detectOpenHandles --coverage",
     "test:open": "npm run test && open-cli coverage/lcov-report/index.html",
     "clean": "rm -rf ./dist",
