@@ -1,16 +1,16 @@
-import fs from 'fs'
-import inquirer from 'inquirer'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import chalk from 'chalk'
+import inquirer from 'inquirer'
 import mongoose from 'mongoose'
 
 import { getMigrationModel } from './model'
 
 import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
-import type IMigration from './interfaces/IMigration'
 import type IFileMigration from './interfaces/IFileMigration'
-import type IMigratorOptions from './interfaces/IMigratorOptions'
+import type IMigration from './interfaces/IMigration'
 import type IMigrationModule from './interfaces/IMigrationModule'
+import type IMigratorOptions from './interfaces/IMigratorOptions'
 
 import {
   DEFAULT_MIGRATE_AUTOSYNC,
@@ -285,7 +285,7 @@ class Migrator {
      * @private
      */
   private logMigrationStatus(direction: 'down' | 'up', filename: string): void {
-    this.log(chalk[direction === 'up' ? 'green' : 'red'](`${direction}:`) + ` ${filename} `)
+    this.log(`${chalk[direction === 'up' ? 'green' : 'red'](`${direction}:`)} ${filename} `)
   }
 
   /**
@@ -344,7 +344,7 @@ class Migrator {
       const timestamp = filename.slice(0, timestampSeparatorIndex)
       const migrationName = filename.slice(timestampSeparatorIndex + 1, filename.lastIndexOf('.'))
 
-      this.log(`Adding migration ${filePath} into database from file system. State is ` + chalk.red('down'))
+      this.log(`Adding migration ${filePath} into database from file system. State is ${chalk.red('down')}`)
       return this.migrationModel.create({
         name: migrationName,
         createdAt: timestamp,
@@ -368,7 +368,7 @@ class Migrator {
       .filter((filename) => /^\d{13,}-/.test(filename) && filename.endsWith('.ts'))
       .map((filename) => {
         const [time] = filename.split('-')
-        const timestamp = parseInt(time ?? '')
+        const timestamp = Number.parseInt(time ?? '')
         const createdAt = new Date(timestamp)
         const existsInDatabase = migrationsInDb.some((migration) => filename === migration.filename)
         return { createdAt, filename, existsInDatabase }

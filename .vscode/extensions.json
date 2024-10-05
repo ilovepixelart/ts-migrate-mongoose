@@ -2,9 +2,8 @@
   "recommendations": [
     "streetsidesoftware.code-spell-checker",
     "mikestead.dotenv",
-    "dbaeumer.vscode-eslint",
+    "biomejs.biome",
     "eamodio.gitlens",
-    "ms-vscode.vscode-typescript-next",
     "firsttris.vscode-jest-runner",
     "DavidAnson.vscode-markdownlint"
   ]

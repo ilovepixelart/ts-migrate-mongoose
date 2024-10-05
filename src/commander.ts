@@ -1,12 +1,12 @@
-import { config } from 'dotenv'
-import path from 'path'
+import path from 'node:path'
 import chalk from 'chalk'
 import { Command } from 'commander'
+import { config } from 'dotenv'
 import Migrator from './migrator'
 
-import type IOptions from './interfaces/IOptions'
 import type IConfigModule from './interfaces/IConfigModule'
 import type IMigratorOptions from './interfaces/IMigratorOptions'
+import type IOptions from './interfaces/IOptions'
 
 import {
   DEFAULT_MIGRATE_AUTOSYNC,
@@ -54,8 +54,8 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   config({ path: '.env.local', override: true })
 
   const mode = options.mode
-    ?? process.env['MIGRATE_MODE']
-    ?? process.env['migrateMode']
+    ?? process.env.MIGRATE_MODE
+    ?? process.env.migrateMode
 
   if (mode) {
     config({ path: `.env.${mode}`, override: true })
@@ -63,15 +63,15 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   }
 
   const configPath = options.configPath
-    ?? process.env['MIGRATE_CONFIG_PATH']
-    ?? process.env['migrateConfigPath']
+    ?? process.env.MIGRATE_CONFIG_PATH
+    ?? process.env.migrateConfigPath
     ?? DEFAULT_MIGRATE_CONFIG_PATH
 
   const fileOptions = await getConfig(configPath)
 
   const uri = options.uri
-    ?? process.env['MIGRATE_MONGO_URI']
-    ?? process.env['migrateMongoUri']
+    ?? process.env.MIGRATE_MONGO_URI
+    ?? process.env.migrateMongoUri
     ?? fileOptions.uri
     // no default value always required
 
@@ -79,26 +79,26 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   const connectOptions = fileOptions.connectOptions
 
   const collection = options.collection
-    ?? process.env['MIGRATE_MONGO_COLLECTION']
-    ?? process.env['migrateMongoCollection']
+    ?? process.env.MIGRATE_MONGO_COLLECTION
+    ?? process.env.migrateMongoCollection
     ?? fileOptions.collection
     ?? DEFAULT_MIGRATE_MONGO_COLLECTION
 
   const migrationsPath = options.migrationsPath
-    ?? process.env['MIGRATE_MIGRATIONS_PATH']
-    ?? process.env['migrateMigrationsPath']
+    ?? process.env.MIGRATE_MIGRATIONS_PATH
+    ?? process.env.migrateMigrationsPath
     ?? fileOptions.migrationsPath
     ?? DEFAULT_MIGRATE_MIGRATIONS_PATH
 
   const templatePath = options.templatePath
-    ?? process.env['MIGRATE_TEMPLATE_PATH']
-    ?? process.env['migrateTemplatePath']
+    ?? process.env.MIGRATE_TEMPLATE_PATH
+    ?? process.env.migrateTemplatePath
     ?? fileOptions.templatePath
     // can be empty then we use default template
 
   const autosync = Boolean(options.autosync
-    ?? process.env['MIGRATE_AUTOSYNC']
-    ?? process.env['migrateAutosync']
+    ?? process.env.MIGRATE_AUTOSYNC
+    ?? process.env.migrateAutosync
     ?? fileOptions.autosync
     ?? DEFAULT_MIGRATE_AUTOSYNC)
 
@@ -165,7 +165,7 @@ export class Migrate {
       .description('create a new migration file')
       .action(async (migrationName: string) => {
         await this.migrator.create(migrationName)
-        console.log('Migration created. Run ' + chalk.cyan(`migrate up ${migrationName}`) + ' to apply the migration')
+        console.log(`Migration created. Run ${chalk.cyan(`migrate up ${migrationName}`)} to apply the migration`)
       })
 
     this.program

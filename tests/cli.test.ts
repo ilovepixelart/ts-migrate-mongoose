@@ -1,10 +1,10 @@
-import fs from 'fs'
+import fs from 'node:fs'
 import chalk from 'chalk'
 import mongoose from 'mongoose'
 
-import { getMigrator, Migrate } from '../src/commander'
-import { clearDirectory } from './utils/filesystem'
+import { Migrate, getMigrator } from '../src/commander'
 import defaultTemplate from '../src/template'
+import { clearDirectory } from './utils/filesystem'
 
 import type { Connection } from 'mongoose'
 
@@ -110,7 +110,7 @@ describe('cli', () => {
 
   it('should exit with code 1', async () => {
     const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => {
-      throw new Error('process.exit: ' + number)
+      throw new Error(`process.exit: ${number}`)
     })
     await expect(execExit('up')).rejects.toThrow()
     expect(mockExit).toHaveBeenCalledWith(1)
@@ -119,7 +119,7 @@ describe('cli', () => {
 
   it('should exit with code 0', async () => {
     const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => {
-      throw new Error('process.exit: ' + number)
+      throw new Error(`process.exit: ${number}`)
     })
     await expect(execExit('list', '-d', uri)).rejects.toThrow()
     expect(mockExit).toHaveBeenCalledWith(0)

@@ -1,10 +1,10 @@
-import fs from 'fs'
+import fs from 'node:fs'
 import inquirer from 'inquirer'
 import mongoose, { Types } from 'mongoose'
 
 import Migrator from '../src/migrator'
-import { clearDirectory } from './utils/filesystem'
 import defaultTemplate from '../src/template'
+import { clearDirectory } from './utils/filesystem'
 
 import type { Connection } from 'mongoose'
 
@@ -349,7 +349,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     const migrator = await Migrator.connect({ uri, templatePath: 'wrong/path' })
     const migration = await migrator.create('test-migration')
     expect(migration.filename).toMatch(/^\d{13,}-test-migration.ts/)
-    const migrationContent = fs.readFileSync('migrations/' + migration.filename, 'utf8')
+    const migrationContent = fs.readFileSync(`migrations/${migration.filename}`, 'utf8')
     expect(defaultTemplate).toMatch(migrationContent)
 
     expect(migrator.connection.readyState).toBe(1)

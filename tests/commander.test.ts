@@ -1,8 +1,8 @@
 import chalk from 'chalk'
 import mongoose from 'mongoose'
 
+import { getConfig, getMigrator, migrate } from '../src/commander'
 import Migrator from '../src/migrator'
-import { migrate, getConfig, getMigrator } from '../src/commander'
 import { clearDirectory } from './utils/filesystem'
 
 import type { Connection } from 'mongoose'
@@ -29,7 +29,7 @@ describe('commander', () => {
 
   it('should exit 0', async () => {
     const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => {
-      throw new Error('process.exit: ' + number)
+      throw new Error(`process.exit: ${number}`)
     })
     setProcessArgv('list', '-d', uri)
     await expect(migrate.run(true)).rejects.toThrow()
@@ -39,7 +39,7 @@ describe('commander', () => {
 
   it('should exit 1', async () => {
     const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => {
-      throw new Error('process.exit: ' + number)
+      throw new Error(`process.exit: ${number}`)
     })
     setProcessArgv('list', '-d', uri, '--invalid')
     await expect(migrate.run(true)).rejects.toThrow()
