@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const { recursive } = require('merge')
 const mongo = require('@shelf/jest-mongodb/jest-preset')
 

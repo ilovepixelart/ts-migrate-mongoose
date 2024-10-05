@@ -45,8 +45,7 @@
     "tsconfig.json",
     "jest.config.ts",
     "jest-mongodb-config.ts",
-    ".eslintrc",
-    ".eslintignore"
+    "biome.json"
   ],
   "bin": {
     "migrate": "dist/cjs/bin.js"
@@ -69,8 +68,10 @@
   "scripts": {
     "prepublish": "bash/chmod.sh",
     "migrate": "node -r @swc-node/register src/bin.ts",
-    "lint": "eslint . --ext .js,.ts",
-    "lint:fix": "eslint . --fix --ext .js,.ts",
+    "lint": "npx @biomejs/biome lint",
+    "lint:fix": "npx @biomejs/biome lint --write ./",
+    "check": "npx @biomejs/biome check",
+    "check:fix": "npx @biomejs/biome check --write ./",
     "test": "jest --config jest.config.ts --detectOpenHandles --coverage",
     "test:open": "npm run test && open-cli coverage/lcov-report/index.html",
     "clean": "rm -rf ./dist",
@@ -85,21 +86,15 @@
     "commander": "12.1.0",
     "dotenv": "16.4.5",
     "inquirer": "8.2.6",
-    "mongoose": "8.6.2"
+    "mongoose": "8.7.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.3",
     "@shelf/jest-mongodb": "4.3.2",
-    "@stylistic/eslint-plugin": "2.8.0",
     "@swc-node/jest": "1.8.12",
     "@types/inquirer": "8.2.6",
     "@types/jest": "29.5.13",
     "@types/node": "22",
-    "@typescript-eslint/eslint-plugin": "7.18.0",
-    "@typescript-eslint/parser": "7.18.0",
-    "eslint": "8.57.0",
-    "eslint-plugin-jest": "28.8.3",
-    "eslint-plugin-jest-formatting": "3.1.0",
-    "eslint-plugin-sonarjs": "0.25.1",
     "jest": "29.7.0",
     "merge": "2.1.1",
     "open-cli": "8.0.0",

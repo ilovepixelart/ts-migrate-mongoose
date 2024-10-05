@@ -1,5 +1,5 @@
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 export const clearDirectory = (dir: string) => {
   if (!fs.existsSync(dir)) return
