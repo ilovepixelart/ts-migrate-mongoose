@@ -12,12 +12,7 @@ import type IMigration from './interfaces/IMigration'
 import type IMigrationModule from './interfaces/IMigrationModule'
 import type IMigratorOptions from './interfaces/IMigratorOptions'
 
-import {
-  DEFAULT_MIGRATE_AUTOSYNC,
-  DEFAULT_MIGRATE_CLI,
-  DEFAULT_MIGRATE_MIGRATIONS_PATH,
-  DEFAULT_MIGRATE_MONGO_COLLECTION,
-} from './defaults'
+import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CLI, DEFAULT_MIGRATE_MIGRATIONS_PATH, DEFAULT_MIGRATE_MONGO_COLLECTION } from './defaults'
 
 import defaultTemplate from './template'
 
@@ -147,7 +142,10 @@ class Migrator {
     if (migrationName) {
       untilMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     } else {
-      untilMigration = await this.migrationModel.findOne({ state }).sort({ createdAt: single ? sort : -sort as -1 | 1 }).exec()
+      untilMigration = await this.migrationModel
+        .findOne({ state })
+        .sort({ createdAt: single ? sort : (-sort as -1 | 1) })
+        .exec()
     }
 
     if (!untilMigration) {
@@ -195,9 +193,7 @@ class Migrator {
     try {
       const { migrationsInFs } = await this.getMigrations()
 
-      let migrationsToImport = migrationsInFs
-        .filter((file) => !file.existsInDatabase)
-        .map((file) => file.filename)
+      let migrationsToImport = migrationsInFs.filter((file) => !file.existsInDatabase).map((file) => file.filename)
 
       this.log('Synchronizing database with file system migrations...')
       migrationsToImport = await this.choseMigrations(migrationsToImport, 'The following migrations exist in the migrations folder but not in the database.\nSelect the ones you want to import into the database')
@@ -226,9 +222,7 @@ class Migrator {
 
       const { migrationsInDb, migrationsInFs } = await this.getMigrations()
 
-      let migrationsToDelete = migrationsInDb
-        .filter((migration) => !migrationsInFs.find((file) => file.filename === migration.filename))
-        .map((migration) => migration.name)
+      let migrationsToDelete = migrationsInDb.filter((migration) => !migrationsInFs.find((file) => file.filename === migration.filename)).map((migration) => migration.name)
 
       migrationsToDelete = await this.choseMigrations(migrationsToDelete, 'The following migrations exist in the database but not in the migrations folder.\nSelect the ones you want to remove from the database')
 
@@ -277,24 +271,24 @@ class Migrator {
   }
 
   /**
-     * Logs migration status to the console
-     * @param direction The direction of the migration
-     * @param filename The filename of the migration
-     * @returns void
-     * @memberof Migrator
-     * @private
-     */
+   * Logs migration status to the console
+   * @param direction The direction of the migration
+   * @param filename The filename of the migration
+   * @returns void
+   * @memberof Migrator
+   * @private
+   */
   private logMigrationStatus(direction: 'down' | 'up', filename: string): void {
     this.log(`${chalk[direction === 'up' ? 'green' : 'red'](`${direction}:`)} ${filename} `)
   }
 
   /**
-     * Gets template from file system
-     * @param templatePath The path to the template
-     * @returns The template string
-     * @memberof Migrator
-     * @private
-     */
+   * Gets template from file system
+   * @param templatePath The path to the template
+   * @returns The template string
+   * @memberof Migrator
+   * @private
+   */
   private getTemplate(templatePath: string | undefined): string {
     if (templatePath && fs.existsSync(templatePath)) {
       return fs.readFileSync(templatePath, 'utf8')
@@ -303,11 +297,11 @@ class Migrator {
   }
 
   /**
-     * Ensures that the migrations path exists
-     * @returns void
-     * @memberof Migrator
-     * @private
-     */
+   * Ensures that the migrations path exists
+   * @returns void
+   * @memberof Migrator
+   * @private
+   */
   private ensureMigrationsPath(): void {
     if (!fs.existsSync(this.migrationsPath)) {
       fs.mkdirSync(this.migrationsPath, { recursive: true })
@@ -315,28 +309,28 @@ class Migrator {
   }
 
   /**
-     * Connection status of the migrator
-     * @returns A promise that resolves to the connection status
-     * @memberof Migrator
-     * @private
-     * @async
-     * @example
-     * const migrator = new Migrator({ uri: 'mongodb://localhost:27017' })
-     * const connected = await migrator.connected()
-     * console.log(connected) // true
-     */
+   * Connection status of the migrator
+   * @returns A promise that resolves to the connection status
+   * @memberof Migrator
+   * @private
+   * @async
+   * @example
+   * const migrator = new Migrator({ uri: 'mongodb://localhost:27017' })
+   * const connected = await migrator.connected()
+   * console.log(connected) // true
+   */
   private async connected(): Promise<Connection> {
     return this.connection.asPromise()
   }
 
   /**
-     * Creates a new migration in database to reflect the changes in file system
-     * @param migrationName The name of the migration
-     * @returns A promise that resolves to the created migrations
-     * @memberof Migrator
-     * @private
-     * @async
-     */
+   * Creates a new migration in database to reflect the changes in file system
+   * @param migrationName The name of the migration
+   * @returns A promise that resolves to the created migrations
+   * @memberof Migrator
+   * @private
+   * @async
+   */
   private async syncMigrations(migrationsInFs: string[]): Promise<HydratedDocument<IMigration>[]> {
     const promises = migrationsInFs.map(async (filename) => {
       const filePath = path.join(this.migrationsPath, filename)
@@ -355,13 +349,16 @@ class Migrator {
   }
 
   /**
-     * Get migrations in database and in file system at the same time
-     * @returns A promise that resolves to the migrations in database and in file system
-     * @memberof Migrator
-     * @private
-     * @async
-     */
-  private async getMigrations(): Promise<{ migrationsInDb: IMigration[], migrationsInFs: IFileMigration[] }> {
+   * Get migrations in database and in file system at the same time
+   * @returns A promise that resolves to the migrations in database and in file system
+   * @memberof Migrator
+   * @private
+   * @async
+   */
+  private async getMigrations(): Promise<{
+    migrationsInDb: IMigration[]
+    migrationsInFs: IFileMigration[]
+  }> {
     const files = fs.readdirSync(this.migrationsPath)
     const migrationsInDb = await this.migrationModel.find({}).exec()
     const migrationsInFs = files
@@ -378,14 +375,14 @@ class Migrator {
   }
 
   /**
-     * Creates a prompt for the user to chose migrations to run
-     * @param migrations The migrations to chose from
-     * @param message The message to display to the user
-     * @returns A promise that resolves to the chosen migrations or all migrations if autosync is true
-     * @memberof Migrator
-     * @private
-     * @async
-     */
+   * Creates a prompt for the user to chose migrations to run
+   * @param migrations The migrations to chose from
+   * @param message The message to display to the user
+   * @returns A promise that resolves to the chosen migrations or all migrations if autosync is true
+   * @memberof Migrator
+   * @private
+   * @async
+   */
   private async choseMigrations(migrations: string[], message: string): Promise<string[]> {
     if (!this.autosync && migrations.length) {
       const answers = await inquirer.prompt<{ chosen: string[] }>({
@@ -400,19 +397,19 @@ class Migrator {
   }
 
   /**
-     * Run migrations in a given direction
-     * @param migrationsToRun The migrations to run
-     * @param direction The direction of the migrations
-     * @returns A promise that resolves to the ran migrations
-     * @memberof Migrator
-     * @private
-     * @async
-     */
+   * Run migrations in a given direction
+   * @param migrationsToRun The migrations to run
+   * @param direction The direction of the migrations
+   * @returns A promise that resolves to the ran migrations
+   * @memberof Migrator
+   * @private
+   * @async
+   */
   private async runMigrations(migrationsToRun: HydratedDocument<IMigration>[], direction: 'down' | 'up'): Promise<HydratedDocument<IMigration>[]> {
     const migrationsRan: HydratedDocument<IMigration>[] = []
     for await (const migration of migrationsToRun) {
       const migrationFilePath = path.join(this.migrationsPath, migration.filename)
-      const migrationFunctions = await import(migrationFilePath) as IMigrationModule
+      const migrationFunctions = (await import(migrationFilePath)) as IMigrationModule
 
       const migrationFunction = migrationFunctions[direction]
       if (!migrationFunction) {
@@ -425,7 +422,10 @@ class Migrator {
 
         this.logMigrationStatus(direction, migration.filename)
 
-        await this.migrationModel.where({ name: migration.name }).updateMany({ $set: { state: direction } }).exec()
+        await this.migrationModel
+          .where({ name: migration.name })
+          .updateMany({ $set: { state: direction } })
+          .exec()
         migrationsRan.push(migration)
       } catch (error) {
         const message = `Failed to run migration with name '${migration.name}' due to an error`

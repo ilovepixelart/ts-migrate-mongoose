@@ -1,133 +1,30 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.2/schema.json",
-	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
-	"files": {
-		"ignoreUnknown": false,
-		"ignore": ["node_modules", "dist", "coverage", "migrations"]
-	},
-	"formatter": { "enabled": false, "indentStyle": "space", "indentWidth": 2 },
-	"organizeImports": { "enabled": true },
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"recommended": true,
-			"complexity": {
-				"noExcessiveCognitiveComplexity": "error",
-				"noExtraBooleanCast": "error",
-				"noMultipleSpacesInRegularExpressionLiterals": "error",
-				"noUselessCatch": "error",
-				"noWith": "error"
-			},
-			"correctness": {
-				"noConstAssign": "error",
-				"noConstantCondition": "error",
-				"noEmptyCharacterClassInRegex": "error",
-				"noEmptyPattern": "error",
-				"noGlobalObjectCalls": "error",
-				"noInnerDeclarations": "error",
-				"noInvalidConstructorSuper": "error",
-				"noNewSymbol": "error",
-				"noNonoctalDecimalEscape": "error",
-				"noPrecisionLoss": "error",
-				"noSelfAssign": "error",
-				"noSetterReturn": "error",
-				"noSwitchDeclarations": "error",
-				"noUndeclaredVariables": "error",
-				"noUnreachable": "error",
-				"noUnreachableSuper": "error",
-				"noUnsafeFinally": "error",
-				"noUnsafeOptionalChaining": "error",
-				"noUnusedLabels": "error",
-				"noUnusedVariables": "error",
-				"useIsNan": "error",
-				"useValidForDirection": "error",
-				"useYield": "error"
-			},
-			"style": { "useConsistentArrayType": "error", "useWhile": "error" },
-			"suspicious": {
-				"noAsyncPromiseExecutor": "error",
-				"noCatchAssign": "error",
-				"noClassAssign": "error",
-				"noCompareNegZero": "error",
-				"noControlCharactersInRegex": "error",
-				"noDebugger": "error",
-				"noDuplicateCase": "error",
-				"noDuplicateClassMembers": "error",
-				"noDuplicateObjectKeys": "error",
-				"noDuplicateParameters": "error",
-				"noEmptyBlockStatements": "error",
-				"noFallthroughSwitchClause": "error",
-				"noFunctionAssign": "error",
-				"noGlobalAssign": "error",
-				"noImportAssign": "error",
-				"noMisleadingCharacterClass": "error",
-				"noPrototypeBuiltins": "error",
-				"noRedeclare": "error",
-				"noShadowRestrictedNames": "error",
-				"noSparseArray": "error",
-				"noUnsafeNegation": "error",
-				"useGetterReturn": "error",
-				"useValidTypeof": "error"
-			}
-		},
-		"ignore": ["**/node_modules", "**/dist", "**/coverage", "**/.env"]
-	},
-	"javascript": {
-		"formatter": {
-			"trailingCommas": "all",
-			"semicolons": "asNeeded",
-			"quoteStyle": "single"
-		},
-		"globals": ["Atomics", "SharedArrayBuffer"]
-	},
-	"overrides": [
-		{ "include": ["tests/**/*.test.ts"], "linter": { "rules": {} } },
-		{
-			"include": ["src/**/*.ts"],
-			"linter": { "rules": { "style": { "useEnumInitializers": "error" } } }
-		},
-		{ "include": ["tests/**/*.test.ts"], "linter": { "rules": {} } },
-		{
-			"include": ["src/**/*.ts"],
-			"linter": { "rules": { "style": { "useEnumInitializers": "error" } } }
-		},
-		{
-			"include": ["*.ts", "*.tsx", "*.mts", "*.cts"],
-			"linter": {
-				"rules": {
-					"correctness": {
-						"noConstAssign": "off",
-						"noGlobalObjectCalls": "off",
-						"noInvalidBuiltinInstantiation": "off",
-						"noInvalidConstructorSuper": "off",
-						"noNewSymbol": "off",
-						"noSetterReturn": "off",
-						"noUndeclaredVariables": "off",
-						"noUnreachable": "off",
-						"noUnreachableSuper": "off"
-					},
-					"style": {
-						"noArguments": "error",
-						"noVar": "error",
-						"useConst": "error"
-					},
-					"suspicious": {
-						"noDuplicateClassMembers": "off",
-						"noDuplicateObjectKeys": "off",
-						"noDuplicateParameters": "off",
-						"noFunctionAssign": "off",
-						"noImportAssign": "off",
-						"noRedeclare": "off",
-						"noUnsafeNegation": "off",
-						"useGetterReturn": "off"
-					}
-				}
-			}
-		},
-		{ "include": ["tests/**/*.test.ts"], "linter": { "rules": {} } },
-		{
-			"include": ["src/**/*.ts"],
-			"linter": { "rules": { "style": { "useEnumInitializers": "error" } } }
-		}
-	]
+  "$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
+  "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
+  "files": {
+    "ignoreUnknown": false,
+    "ignore": ["node_modules", "dist", "coverage", "migrations"]
+  },
+  "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2 },
+  "organizeImports": { "enabled": true },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "trailingCommas": "all",
+      "quoteStyle": "single",
+      "semicolons": "asNeeded",
+      "lineWidth": 320
+    },
+    "globals": ["Atomics", "SharedArrayBuffer"]
+  },
+  "json": {
+    "formatter": {
+      "trailingCommas": "none"
+    }
+  }
 }

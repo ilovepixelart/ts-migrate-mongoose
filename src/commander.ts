@@ -8,12 +8,7 @@ import type IConfigModule from './interfaces/IConfigModule'
 import type IMigratorOptions from './interfaces/IMigratorOptions'
 import type IOptions from './interfaces/IOptions'
 
-import {
-  DEFAULT_MIGRATE_AUTOSYNC,
-  DEFAULT_MIGRATE_CONFIG_PATH,
-  DEFAULT_MIGRATE_MIGRATIONS_PATH,
-  DEFAULT_MIGRATE_MONGO_COLLECTION,
-} from './defaults'
+import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CONFIG_PATH, DEFAULT_MIGRATE_MIGRATIONS_PATH, DEFAULT_MIGRATE_MONGO_COLLECTION } from './defaults'
 
 import { register } from '@swc-node/register/register'
 register()
@@ -28,7 +23,7 @@ export const getConfig = async (configPath: string): Promise<IOptions> => {
   if (configPath) {
     try {
       const file = path.resolve(configPath)
-      const module = await import(file) as IConfigModule
+      const module = (await import(file)) as IConfigModule
       // In case of ESM module, default is nested twice
       const esm = module.default as IConfigModule | undefined
       if (esm?.default) {
@@ -53,54 +48,31 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   config({ path: '.env' })
   config({ path: '.env.local', override: true })
 
-  const mode = options.mode
-    ?? process.env.MIGRATE_MODE
-    ?? process.env.migrateMode
+  const mode = options.mode ?? process.env.MIGRATE_MODE ?? process.env.migrateMode
 
   if (mode) {
     config({ path: `.env.${mode}`, override: true })
     config({ path: `.env.${mode}.local`, override: true })
   }
 
-  const configPath = options.configPath
-    ?? process.env.MIGRATE_CONFIG_PATH
-    ?? process.env.migrateConfigPath
-    ?? DEFAULT_MIGRATE_CONFIG_PATH
+  const configPath = options.configPath ?? process.env.MIGRATE_CONFIG_PATH ?? process.env.migrateConfigPath ?? DEFAULT_MIGRATE_CONFIG_PATH
 
   const fileOptions = await getConfig(configPath)
 
-  const uri = options.uri
-    ?? process.env.MIGRATE_MONGO_URI
-    ?? process.env.migrateMongoUri
-    ?? fileOptions.uri
-    // no default value always required
+  const uri = options.uri ?? process.env.MIGRATE_MONGO_URI ?? process.env.migrateMongoUri ?? fileOptions.uri
+  // no default value always required
 
   // Connect options can be only provided in the config file for cli usage
   const connectOptions = fileOptions.connectOptions
 
-  const collection = options.collection
-    ?? process.env.MIGRATE_MONGO_COLLECTION
-    ?? process.env.migrateMongoCollection
-    ?? fileOptions.collection
-    ?? DEFAULT_MIGRATE_MONGO_COLLECTION
+  const collection = options.collection ?? process.env.MIGRATE_MONGO_COLLECTION ?? process.env.migrateMongoCollection ?? fileOptions.collection ?? DEFAULT_MIGRATE_MONGO_COLLECTION
 
-  const migrationsPath = options.migrationsPath
-    ?? process.env.MIGRATE_MIGRATIONS_PATH
-    ?? process.env.migrateMigrationsPath
-    ?? fileOptions.migrationsPath
-    ?? DEFAULT_MIGRATE_MIGRATIONS_PATH
+  const migrationsPath = options.migrationsPath ?? process.env.MIGRATE_MIGRATIONS_PATH ?? process.env.migrateMigrationsPath ?? fileOptions.migrationsPath ?? DEFAULT_MIGRATE_MIGRATIONS_PATH
 
-  const templatePath = options.templatePath
-    ?? process.env.MIGRATE_TEMPLATE_PATH
-    ?? process.env.migrateTemplatePath
-    ?? fileOptions.templatePath
-    // can be empty then we use default template
+  const templatePath = options.templatePath ?? process.env.MIGRATE_TEMPLATE_PATH ?? process.env.migrateTemplatePath ?? fileOptions.templatePath
+  // can be empty then we use default template
 
-  const autosync = Boolean(options.autosync
-    ?? process.env.MIGRATE_AUTOSYNC
-    ?? process.env.migrateAutosync
-    ?? fileOptions.autosync
-    ?? DEFAULT_MIGRATE_AUTOSYNC)
+  const autosync = Boolean(options.autosync ?? process.env.MIGRATE_AUTOSYNC ?? process.env.migrateAutosync ?? fileOptions.autosync ?? DEFAULT_MIGRATE_AUTOSYNC)
 
   if (!uri) {
     const message = chalk.red('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.')
@@ -220,7 +192,8 @@ export class Migrate {
    * @returns The parsed options or void if exit is true
    */
   public async run(exit = true): Promise<IOptions> {
-    return this.program.parseAsync(process.argv)
+    return this.program
+      .parseAsync(process.argv)
       .then(() => {
         return this.finish(exit)
       })
