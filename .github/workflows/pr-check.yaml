@@ -38,7 +38,7 @@ jobs:
       - name: Coverage
         run: npm run test
   sonar:
-    name: Coverage & Sonar
+    name: Biome, Coverage & Sonar
     runs-on: ubuntu-latest
     strategy:
       matrix:
