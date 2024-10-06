@@ -68,19 +68,15 @@
   "scripts": {
     "prepublish": "bash/chmod.sh",
     "migrate": "node -r @swc-node/register src/bin.ts",
-    "lint": "npx @biomejs/biome lint",
-    "lint:fix": "npx @biomejs/biome lint --write ./",
-    "check": "npx @biomejs/biome check",
-    "check:fix": "npx @biomejs/biome check --write ./",
-    "format": "npx @biomejs/biome format",
-    "format:fix": "npx @biomejs/biome format --write ./",
+    "biome": "npx @biomejs/biome check",
+    "biome:fix": "npx @biomejs/biome check --write .",
     "test": "jest --config jest.config.ts --detectOpenHandles --coverage",
     "test:open": "npm run test && open-cli coverage/lcov-report/index.html",
     "clean": "rm -rf ./dist",
     "build": "npm run clean && npm run build:cjs && npm run build:esm && bash/chmod.sh",
     "build:cjs": "tsc -p config/tsconfig.cjs.json",
     "build:esm": "tsc -p config/tsconfig.esm.json && bash/esm.sh",
-    "release": "npm run lint && npm run build && np"
+    "release": "npm run biome && npm run build && np"
   },
   "dependencies": {
     "@swc-node/register": "1.10.9",

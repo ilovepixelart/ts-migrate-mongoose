@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2021",
-    "lib": [
-      "ES2021"
-    ],
+    "lib": ["ES2021"],
     "module": "CommonJS",
     "moduleResolution": "Node",
     "outDir": "dist",
@@ -30,13 +28,6 @@
     "skipLibCheck": true,
     "sourceMap": true
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "tests",
-    "dist",
-    "coverage",
-    "node_modules"
-  ]
+  "include": ["src"],
+  "exclude": ["tests", "dist", "coverage", "node_modules"]
 }

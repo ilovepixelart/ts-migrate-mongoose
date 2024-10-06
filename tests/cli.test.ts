@@ -174,10 +174,15 @@ export let ExampleSchema = new Schema({
 export default models.User ?? model<IExample>('Example', ExampleSchema)`
 
     const testTemplate = defaultTemplate
-      .replace('// Import your models here', `
+      .replace(
+        '// Import your models here',
+        `
 import Example from './Example.ts'
-      `)
-      .replace('// Write migration here', `
+      `,
+      )
+      .replace(
+        '// Write migration here',
+        `
   await Example.insertMany([
     {
       name: 'test',
@@ -195,11 +200,15 @@ import Example from './Example.ts'
       name: 'test4',
       type: 2,
     }
-  ])`)
-      .replace('// Write migration here', `
+  ])`,
+      )
+      .replace(
+        '// Write migration here',
+        `
   await Example.deleteMany({ propertyIsNotDefinedInSchema: 'some-value' })
   await Example.deleteMany({ type: 1 })
-  `)
+  `,
+      )
 
     console.log(testModel)
     console.log(testTemplate)

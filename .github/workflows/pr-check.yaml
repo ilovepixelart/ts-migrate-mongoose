@@ -10,8 +10,8 @@ on:
       - feature*
 
   pull_request:
-      types: [opened, synchronize, reopened]
-      
+    types: [opened, synchronize, reopened]
+
 jobs:
   tests:
     name: Coverage
@@ -25,20 +25,20 @@ jobs:
         with:
           # Disabling shallow clone is recommended for improving relevancy of reporting
           fetch-depth: 0
-  
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
-  
+
       - name: Installing dependencies
         run: npm ci
 
       - name: Coverage
         run: npm run test
   sonar:
-    name: Coverage & Sonar
+    name: Biome, Coverage & Sonar
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -59,8 +59,8 @@ jobs:
       - name: Installing dependencies
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
+      - name: Biome
+        run: npm run biome
 
       - name: Coverage
         run: npm run test
@@ -81,4 +81,3 @@ jobs:
             -Dsonar.tests=tests
             -Dsonar.test.exclusions=tests/**
             -Dsonar.coverage.exclusions=tests/**
-
