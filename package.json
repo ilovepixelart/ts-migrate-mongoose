@@ -76,7 +76,7 @@
     "build": "npm run clean && npm run build:cjs && npm run build:esm && bash/chmod.sh",
     "build:cjs": "tsc -p config/tsconfig.cjs.json",
     "build:esm": "tsc -p config/tsconfig.esm.json && bash/esm.sh",
-    "release": "npm run biome && npm run build && np"
+    "release": "npm install && npm run biome && npm run build && np"
   },
   "dependencies": {
     "@swc-node/register": "1.10.9",
