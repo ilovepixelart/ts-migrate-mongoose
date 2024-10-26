@@ -178,7 +178,7 @@ migrateAutosync=false
 Explore and lear commands, rest of the tutorial will be using npm
 
 ```bash
-npm run migrate -h
+npx migrate -h
 pnpm migrate -h
 yarn migrate -h
 bun run migrate -h
@@ -209,18 +209,18 @@ Commands:
 Before you start make sure you setup .env file or migrate.ts/json file so you don't need to provide -d on each command
 
 ```bash
-npm run migrate create add-users -d mongodb://localhost/my-db
+npx migrate create add-users -d mongodb://localhost/my-db
 ```
 
 In case you want to run just one migration up or down use option --single
 
 ```bash
-npm run migrate create first-migration
-npm run migrate create second-migration
-npm run migrate list
-npm run migrate up second-migration -s # will migrate up only second-migration
-npm run migrate down second-migration -s # will migrate down only second-migration
-npm run migrate up -s # will migrate up first-migration
+npx migrate create first-migration
+npx migrate create second-migration
+npx migrate list
+npx migrate up second-migration -s # will migrate up only second-migration
+npx migrate down second-migration -s # will migrate down only second-migration
+npx migrate up -s # will migrate up first-migration
 ```
 
 ## Options override order
@@ -238,7 +238,7 @@ By default, ts-migrate-mongoose assumes your migration folder exists (if it does
 Here's an example of a migration created using:
 
 ```bash
-npm run migrate create first-migration
+npx migrate create first-migration
 pnpm migrate create first-migration
 yarn migrate create first-migration
 bun run migrate create first-migration
