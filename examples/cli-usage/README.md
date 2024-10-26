@@ -4,7 +4,7 @@ After running `npm i ts-migrate-mongoose`, you will have the migration binary av
 You can run it with:
 
 ```bash
-npm run migrate <command> <options>
+npx migrate <command> <options>
 ```
 
 ## Creating a migration
@@ -12,7 +12,7 @@ npm run migrate <command> <options>
 You can simply create a new migration (e.g. `my-new-migration`) by running
 
 ```bash
-npm run migrate <options> create my-new-migration
+npx migrate <options> create my-new-migration
 ```
 
 where `<options>` must at a MINIMUM contain the database url (using the `-d`/`--uri` option).
@@ -25,7 +25,7 @@ This shows you the migrations with their current states.
 *up* means the migration has run and won't be running again
 
 ```bash
-npm run migrate list <options>
+npx migrate list <options>
 ```
 
 ## Running a migration (migrate up)
@@ -45,7 +45,7 @@ This means the first 3 migrations have run. You need to run the next 2 to be all
 simply run
 
 ```bash
-npm run migrate up add_default_regional_settings <options>
+npx migrate up add_default_regional_settings <options>
 ```
 
 To migrate *up TO (and including)*  `1463603842010-add_default_regional_settings.ts`
@@ -67,7 +67,7 @@ What if you want to undo the previous step?
 Simply run
 
 ```bash
-npm run migrate down add_processed_credit_cards <options>
+npx migrate down add_processed_credit_cards <options>
 ```
 
 and you'll migrate *down TO (and including)* `1463003345598-add_processed_credit_cards.ts`
@@ -103,7 +103,7 @@ Once imported, the default state is down so you'll have to `migrate up add_unico
 **IF ON THE OTHER HAND** you don't want this migration, simply run
 
 ```bash
-npm run migrate prune
+npx migrate prune
 ```
 
 and you'll be prompted to remove it from the **FILE SYSTEM**.
