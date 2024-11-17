@@ -181,7 +181,7 @@ Explore and lear commands, rest of the tutorial will be using npm
 npx migrate -h
 pnpm migrate -h
 yarn migrate -h
-bun run migrate -h
+bun migrate -h
 ```
 
 ```text
@@ -241,7 +241,7 @@ Here's an example of a migration created using:
 npx migrate create first-migration
 pnpm migrate create first-migration
 yarn migrate create first-migration
-bun run migrate create first-migration
+bun migrate create first-migration
 ```
 
 Executing the above command will create a migration file in the `./migrations` folder with the following content:
