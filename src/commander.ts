@@ -10,8 +10,7 @@ import type IOptions from './interfaces/IOptions'
 
 import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CONFIG_PATH, DEFAULT_MIGRATE_MIGRATIONS_PATH, DEFAULT_MIGRATE_MONGO_COLLECTION } from './defaults'
 
-import { register } from '@swc-node/register/register'
-register()
+import '@swc-node/register'
 
 /**
  * Get the options from the config file
@@ -103,7 +102,7 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
  * @class Migrate
  */
 export class Migrate {
-  private program: Command
+  private readonly program: Command
   private migrator!: Migrator
 
   constructor() {
@@ -137,7 +136,8 @@ export class Migrate {
       .description('create a new migration file')
       .action(async (migrationName: string) => {
         await this.migrator.create(migrationName)
-        console.log(`Migration created. Run ${chalk.cyan(`migrate up ${migrationName}`)} to apply the migration`)
+        const migrateUp = chalk.cyan(`migrate up ${migrationName}`)
+        console.log(`Migration created. Run ${migrateUp} to apply the migration`)
       })
 
     this.program

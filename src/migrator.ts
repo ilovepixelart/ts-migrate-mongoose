@@ -16,8 +16,7 @@ import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CLI, DEFAULT_MIGRATE_MIGRATIO
 
 import defaultTemplate from './template'
 
-import { register } from '@swc-node/register/register'
-register()
+import '@swc-node/register'
 
 export * as IOptions from './interfaces/IOptions'
 
@@ -29,12 +28,12 @@ class Migrator {
   readonly migrationModel: Model<IMigration>
   readonly connection: Connection
 
-  private uri?: string
-  private template: string
-  private migrationsPath: string
-  private collection: string
-  private autosync: boolean
-  private cli: boolean
+  private readonly uri?: string
+  private readonly template: string
+  private readonly migrationsPath: string
+  private readonly collection: string
+  private readonly autosync: boolean
+  private readonly cli: boolean
 
   private constructor(options: IMigratorOptions) {
     // https://mongoosejs.com/docs/guide.
@@ -279,7 +278,9 @@ class Migrator {
    * @private
    */
   private logMigrationStatus(direction: 'down' | 'up', filename: string): void {
-    this.log(`${chalk[direction === 'up' ? 'green' : 'red'](`${direction}:`)} ${filename} `)
+    const color = direction === 'up' ? 'green' : 'red'
+    const directionWithColor = chalk[color](`${direction}:`)
+    this.log(`${directionWithColor} ${filename} `)
   }
 
   /**
