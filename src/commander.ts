@@ -102,7 +102,7 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
  * @class Migrate
  */
 export class Migrate {
-  private program: Command
+  private readonly program: Command
   private migrator!: Migrator
 
   constructor() {
@@ -136,7 +136,8 @@ export class Migrate {
       .description('create a new migration file')
       .action(async (migrationName: string) => {
         await this.migrator.create(migrationName)
-        console.log(`Migration created. Run ${chalk.cyan(`migrate up ${migrationName}`)} to apply the migration`)
+        const migrateUp = chalk.cyan(`migrate up ${migrationName}`)
+        console.log(`Migration created. Run ${migrateUp} to apply the migration`)
       })
 
     this.program
