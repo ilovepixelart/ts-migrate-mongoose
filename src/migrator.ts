@@ -279,7 +279,8 @@ class Migrator {
    */
   private logMigrationStatus(direction: 'down' | 'up', filename: string): void {
     const color = direction === 'up' ? 'green' : 'red'
-    this.log(`${chalk[color](`${direction}:`)} ${filename} `)
+    const directionWithColor = chalk[color](`${direction}:`)
+    this.log(`${directionWithColor} ${filename} `)
   }
 
   /**
