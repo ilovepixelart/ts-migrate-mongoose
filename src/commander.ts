@@ -10,8 +10,7 @@ import type IOptions from './interfaces/IOptions'
 
 import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CONFIG_PATH, DEFAULT_MIGRATE_MIGRATIONS_PATH, DEFAULT_MIGRATE_MONGO_COLLECTION } from './defaults'
 
-import { register } from '@swc-node/register/register'
-register()
+import '@swc-node/register'
 
 /**
  * Get the options from the config file

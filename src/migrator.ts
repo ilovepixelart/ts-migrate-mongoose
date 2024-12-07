@@ -16,8 +16,7 @@ import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CLI, DEFAULT_MIGRATE_MIGRATIO
 
 import defaultTemplate from './template'
 
-import { register } from '@swc-node/register/register'
-register()
+import '@swc-node/register'
 
 export * as IOptions from './interfaces/IOptions'
 
