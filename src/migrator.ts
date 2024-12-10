@@ -356,24 +356,24 @@ class Migrator {
    * @private
    * @async
    */
-private async getMigrations(): Promise<{
-  migrationsInDb: IMigration[]
-  migrationsInFs: IFileMigration[]
-}> {
-  const files = fs.readdirSync(this.migrationsPath)
-  const migrationsInDb = await this.migrationModel.find({}).exec()
+  private async getMigrations(): Promise<{
+    migrationsInDb: IMigration[]
+    migrationsInFs: IFileMigration[]
+  }> {
+    const files = fs.readdirSync(this.migrationsPath)
+    const migrationsInDb = await this.migrationModel.find({}).exec()
 
-  const fileExtensions = ['.ts', '.js'];
+    const fileExtensions = ['.ts', '.js']
 
-  const migrationsInFs = files
-    .filter((filename) => /^\d{13,}-/.test(filename) && fileExtensions.some(ext => filename.endsWith(ext)))
-    .map((filename) => {
-      const [time] = filename.split('-')
-      const timestamp = Number.parseInt(time ?? '')
-      const createdAt = new Date(timestamp)
-      const existsInDatabase = migrationsInDb.some((migration) => filename === migration.filename)
-      return { createdAt, filename, existsInDatabase }
-    })
+    const migrationsInFs = files
+      .filter((filename) => /^\d{13,}-/.test(filename) && fileExtensions.some((ext) => filename.endsWith(ext)))
+      .map((filename) => {
+        const [time] = filename.split('-')
+        const timestamp = Number.parseInt(time ?? '')
+        const createdAt = new Date(timestamp)
+        const existsInDatabase = migrationsInDb.some((migration) => filename === migration.filename)
+        return { createdAt, filename, existsInDatabase }
+      })
 
     return { migrationsInDb, migrationsInFs }
   }
