@@ -1,3 +1,18 @@
+<a id="v3.8.7"></a>
+# [v3.8.7](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.8.7) - 2024-12-12
+
+- Merge pull request [#366](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/366) from d-tsaruk/feature/migration-filetype  042ac8c
+- Biome fix  4e8ffe1
+- Fixed getMigration filetype for built versions  06e3663
+- Update changelog for v3.8.6  e84f5e9
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.6...v3.8.7
+
+[Changes][v3.8.7]
+
+
 <a id="v3.8.6"></a>
 # [v3.8.6](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.8.6) - 2024-12-07
 
@@ -1499,6 +1514,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.8.7]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.6...v3.8.7
 [v3.8.6]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.5...v3.8.6
 [v3.8.5]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.4...v3.8.5
 [v3.8.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.3...v3.8.4
