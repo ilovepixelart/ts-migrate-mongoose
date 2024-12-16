@@ -84,7 +84,7 @@
     "commander": "12.1.0",
     "dotenv": "16.4.7",
     "inquirer": "8.2.6",
-    "mongoose": "8.8.4"
+    "mongoose": "8.9.0"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
