@@ -81,7 +81,7 @@
   "dependencies": {
     "@swc-node/register": "1.10.9",
     "chalk": "4.1.2",
-    "commander": "12.1.0",
+    "commander": "13.0.0",
     "dotenv": "16.4.7",
     "inquirer": "8.2.6",
     "mongoose": "8.9.3"
