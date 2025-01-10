@@ -4,11 +4,13 @@
     "lib": ["ES2021"],
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "outDir": "build",
+    "outDir": "dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true
   }
 }

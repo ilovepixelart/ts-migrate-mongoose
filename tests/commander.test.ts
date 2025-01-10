@@ -77,7 +77,7 @@ describe('commander', () => {
   })
 
   it('should getConfig .js options', async () => {
-    const config = await getConfig('./examples/config-file-usage/build/migrate.js')
+    const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
     expect(config).toEqual({
       uri: 'mongodb://localhost/my-db',
       migrationsPath: 'migrations',
@@ -118,7 +118,7 @@ describe('commander', () => {
     const connectSpy = jest.spyOn(Migrator, 'connect').mockImplementation()
     // Only providing configPath, connectOptions should come from config file
     await getMigrator({
-      configPath: './examples/config-file-usage/build/migrate.js',
+      configPath: './examples/config-file-usage/dist/migrate.js',
     })
 
     expect(connectSpy).toHaveBeenCalledWith({

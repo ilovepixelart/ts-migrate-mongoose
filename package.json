@@ -70,6 +70,7 @@
     "migrate": "node -r @swc-node/register src/bin.ts",
     "biome": "npx @biomejs/biome check",
     "biome:fix": "npx @biomejs/biome check --write .",
+    "pretest": "cd examples/config-file-usage/src && npx tsc",
     "test": "jest --config jest.config.ts --detectOpenHandles --coverage",
     "test:open": "npm run test && open-cli coverage/lcov-report/index.html",
     "clean": "rm -rf ./dist",
