@@ -85,6 +85,7 @@
     "commander": "13.0.0",
     "dotenv": "16.4.7",
     "inquirer": "8.2.6",
+    "micromatch": "^4.0.8",
     "mongoose": "8.9.3"
   },
   "devDependencies": {
