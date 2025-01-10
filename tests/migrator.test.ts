@@ -457,4 +457,20 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     await migrator.close()
     expect(migrator.connection.readyState).toBe(0)
   })
+
+  it('should get migration .ts files', async () => {
+    const config = await getConfig('./examples/config-file-usage/src/migrate.ts')
+    const migrator = await Migrator.connect({ ...config, uri, migrationsPath: './examples/config-file-usage/src/migrations' })
+
+    const { migrationsInFs } = await migrator.getMigrations()
+    expect(migrationsInFs).toHaveLength(1)
+  })
+
+  it('should get migration .js files', async () => {
+    const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
+    const migrator = await Migrator.connect({ ...config, uri, migrationsPath: './examples/config-file-usage/dist/migrations' })
+
+    const { migrationsInFs } = await migrator.getMigrations()
+    expect(migrationsInFs).toHaveLength(1)
+  })
 })

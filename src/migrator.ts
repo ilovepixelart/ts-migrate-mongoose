@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import chalk from 'chalk'
 import inquirer from 'inquirer'
+import mm from 'micromatch'
 import mongoose from 'mongoose'
 
 import { getMigrationModel } from './model'
@@ -363,10 +364,9 @@ class Migrator {
     const files = fs.readdirSync(this.migrationsPath)
     const migrationsInDb = await this.migrationModel.find({}).exec()
 
-    const fileExtensions = ['.ts', '.js']
-
+    const fileExtensionGlobs = ['*.js', '**/!(*.d).ts']
     const migrationsInFs = files
-      .filter((filename) => /^\d{13,}-/.test(filename) && fileExtensions.some((ext) => filename.endsWith(ext)))
+      .filter((filename) => /^\d{13,}-/.test(filename) && mm.isMatch(filename, fileExtensionGlobs))
       .map((filename) => {
         const [time] = filename.split('-')
         const timestamp = Number.parseInt(time ?? '')
