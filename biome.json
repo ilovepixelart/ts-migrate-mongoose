@@ -3,7 +3,7 @@
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["node_modules", "dist", "coverage", "migrations"]
+    "ignore": ["node_modules", "dist", "coverage", "migrations", "build"]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2 },
   "organizeImports": { "enabled": true },
