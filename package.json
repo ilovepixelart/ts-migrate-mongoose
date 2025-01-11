@@ -84,7 +84,7 @@
     "commander": "13.0.0",
     "dotenv": "16.4.7",
     "inquirer": "8.2.6",
-    "mongoose": "8.9.3"
+    "mongoose": "8.9.4"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
@@ -96,6 +96,6 @@
     "jest": "29.7.0",
     "merge": "2.1.1",
     "open-cli": "8.0.0",
-    "typescript": "5.7.2"
+    "typescript": "5.7.3"
   }
 }
