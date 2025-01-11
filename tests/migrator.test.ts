@@ -11,7 +11,7 @@ import { getConfig } from '../src/commander'
 
 describe('Tests for Migrator class - Programmatic approach', () => {
   const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
-  const migrateUri = process.env.MIGRATE_MONGO_URI
+  const migrateUri = process.env.MIGRATE_MONGO_URI // use in getModels in examples/config-file-usage/src/models/index.ts
   let connection: Connection
 
   beforeEach(async () => {
