@@ -422,7 +422,7 @@ class Migrator {
       }
 
       try {
-        await migrationFunction()
+        await migrationFunction(this.connection)
 
         this.logMigrationStatus(direction, migration.filename)
 

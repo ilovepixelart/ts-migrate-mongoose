@@ -1,8 +1,8 @@
-import getModels from '../models'
+import { UserSchema } from '../models/User'
+import { Connection } from 'mongoose'
 
-export async function up() {
-  const { User } = await getModels()
-  // Write migration here
+export async function up(connection: Connection) {
+  const User = connection.model('User', UserSchema)
   await User.create([
     {
       firstName: 'John',
@@ -15,8 +15,7 @@ export async function up() {
   ])
 }
 
-export async function down() {
-  const { User } = await getModels()
-  // Write migration here
+export async function down(connection: Connection) {
+  const User = connection.model('User', UserSchema)
   await User.deleteMany({ firstName: { $in: ['Jane', 'John'] } }).exec()
 }

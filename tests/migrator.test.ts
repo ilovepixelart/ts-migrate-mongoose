@@ -11,18 +11,15 @@ import { getConfig } from '../src/commander'
 
 describe('Tests for Migrator class - Programmatic approach', () => {
   const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
-  const migrateUri = process.env.MIGRATE_MONGO_URI // use in getModels in examples/config-file-usage/src/models/index.ts
   let connection: Connection
 
   beforeEach(async () => {
-    process.env.MIGRATE_MONGO_URI = uri
     clearDirectory('migrations')
     connection = await mongoose.createConnection(uri).asPromise()
     await connection.collection('migrations').deleteMany({})
   })
 
   afterEach(async () => {
-    process.env.MIGRATE_MONGO_URI = migrateUri
     if (connection.readyState !== 0) {
       await connection.close()
     }
@@ -468,6 +465,10 @@ describe('Tests for Migrator class - Programmatic approach', () => {
 
     const { migrationsInFs } = await migrator.getMigrations()
     expect(migrationsInFs).toHaveLength(1)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should get migration .js files', async () => {
@@ -476,6 +477,10 @@ describe('Tests for Migrator class - Programmatic approach', () => {
 
     const { migrationsInFs } = await migrator.getMigrations()
     expect(migrationsInFs).toHaveLength(1)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should same filename when migrate using .ts files', async () => {
@@ -491,6 +496,10 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     const migrations = await migrator.sync()
 
     expect(migrationsInFs[0].filename).toBe(migrations[0].filename)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should same filename when migrate using .js files', async () => {
@@ -506,6 +515,10 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     const migrations = await migrator.sync()
 
     expect(migrationsInFs[0].filename).toBe(migrations[0].filename)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should run up/down when migrate using .ts files', async () => {
@@ -558,6 +571,10 @@ describe('Tests for Migrator class - Programmatic approach', () => {
       .find({ firstName: { $in: ['Jane', 'John'] } })
       .toArray()
     expect(deletedUsers).toHaveLength(0)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 
   it('should run up/down when migrate using .js files', async () => {
@@ -610,5 +627,9 @@ describe('Tests for Migrator class - Programmatic approach', () => {
       .find({ firstName: { $in: ['Jane', 'John'] } })
       .toArray()
     expect(deletedUsers).toHaveLength(0)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
   })
 })
