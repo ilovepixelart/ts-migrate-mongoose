@@ -1,3 +1,47 @@
+<a id="v3.8.8"></a>
+# [v3.8.8](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.8.8) - 2025-01-12
+
+- Lock  c32512e
+- Merge pull request [#376](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/376) from lelinhtinh/main  d02add8
+- Update README  adb085c
+- Remove unnecessary settings  ac05bc6
+- Import type of Connection  cd07c53
+- Use connection from Migrator  d7534fe
+- Merge pull request [#377](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/377) from ilovepixelart/feature/update-action-and-dep  ce0e478
+- Action and Dep  01d5dc8
+- Add comment for MIGRATE_MONGO_URI use case  b83510f
+- Remove micromatch, use regex instead  74d065e
+- Remove micromatch  5da84ef
+- Add @types/micromatch  7b82d1a
+- Remove file extension to allow running migrate from js  5300d7b
+- Exclude .d.ts file  ac23baa
+- Add micromatch  126d414
+- Use &[#39](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/39);dist&[#39](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/39); instead of &[#39](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/39);build&[#39](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/39);  d7c3b69
+- Build config-file-usage with tsc  00b4c3c
+- Move files in config-file-usage to src  df2e0ec
+- Update vscode settings  c2c2c20
+- Fix typo  e1fdcce
+- Merge pull request [#372](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/372) from ilovepixelart/dependabot/npm_and_yarn/commander-13.0.0  1dffea6
+- Bump commander from 12.1.0 to 13.0.0  401f242
+- Merge pull request [#371](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/371) from ilovepixelart/dependabot/npm_and_yarn/mongoose-8.9.3  0d4f646
+- Merge pull request [#373](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/373) from ilovepixelart/dependabot/npm_and_yarn/types/node-22.10.5  2bb4f52
+- Bump @types/node from 22.10.2 to 22.10.5  fa3c57f
+- Bump mongoose from 8.9.2 to 8.9.3  0e8039d
+- Merge pull request [#370](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/370) from ilovepixelart/dependabot/npm_and_yarn/mongoose-8.9.2  da79984
+- Bump mongoose from 8.9.0 to 8.9.2  4a2a06d
+- Merge pull request [#367](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/367) from ilovepixelart/dependabot/npm_and_yarn/types/node-22.10.2  c553750
+- Merge pull request [#368](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/368) from ilovepixelart/dependabot/npm_and_yarn/mongoose-8.9.0  f38e83e
+- Bump mongoose from 8.8.4 to 8.9.0  2eff57e
+- Bump @types/node from 22.10.1 to 22.10.2  38a5c08
+- Update changelog for v3.8.7  c6e4325
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.7...v3.8.8
+
+[Changes][v3.8.8]
+
+
 <a id="v3.8.7"></a>
 # [v3.8.7](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.8.7) - 2024-12-12
 
@@ -1514,6 +1558,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.8.8]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.7...v3.8.8
 [v3.8.7]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.6...v3.8.7
 [v3.8.6]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.5...v3.8.6
 [v3.8.5]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.4...v3.8.5
