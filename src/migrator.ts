@@ -337,7 +337,7 @@ class Migrator {
       const filePath = path.join(this.migrationsPath, filename)
       const timestampSeparatorIndex = filename.indexOf('-')
       const timestamp = filename.slice(0, timestampSeparatorIndex)
-      const migrationName = filename.slice(timestampSeparatorIndex + 1, filename.lastIndexOf('.'))
+      const migrationName = filename.slice(timestampSeparatorIndex + 1)
 
       this.log(`Adding migration ${filePath} into database from file system. State is ${chalk.red('down')}`)
       return this.migrationModel.create({
@@ -363,16 +363,16 @@ class Migrator {
     const files = fs.readdirSync(this.migrationsPath)
     const migrationsInDb = await this.migrationModel.find({}).exec()
 
-    const fileExtensions = ['.ts', '.js']
-
+    const fileExtensionMatch = /(\.js|(?<!\.d)\.ts)$/ // allow .js and .ts files, but not .d.ts files
     const migrationsInFs = files
-      .filter((filename) => /^\d{13,}-/.test(filename) && fileExtensions.some((ext) => filename.endsWith(ext)))
+      .filter((filename) => /^\d{13,}-/.test(filename) && fileExtensionMatch.test(filename))
       .map((filename) => {
+        const filenameWithoutExtension = filename.replace(/\.(js|ts)$/, '')
         const [time] = filename.split('-')
         const timestamp = Number.parseInt(time ?? '')
         const createdAt = new Date(timestamp)
-        const existsInDatabase = migrationsInDb.some((migration) => filename === migration.filename)
-        return { createdAt, filename, existsInDatabase }
+        const existsInDatabase = migrationsInDb.some((migration) => filenameWithoutExtension === migration.filename)
+        return { createdAt, filename: filenameWithoutExtension, existsInDatabase }
       })
 
     return { migrationsInDb, migrationsInFs }
@@ -422,7 +422,7 @@ class Migrator {
       }
 
       try {
-        await migrationFunction()
+        await migrationFunction(this.connection)
 
         this.logMigrationStatus(direction, migration.filename)
 

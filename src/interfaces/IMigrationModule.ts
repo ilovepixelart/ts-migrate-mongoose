@@ -1,6 +1,8 @@
+import type { Connection } from 'mongoose'
+
 interface IMigrationModule {
-  up?: () => Promise<void>
-  down?: () => Promise<void>
+  up?: (connection: Connection) => Promise<void>
+  down?: (connection: Connection) => Promise<void>
 }
 
 export default IMigrationModule

@@ -24,5 +24,6 @@
     "sonarsource",
     "swcrc",
     "virtuals"
-  ]
+  ],
+  "editor.defaultFormatter": "biomejs.biome"
 }

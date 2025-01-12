@@ -160,7 +160,7 @@ export interface IExample {
   type: Date
 }
 
-export let ExampleSchema = new Schema({
+export const ExampleSchema = new Schema({
   name: {
     type: Schema.Types.String,
     required: true,
@@ -174,40 +174,34 @@ export let ExampleSchema = new Schema({
 export default models.User ?? model<IExample>('Example', ExampleSchema)`
 
     const testTemplate = defaultTemplate
+      .replace('// Import your schemas here', `import { ExampleSchema } from './Example.ts'`)
       .replace(
-        '// Import your models here',
-        `
-import Example from './Example.ts'
-      `,
+        '// Write migration here',
+        `const Example = connection.model('Example', ExampleSchema)
+await Example.insertMany([
+  {
+    name: 'test',
+    type: 1,
+  },
+  {
+    name: 'test2',
+    type: 1,
+  },
+  {
+    name: 'test3',
+    type: 2,
+  },
+  {
+    name: 'test4',
+    type: 2,
+  }
+])`,
       )
       .replace(
         '// Write migration here',
-        `
-  await Example.insertMany([
-    {
-      name: 'test',
-      type: 1,
-    },
-    {
-      name: 'test2',
-      type: 1,
-    },
-    {
-      name: 'test3',
-      type: 2,
-    },
-    {
-      name: 'test4',
-      type: 2,
-    }
-  ])`,
-      )
-      .replace(
-        '// Write migration here',
-        `
-  await Example.deleteMany({ propertyIsNotDefinedInSchema: 'some-value' })
-  await Example.deleteMany({ type: 1 })
-  `,
+        `const Example = connection.model('Example', ExampleSchema)
+await Example.deleteMany({ propertyIsNotDefinedInSchema: 'some-value' })
+await Example.deleteMany({ type: 1 })`,
       )
 
     console.log(testModel)

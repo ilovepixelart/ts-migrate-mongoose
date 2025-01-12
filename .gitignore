@@ -17,10 +17,10 @@ npm-debug.log
 # Folder for migrations
 /migrations
 
-# Migration configurators
+# Migration config
 /migrate.ts
 /migrate.js
 /migrate.json
 
-# Inmemmory mongo config
+# In memory mongo config
 /globalConfig.json

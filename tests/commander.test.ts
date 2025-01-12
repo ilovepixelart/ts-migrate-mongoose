@@ -56,7 +56,7 @@ describe('commander', () => {
   })
 
   it('should getConfig .json options', async () => {
-    const config = await getConfig('./examples/config-file-usage/migrate.json')
+    const config = await getConfig('./examples/config-file-usage/src/migrate.json')
     expect(config).toEqual({
       uri: 'mongodb://localhost/my-db',
       migrationsPath: 'migrations',
@@ -64,7 +64,7 @@ describe('commander', () => {
   })
 
   it('should getConfig .ts options', async () => {
-    const config = await getConfig('./examples/config-file-usage/migrate.ts')
+    const config = await getConfig('./examples/config-file-usage/src/migrate.ts')
     expect(config).toEqual({
       uri: 'mongodb://localhost/my-db',
       migrationsPath: 'migrations',
@@ -77,16 +77,48 @@ describe('commander', () => {
   })
 
   it('should getConfig .js options', async () => {
-    const config = await getConfig('./examples/config-file-usage/migrate.js')
-    expect(config).toEqual({})
+    const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
+    expect(config).toEqual({
+      uri: 'mongodb://localhost/my-db',
+      migrationsPath: 'migrations',
+      connectOptions: {
+        autoIndex: true,
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      },
+    })
   })
 
-  it('should check if connectionOptions are passed', async () => {
+  it('should check if connectionOptions .ts are passed', async () => {
     // Mocking connect method to avoid connecting to database
     const connectSpy = jest.spyOn(Migrator, 'connect').mockImplementation()
     // Only providing configPath, connectOptions should come from config file
     await getMigrator({
-      configPath: './examples/config-file-usage/migrate.ts',
+      configPath: './examples/config-file-usage/src/migrate.ts',
+    })
+
+    expect(connectSpy).toHaveBeenCalledWith({
+      migrationsPath: 'migrations',
+      uri: 'mongodb://localhost/my-db',
+      autosync: false,
+      cli: true,
+      collection: 'migrations',
+      connectOptions: {
+        autoIndex: true,
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      },
+    })
+
+    connectSpy.mockRestore()
+  })
+
+  it('should check if connectionOptions .js are passed', async () => {
+    // Mocking connect method to avoid connecting to database
+    const connectSpy = jest.spyOn(Migrator, 'connect').mockImplementation()
+    // Only providing configPath, connectOptions should come from config file
+    await getMigrator({
+      configPath: './examples/config-file-usage/dist/migrate.js',
     })
 
     expect(connectSpy).toHaveBeenCalledWith({

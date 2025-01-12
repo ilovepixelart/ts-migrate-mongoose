@@ -7,6 +7,7 @@ import defaultTemplate from '../src/template'
 import { clearDirectory } from './utils/filesystem'
 
 import type { Connection } from 'mongoose'
+import { getConfig } from '../src/commander'
 
 describe('Tests for Migrator class - Programmatic approach', () => {
   const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
@@ -315,25 +316,25 @@ describe('Tests for Migrator class - Programmatic approach', () => {
 
     expect(migrationsInDb[0].name).toBe('test-migration1')
     expect(migrationsInDb[0].state).toBe('up')
-    expect(migrationsInDb[0].filename).toMatch(/^\d{13,}-test-migration1.ts/)
+    expect(migrationsInDb[0].filename).toMatch(/^\d{13,}-test-migration1/)
 
     expect(migrationsInDb[1].name).toBe('test-migration2')
     expect(migrationsInDb[1].state).toBe('down')
-    expect(migrationsInDb[1].filename).toMatch(/^\d{13,}-test-migration2.ts/)
+    expect(migrationsInDb[1].filename).toMatch(/^\d{13,}-test-migration2/)
 
     expect(migrationsInDb[2].name).toBe('test-migration3')
     expect(migrationsInDb[2].state).toBe('down')
-    expect(migrationsInDb[2].filename).toMatch(/^\d{13,}-test-migration3.ts/)
+    expect(migrationsInDb[2].filename).toMatch(/^\d{13,}-test-migration3/)
 
     expect(migrationsInFs).toHaveLength(3)
 
-    expect(migrationsInFs[0].filename).toMatch(/^\d{13,}-test-migration1.ts/)
+    expect(migrationsInFs[0].filename).toMatch(/^\d{13,}-test-migration1/)
     expect(migrationsInFs[0].existsInDatabase).toBe(true)
 
-    expect(migrationsInFs[1].filename).toMatch(/^\d{13,}-test-migration2.ts/)
+    expect(migrationsInFs[1].filename).toMatch(/^\d{13,}-test-migration2/)
     expect(migrationsInFs[1].existsInDatabase).toBe(true)
 
-    expect(migrationsInFs[2].filename).toMatch(/^\d{13,}-test-migration3.ts/)
+    expect(migrationsInFs[2].filename).toMatch(/^\d{13,}-test-migration3/)
     expect(migrationsInFs[2].existsInDatabase).toBe(true)
 
     expect(migrationsInDb[0].filename).toBe(migrationsInFs[0].filename)
@@ -348,8 +349,8 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   it('should create migrator instance with wrong template path and fallback to default template', async () => {
     const migrator = await Migrator.connect({ uri, templatePath: 'wrong/path' })
     const migration = await migrator.create('test-migration')
-    expect(migration.filename).toMatch(/^\d{13,}-test-migration.ts/)
-    const migrationContent = fs.readFileSync(`migrations/${migration.filename}`, 'utf8')
+    expect(migration.filename).toMatch(/^\d{13,}-test-migration/)
+    const migrationContent = fs.readFileSync(`migrations/${migration.filename}.ts`, 'utf8')
     expect(defaultTemplate).toMatch(migrationContent)
 
     expect(migrator.connection.readyState).toBe(1)
@@ -360,7 +361,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   it('should run up and run down', async () => {
     const migrator = await Migrator.connect({ uri })
     const migration = await migrator.create('test-migration')
-    expect(migration.filename).toMatch(/^\d{13,}-test-migration.ts/)
+    expect(migration.filename).toMatch(/^\d{13,}-test-migration/)
     await migrator.run('up', 'test-migration')
     await migrator.run('down')
 
@@ -374,9 +375,9 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     const migration1 = await migrator.create('test-migration1')
     const migration2 = await migrator.create('test-migration2')
     const migration3 = await migrator.create('test-migration3')
-    expect(migration1.filename).toMatch(/^\d{13,}-test-migration1.ts/)
-    expect(migration2.filename).toMatch(/^\d{13,}-test-migration2.ts/)
-    expect(migration3.filename).toMatch(/^\d{13,}-test-migration3.ts/)
+    expect(migration1.filename).toMatch(/^\d{13,}-test-migration1/)
+    expect(migration2.filename).toMatch(/^\d{13,}-test-migration2/)
+    expect(migration3.filename).toMatch(/^\d{13,}-test-migration3/)
     await migrator.run('up')
     const migrationListUp = await migrator.list()
     expect(migrationListUp).toEqual(
@@ -452,6 +453,180 @@ describe('Tests for Migrator class - Programmatic approach', () => {
         }),
       ]),
     )
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('should get migration .ts files', async () => {
+    const config = await getConfig('./examples/config-file-usage/src/migrate.ts')
+    const migrator = await Migrator.connect({ ...config, uri, migrationsPath: './examples/config-file-usage/src/migrations' })
+
+    const { migrationsInFs } = await migrator.getMigrations()
+    expect(migrationsInFs).toHaveLength(1)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('should get migration .js files', async () => {
+    const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
+    const migrator = await Migrator.connect({ ...config, uri, migrationsPath: './examples/config-file-usage/dist/migrations' })
+
+    const { migrationsInFs } = await migrator.getMigrations()
+    expect(migrationsInFs).toHaveLength(1)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('should same filename when migrate using .ts files', async () => {
+    const config = await getConfig('./examples/config-file-usage/src/migrate.ts')
+    const migrator = await Migrator.connect({
+      ...config,
+      uri,
+      migrationsPath: './examples/config-file-usage/src/migrations',
+      autosync: true,
+    })
+
+    const { migrationsInFs } = await migrator.getMigrations()
+    const migrations = await migrator.sync()
+
+    expect(migrationsInFs[0].filename).toBe(migrations[0].filename)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('should same filename when migrate using .js files', async () => {
+    const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
+    const migrator = await Migrator.connect({
+      ...config,
+      uri,
+      migrationsPath: './examples/config-file-usage/dist/migrations',
+      autosync: true,
+    })
+
+    const { migrationsInFs } = await migrator.getMigrations()
+    const migrations = await migrator.sync()
+
+    expect(migrationsInFs[0].filename).toBe(migrations[0].filename)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('should run up/down when migrate using .ts files', async () => {
+    const config = await getConfig('./examples/config-file-usage/src/migrate.ts')
+    const migrator = await Migrator.connect({
+      ...config,
+      uri,
+      migrationsPath: './examples/config-file-usage/src/migrations',
+      autosync: true,
+    })
+
+    await migrator.run('up')
+    const migrationListUp = await migrator.list()
+    expect(migrationListUp).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'first-migration-demo',
+          state: 'up',
+        }),
+      ]),
+    )
+
+    const newUser = await migrator.connection.collection('users').find({}).toArray()
+    expect(newUser).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          firstName: 'John',
+          lastName: 'Doe',
+        }),
+        expect.objectContaining({
+          firstName: 'Jane',
+          lastName: 'Doe',
+        }),
+      ]),
+    )
+
+    await migrator.run('down', undefined, true)
+    const migrationListDown = await migrator.list()
+    expect(migrationListDown).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'first-migration-demo',
+          state: 'down',
+        }),
+      ]),
+    )
+
+    const deletedUsers = await migrator.connection
+      .collection('users')
+      .find({ firstName: { $in: ['Jane', 'John'] } })
+      .toArray()
+    expect(deletedUsers).toHaveLength(0)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('should run up/down when migrate using .js files', async () => {
+    const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
+    const migrator = await Migrator.connect({
+      ...config,
+      uri,
+      migrationsPath: './examples/config-file-usage/dist/migrations',
+      autosync: true,
+    })
+
+    await migrator.run('up')
+    const migrationListUp = await migrator.list()
+    expect(migrationListUp).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'first-migration-demo',
+          state: 'up',
+        }),
+      ]),
+    )
+
+    const newUser = await migrator.connection.collection('users').find({}).toArray()
+    expect(newUser).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          firstName: 'John',
+          lastName: 'Doe',
+        }),
+        expect.objectContaining({
+          firstName: 'Jane',
+          lastName: 'Doe',
+        }),
+      ]),
+    )
+
+    await migrator.run('down', undefined, true)
+    const migrationListDown = await migrator.list()
+    expect(migrationListDown).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'first-migration-demo',
+          state: 'down',
+        }),
+      ]),
+    )
+
+    const deletedUsers = await migrator.connection
+      .collection('users')
+      .find({ firstName: { $in: ['Jane', 'John'] } })
+      .toArray()
+    expect(deletedUsers).toHaveLength(0)
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
