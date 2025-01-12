@@ -1,7 +1,9 @@
 {
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
+  "editor.defaultFormatter": "biomejs.biome",
   "editor.codeActionsOnSave": {
+    "quickfix.biome": "explicit",
     "source.organizeImports.biome": "explicit"
   },
   "cSpell.words": [
@@ -19,11 +21,9 @@
     "parens",
     "singleline",
     "sonarcloud",
-    "sonarjs",
     "sonarqube",
     "sonarsource",
     "swcrc",
     "virtuals"
   ],
-  "editor.defaultFormatter": "biomejs.biome"
 }
