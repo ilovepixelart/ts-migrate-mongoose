@@ -151,7 +151,7 @@ MIGRATE_CONFIG_PATH=./migrate
 MIGRATE_MIGRATIONS_PATH=./migrations
 MIGRATE_TEMPLATE_PATH=./migrations/template.ts
 MIGRATE_AUTOSYNC=false
-# or 
+# or
 migrateMode=development
 migrateMongoUri=mongodb://localhost/my-db
 migrateMongoCollection=migrations
@@ -247,13 +247,14 @@ Executing the above command will create a migration file in the `./migrations` f
 - 1673525773572-first-migration.ts
 
 ```typescript
-// Import your models here
+// Import your schemas here
+import type { Connection } from 'mongoose'
 
-export async function up (): Promise<void> {
+export async function up (connection: Connection): Promise<void> {
   // Write migration here
 }
 
-export async function down (): Promise<void> {
+export async function down (connection: Connection): Promise<void> {
   // Write migration here
 }
 ```
@@ -274,7 +275,7 @@ interface IUser {
   lastName?: string
 }
 
-const UserSchema = new Schema<IUser>({
+export const UserSchema = new Schema<IUser>({
   firstName: {
     type: String,
     required: true
@@ -287,55 +288,28 @@ const UserSchema = new Schema<IUser>({
 export default models.User ?? model<IUser>('User', UserSchema)
 ```
 
-- models/index.ts - ensures that all models are exported and you establish a connection to the database
-
-```typescript
-import mongoose from 'mongoose'
-import mongooseOptions from '../options/mongoose'
-
-import User from './User'
-
-const getModels = async () => {
-  // In case you using mongoose 6
-  // https://mongoosejs.com/docs/guide.html#strictQuery
-  mongoose.set('strictQuery', false)
-
-  // Ensure connection is open so we can run migrations
-  await mongoose.connect(process.env.MIGRATE_MONGO_URI ?? 'mongodb://localhost/my-db', mongooseOptions)
-
-  // Return models that will be used in migration methods
-  return {
-    mongoose,
-    User
-  }
-}
-
-export default getModels
-```
-
 - 1673525773572-first-migration-demo.ts - your migration file
 
 ```typescript
-import getModels from '../models'
+import { UserSchema } from '../models/User'
+import type { Connection } from 'mongoose'
 
-export async function up () {
-  const { User } = await getModels()
-  // Write migration here
+export async function up(connection: Connection) {
+  const User = connection.model('User', UserSchema)
   await User.create([
     {
       firstName: 'John',
-      lastName: 'Doe'
+      lastName: 'Doe',
     },
     {
       firstName: 'Jane',
-      lastName: 'Doe'
-    }
+      lastName: 'Doe',
+    },
   ])
 }
 
-export async function down () {
-  const { User } = await getModels()
-  // Write migration here
+export async function down(connection: Connection) {
+  const User = connection.model('User', UserSchema)
   await User.deleteMany({ firstName: { $in: ['Jane', 'John'] } }).exec()
 }
 ```
