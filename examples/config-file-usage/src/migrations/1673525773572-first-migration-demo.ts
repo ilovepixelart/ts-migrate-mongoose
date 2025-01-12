@@ -1,17 +1,17 @@
 import { UserSchema } from '../models/User'
-import { Connection } from 'mongoose'
+import type { Connection } from 'mongoose'
 
 export async function up(connection: Connection) {
   const User = connection.model('User', UserSchema)
   await User.create([
     {
       firstName: 'John',
-      lastName: 'Doe',
+      lastName: 'Doe'
     },
     {
       firstName: 'Jane',
-      lastName: 'Doe',
-    },
+      lastName: 'Doe'
+    }
   ])
 }
 

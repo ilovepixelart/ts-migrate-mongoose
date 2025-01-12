@@ -1,5 +1,5 @@
 export default `// Import your schemas here
-import { Connection } from 'mongoose'
+import type { Connection } from 'mongoose'
 
 export async function up (connection: Connection): Promise<void> {
   // Write migration here
