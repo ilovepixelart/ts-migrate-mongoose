@@ -84,7 +84,7 @@
     "chalk": "4.1.2",
     "commander": "13.0.0",
     "dotenv": "16.4.7",
-    "inquirer": "8.2.6",
+    "inquirer": "12.3.1",
     "mongoose": "8.9.4"
   },
   "devDependencies": {
