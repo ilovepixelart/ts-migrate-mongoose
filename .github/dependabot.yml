@@ -11,8 +11,13 @@ updates:
       interval: "weekly"
     ignore:
       - dependency-name: "inquirer"
-        versions: ["9.x", "10.x", "11.x"]
       - dependency-name: "@types/inquirer"
-        versions: ["9.x"]
       - dependency-name: "chalk"
-        versions: ["5.x"]
+    commit-message:
+      prefix: "Update dependencies"
+    pull-request-branch-name:
+      separator: "-"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
