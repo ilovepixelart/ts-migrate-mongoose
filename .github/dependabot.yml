@@ -9,6 +9,7 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+      day: "monday"
     ignore:
       - dependency-name: "inquirer"
       - dependency-name: "@types/inquirer"
