@@ -1,3 +1,21 @@
+<a id="v3.8.9"></a>
+# [v3.8.9](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.8.9) - 2025-01-19
+
+- Merge pull request [#381](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/381) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-be91d74932  4a2aabd
+- Update dependencies: Bump the all-dependencies group with 2 updates  ef7f249
+- Dependabot  926848e
+- Settings  cdddbaf
+- Dependabot  d3a627e
+- Update settings  cca61e0
+- Update changelog for v3.8.8  e19fa14
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.8...v3.8.9
+
+[Changes][v3.8.9]
+
+
 <a id="v3.8.8"></a>
 # [v3.8.8](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.8.8) - 2025-01-12
 
@@ -1558,6 +1576,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v3.8.9]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.8...v3.8.9
 [v3.8.8]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.7...v3.8.8
 [v3.8.7]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.6...v3.8.7
 [v3.8.6]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.5...v3.8.6
