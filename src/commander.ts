@@ -2,15 +2,14 @@ import path from 'node:path'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { config } from 'dotenv'
-import Migrator from './migrator'
 
-import type IConfigModule from './interfaces/IConfigModule'
-import type IMigratorOptions from './interfaces/IMigratorOptions'
-import type IOptions from './interfaces/IOptions'
+import Migrator from './migrator'
 
 import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CONFIG_PATH, DEFAULT_MIGRATE_MIGRATIONS_PATH, DEFAULT_MIGRATE_MONGO_COLLECTION } from './defaults'
 
 import '@swc-node/register'
+
+import type { IConfigModule, IMigratorOptions, IOptions } from './types'
 
 /**
  * Get the options from the config file
@@ -57,20 +56,14 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
   const configPath = options.configPath ?? process.env.MIGRATE_CONFIG_PATH ?? process.env.migrateConfigPath ?? DEFAULT_MIGRATE_CONFIG_PATH
 
   const fileOptions = await getConfig(configPath)
-
+  // No default value always required
   const uri = options.uri ?? process.env.MIGRATE_MONGO_URI ?? process.env.migrateMongoUri ?? fileOptions.uri
-  // no default value always required
-
   // Connect options can be only provided in the config file for cli usage
   const connectOptions = fileOptions.connectOptions
-
   const collection = options.collection ?? process.env.MIGRATE_MONGO_COLLECTION ?? process.env.migrateMongoCollection ?? fileOptions.collection ?? DEFAULT_MIGRATE_MONGO_COLLECTION
-
   const migrationsPath = options.migrationsPath ?? process.env.MIGRATE_MIGRATIONS_PATH ?? process.env.migrateMigrationsPath ?? fileOptions.migrationsPath ?? DEFAULT_MIGRATE_MIGRATIONS_PATH
-
   const templatePath = options.templatePath ?? process.env.MIGRATE_TEMPLATE_PATH ?? process.env.migrateTemplatePath ?? fileOptions.templatePath
   // can be empty then we use default template
-
   const autosync = Boolean(options.autosync ?? process.env.MIGRATE_AUTOSYNC ?? process.env.migrateAutosync ?? fileOptions.autosync ?? DEFAULT_MIGRATE_AUTOSYNC)
 
   if (!uri) {

@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose'
 
 import type { Connection, Model } from 'mongoose'
-import type IMigration from './interfaces/IMigration'
+import type { IMigration } from './types'
 
 /**
  * This function returns a mongoose model for the migration collection.

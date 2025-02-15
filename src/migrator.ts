@@ -5,20 +5,16 @@ import inquirer from 'inquirer'
 import mongoose from 'mongoose'
 
 import { getMigrationModel } from './model'
-
-import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
-import type IFileMigration from './interfaces/IFileMigration'
-import type IMigration from './interfaces/IMigration'
-import type IMigrationModule from './interfaces/IMigrationModule'
-import type IMigratorOptions from './interfaces/IMigratorOptions'
+import defaultTemplate from './template'
 
 import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CLI, DEFAULT_MIGRATE_MIGRATIONS_PATH, DEFAULT_MIGRATE_MONGO_COLLECTION } from './defaults'
 
-import defaultTemplate from './template'
-
 import '@swc-node/register'
 
-export * as IOptions from './interfaces/IOptions'
+import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
+import type { IFileMigration, IMigration, IMigrationModule, IMigratorOptions } from './types'
+
+export * from './types'
 
 /**
  * This class is responsible for running migrations
