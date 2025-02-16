@@ -1,7 +1,5 @@
-const { recursive } = require('merge')
-const mongo = require('@shelf/jest-mongodb/jest-preset')
-
-const config = recursive(mongo, {
+module.exports = {
+  preset: '@shelf/jest-mongodb',
   roots: ['<rootDir>/src/', '<rootDir>/tests/'],
   clearMocks: true,
   collectCoverage: true,
@@ -9,10 +7,15 @@ const config = recursive(mongo, {
   coverageDirectory: 'coverage',
   testMatch: ['<rootDir>/tests/**/*.test.ts'],
   transform: {
-    '^.+\\.tsx?$': '@swc-node/jest',
+    "^.+.tsx?$": ["ts-jest",{
+      moduleDetection: "force",
+      module: "Preserve",
+      resolveJsonModule: true,
+      allowJs: true,
+      esModuleInterop: true,
+      isolatedModules: true,
+    }],
   },
   testPathIgnorePatterns: ['node_modules'],
   watchPathIgnorePatterns: ['globalConfig'],
-})
-
-module.exports = config
+}

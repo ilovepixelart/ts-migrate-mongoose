@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import mongoose from 'mongoose'
 
-import { getConfig, getMigrator, migrate } from '../src/commander'
+import { getConfig, getMigrator, Migrate } from '../src/commander'
 import Migrator from '../src/migrator'
 import { clearDirectory } from './utils/filesystem'
 
@@ -14,6 +14,7 @@ const setProcessArgv = (...args: string[]) => {
 describe('commander', () => {
   const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
   let connection: Connection
+  const migrate = new Migrate()
 
   beforeEach(async () => {
     clearDirectory('migrations')
@@ -70,8 +71,6 @@ describe('commander', () => {
       migrationsPath: 'migrations',
       connectOptions: {
         autoIndex: true,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
       },
     })
   })
@@ -83,8 +82,6 @@ describe('commander', () => {
       migrationsPath: 'migrations',
       connectOptions: {
         autoIndex: true,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
       },
     })
   })
@@ -105,8 +102,6 @@ describe('commander', () => {
       collection: 'migrations',
       connectOptions: {
         autoIndex: true,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
       },
     })
 
@@ -129,8 +124,6 @@ describe('commander', () => {
       collection: 'migrations',
       connectOptions: {
         autoIndex: true,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
       },
     })
 

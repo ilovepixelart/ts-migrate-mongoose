@@ -60,37 +60,6 @@ bun add -g ts-migrate-mongoose
 ## Migrations and alias imports
 
 If you are using alias imports in your project, you can use `tsconfig.json` paths to resolve them for you project.
-\
-But `ts-migrate-mongoose` uses `swc` to compile the migrations internally, so you also need to add `.swcrc` file to project root
-\
-Starting from `"@swc/core": "1.3.74"`, you need to use `target` or `env` not both, in example bellow we use `"target": "es2021"`
-
-```json
-{
-  "jsc": {
-    "parser": {
-      "syntax": "typescript",
-      "decorators": true,
-      "dynamicImport": true
-    },
-    "target": "es2021",
-    "keepClassNames": true,
-    "loose": true,
-    // Important part bellow, copy it from your tsconfig.json
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
-    // Important part above, copy it from your tsconfig.json
-  },
-  "module": {
-    "type": "commonjs"
-  },
-  "sourceMaps": true
-}
-```
-
-Now your migrations will be compiled with `swc` and you can use alias imports in your migrations.
 
 ## Configuration
 

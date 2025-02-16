@@ -7,8 +7,6 @@ import Migrator from './migrator'
 
 import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CONFIG_PATH, DEFAULT_MIGRATE_MIGRATIONS_PATH, DEFAULT_MIGRATE_MONGO_COLLECTION } from './defaults'
 
-import '@swc-node/register'
-
 import type { ConfigModule, ConfigOptions, MigratorOptions } from './types'
 
 /**
@@ -191,9 +189,8 @@ export class Migrate {
         return this.finish(exit)
       })
       .catch((error: unknown) => {
+        console.error(error)
         return this.finish(exit, error instanceof Error ? error : new Error('An unknown error occurred'))
       })
   }
 }
-
-export const migrate = new Migrate()

@@ -1,4 +1,5 @@
 #! /usr/bin/env node
-import { migrate } from './commander'
+import { Migrate } from './commander'
 
-export default migrate.run()
+const migrate = new Migrate()
+migrate.run()

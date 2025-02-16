@@ -9,8 +9,6 @@ import defaultTemplate from './template'
 
 import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CLI, DEFAULT_MIGRATE_MIGRATIONS_PATH, DEFAULT_MIGRATE_MONGO_COLLECTION } from './defaults'
 
-import '@swc-node/register'
-
 import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
 import type { Migration, MigrationFile, MigrationModule, MigratorOptions } from './types'
 
