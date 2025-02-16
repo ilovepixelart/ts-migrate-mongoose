@@ -7,14 +7,17 @@ module.exports = {
   coverageDirectory: 'coverage',
   testMatch: ['<rootDir>/tests/**/*.test.ts'],
   transform: {
-    "^.+.tsx?$": ["ts-jest",{
-      moduleDetection: "force",
-      module: "Preserve",
-      resolveJsonModule: true,
-      allowJs: true,
-      esModuleInterop: true,
-      isolatedModules: true,
-    }],
+    '^.+.tsx?$': [
+      'ts-jest',
+      {
+        moduleDetection: 'force',
+        module: 'Preserve',
+        resolveJsonModule: true,
+        allowJs: true,
+        esModuleInterop: true,
+        isolatedModules: true,
+      },
+    ],
   },
   testPathIgnorePatterns: ['node_modules'],
   watchPathIgnorePatterns: ['globalConfig'],

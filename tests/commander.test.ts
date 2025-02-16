@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import mongoose from 'mongoose'
 
-import { getConfig, getMigrator, Migrate } from '../src/commander'
+import { Migrate, getConfig, getMigrator } from '../src/commander'
 import Migrator from '../src/migrator'
 import { clearDirectory } from './utils/filesystem'
 
