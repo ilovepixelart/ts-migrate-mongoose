@@ -68,6 +68,7 @@
     "migrate": "tsx src/bin.ts",
     "biome": "npx @biomejs/biome check",
     "biome:fix": "npx @biomejs/biome check --write .",
+    "pretest": "cd examples/config-file-usage/src && npx tsc",
     "test": "vitest run --coverage",
     "test:open": "vitest run --coverage && open-cli coverage/lcov-report/index.html",
     "clean": "rm -rf ./dist",
