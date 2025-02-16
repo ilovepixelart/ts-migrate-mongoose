@@ -12,7 +12,7 @@ import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CLI, DEFAULT_MIGRATE_MIGRATIO
 import '@swc-node/register'
 
 import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
-import type { MigratorOptions, Migration, MigrationFile, MigrationModule } from './types'
+import type { Migration, MigrationFile, MigrationModule, MigratorOptions } from './types'
 
 export * from './types'
 
