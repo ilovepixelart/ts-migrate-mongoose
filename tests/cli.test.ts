@@ -142,15 +142,15 @@ describe('cli', async () => {
 
   it('should throw "The \'up\' export is not defined in"', async () => {
     await connection.collection('migrations').deleteMany({})
-    fs.appendFileSync('migrations/template.ts', 'export function down () { /* do nothing */ }')
-    await exec('create', 'test-migration', '-t', 'migrations/template.ts', ...commandLineOptions)
+    fs.appendFileSync(`${migrationsPath}/template.ts`, 'export function down () { /* do nothing */ }')
+    await exec('create', 'test-migration', '-t', `${migrationsPath}/template.ts`, ...commandLineOptions)
     await expect(exec('up', ...commandLineOptions)).rejects.toThrow(/The 'up' export is not defined in/)
   })
 
   it('should throw "Failed to run migration"', async () => {
     await connection.collection('migrations').deleteMany({})
-    fs.appendFileSync('migrations/template.ts', 'export function up () { throw new Error("Failed to run migration") }')
-    await exec('create', 'test-migration', '-t', 'migrations/template.ts', ...commandLineOptions)
+    fs.appendFileSync(`${migrationsPath}/template.ts`, 'export function up () { throw new Error("Failed to run migration") }')
+    await exec('create', 'test-migration', '-t', `${migrationsPath}/template.ts`, ...commandLineOptions)
     await expect(exec('up', ...commandLineOptions)).rejects.toThrow(/Failed to run migration/)
   })
 
