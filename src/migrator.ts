@@ -12,7 +12,7 @@ import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CLI, DEFAULT_MIGRATE_MIGRATIO
 import '@swc-node/register'
 
 import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
-import type { IFileMigration, IMigration, IMigrationModule, IMigratorOptions } from './types'
+import type { MigratorOptions, Migration, MigrationFile, MigrationModule } from './types'
 
 export * from './types'
 
@@ -21,7 +21,7 @@ export * from './types'
  * @class Migrator
  */
 class Migrator {
-  readonly migrationModel: Model<IMigration>
+  readonly migrationModel: Model<Migration>
   readonly connection: Connection
 
   private readonly uri?: string
@@ -31,7 +31,7 @@ class Migrator {
   private readonly autosync: boolean
   private readonly cli: boolean
 
-  private constructor(options: IMigratorOptions) {
+  private constructor(options: MigratorOptions) {
     // https://mongoosejs.com/docs/guide.
     mongoose.set('strictQuery', false)
 
@@ -62,7 +62,7 @@ class Migrator {
    * @static
    * @async
    */
-  static async connect(options: IMigratorOptions): Promise<Migrator> {
+  static async connect(options: MigratorOptions): Promise<Migrator> {
     const migrator = new Migrator(options)
     await migrator.connected()
     return migrator
@@ -86,11 +86,11 @@ class Migrator {
    *    { name: 'add-cows', filename: '149213223453_add-cows.ts', state: 'down' }
    *   ]
    */
-  async list(): Promise<HydratedDocument<IMigration>[]> {
+  async list(): Promise<HydratedDocument<Migration>[]> {
     await this.sync()
     const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
     if (!migrations.length) this.log(chalk.yellow('There are no migrations to list'))
-    return migrations.map((migration: HydratedDocument<IMigration>) => {
+    return migrations.map((migration: HydratedDocument<Migration>) => {
       this.logMigrationStatus(migration.state, migration.filename)
       return migration
     })
@@ -101,7 +101,7 @@ class Migrator {
    * @param migrationName Name of the migration
    * @returns A promise that resolves to the created migration
    */
-  async create(migrationName: string): Promise<HydratedDocument<IMigration>> {
+  async create(migrationName: string): Promise<HydratedDocument<Migration>> {
     const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     if (existingMigration) {
       const message = chalk.red(`There is already a migration with name '${migrationName}' in the database`)
@@ -126,10 +126,10 @@ class Migrator {
    * @param migrationName Name of the migration to run to
    * @returns A promise that resolves to the ran migrations
    */
-  async run(direction: 'up' | 'down', migrationName?: string, single = false): Promise<HydratedDocument<IMigration>[]> {
+  async run(direction: 'up' | 'down', migrationName?: string, single = false): Promise<HydratedDocument<Migration>[]> {
     await this.sync()
 
-    let untilMigration: HydratedDocument<IMigration> | null = null
+    let untilMigration: HydratedDocument<Migration> | null = null
     const state = direction === 'up' ? 'down' : 'up'
     const key = direction === 'up' ? '$lte' : '$gte'
     const sort = direction === 'up' ? 1 : -1
@@ -151,7 +151,7 @@ class Migrator {
       return this.noPendingMigrations()
     }
 
-    const query: FilterQuery<IMigration> = {
+    const query: FilterQuery<Migration> = {
       createdAt: { [key]: untilMigration.createdAt },
       state,
     }
@@ -184,7 +184,7 @@ class Migrator {
    * This functionality is opposite of prune()
    * @returns A promise that resolves to the imported migrations
    */
-  async sync(): Promise<HydratedDocument<IMigration>[]> {
+  async sync(): Promise<HydratedDocument<Migration>[]> {
     try {
       const { migrationsInFs } = await this.getMigrations()
 
@@ -211,9 +211,9 @@ class Migrator {
    * This functionality is opposite of sync().
    * @returns A promise that resolves to the deleted migrations
    */
-  async prune(): Promise<HydratedDocument<IMigration>[]> {
+  async prune(): Promise<HydratedDocument<Migration>[]> {
     try {
-      let migrationsDeleted: HydratedDocument<IMigration>[] = []
+      let migrationsDeleted: HydratedDocument<Migration>[] = []
 
       const { migrationsInDb, migrationsInFs } = await this.getMigrations()
 
@@ -243,7 +243,7 @@ class Migrator {
    * @private
    * @async
    */
-  private async noPendingMigrations(): Promise<HydratedDocument<IMigration>[]> {
+  private async noPendingMigrations(): Promise<HydratedDocument<Migration>[]> {
     this.log(chalk.yellow('There are no pending migrations'))
     if (this.cli) {
       this.log('Current migrations status: ')
@@ -328,7 +328,7 @@ class Migrator {
    * @private
    * @async
    */
-  private async syncMigrations(migrationsInFs: string[]): Promise<HydratedDocument<IMigration>[]> {
+  private async syncMigrations(migrationsInFs: string[]): Promise<HydratedDocument<Migration>[]> {
     const promises = migrationsInFs.map(async (filename) => {
       const filePath = path.join(this.migrationsPath, filename)
       const timestampSeparatorIndex = filename.indexOf('-')
@@ -353,8 +353,8 @@ class Migrator {
    * @async
    */
   private async getMigrations(): Promise<{
-    migrationsInDb: IMigration[]
-    migrationsInFs: IFileMigration[]
+    migrationsInDb: Migration[]
+    migrationsInFs: MigrationFile[]
   }> {
     const files = fs.readdirSync(this.migrationsPath)
     const migrationsInDb = await this.migrationModel.find({}).exec()
@@ -405,11 +405,11 @@ class Migrator {
    * @private
    * @async
    */
-  private async runMigrations(migrationsToRun: HydratedDocument<IMigration>[], direction: 'down' | 'up'): Promise<HydratedDocument<IMigration>[]> {
-    const migrationsRan: HydratedDocument<IMigration>[] = []
+  private async runMigrations(migrationsToRun: HydratedDocument<Migration>[], direction: 'down' | 'up'): Promise<HydratedDocument<Migration>[]> {
+    const migrationsRan: HydratedDocument<Migration>[] = []
     for await (const migration of migrationsToRun) {
       const migrationFilePath = path.join(this.migrationsPath, migration.filename)
-      const migrationFunctions = (await import(migrationFilePath)) as IMigrationModule
+      const migrationFunctions = (await import(migrationFilePath)) as MigrationModule
 
       const migrationFunction = migrationFunctions[direction]
       if (!migrationFunction) {

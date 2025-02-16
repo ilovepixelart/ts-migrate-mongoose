@@ -66,6 +66,7 @@
   "module": "dist/esm/migrator.js",
   "types": "dist/cjs/types/migrator.d.ts",
   "scripts": {
+    "prepare": "simple-git-hooks",
     "prepublish": "bash/chmod.sh",
     "migrate": "node -r @swc-node/register src/bin.ts",
     "biome": "npx @biomejs/biome check",
@@ -74,6 +75,7 @@
     "test": "jest --config jest.config.ts --detectOpenHandles --coverage",
     "test:open": "npm run test && open-cli coverage/lcov-report/index.html",
     "clean": "rm -rf ./dist",
+    "type:check": "tsc --noEmit",
     "build": "npm run clean && npm run build:cjs && npm run build:esm && bash/chmod.sh",
     "build:cjs": "tsc -p config/tsconfig.cjs.json",
     "build:esm": "tsc -p config/tsconfig.esm.json && bash/esm.sh",
@@ -97,6 +99,11 @@
     "jest": "29.7.0",
     "merge": "2.1.1",
     "open-cli": "8.0.0",
+    "simple-git-hooks": "2.11.1",
     "typescript": "5.7.3"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npm run type:check",
+    "pre-push": "npm run biome:fix"
   }
 }

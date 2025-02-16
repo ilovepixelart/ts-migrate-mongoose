@@ -1,16 +1,12 @@
-import type { Connection, ConnectOptions } from "mongoose"
+import type { ConnectOptions, Connection } from "mongoose"
 
-export interface IConfigModule {
-  default?: IOptions
-}
-
-export interface IFileMigration {
+export interface MigrationFile {
   filename: string
   createdAt: Date
   existsInDatabase: boolean
 }
 
-export interface IMigration {
+export interface Migration {
   name: string
   filename: string
   state: 'down' | 'up'
@@ -18,28 +14,30 @@ export interface IMigration {
   updatedAt: Date
 }
 
-export interface IMigrationModule {
+export interface ConfigModule {
+  default?: ConfigOptions
+}
+
+export interface MigrationModule {
   up?: (connection: Connection) => Promise<void>
   down?: (connection: Connection) => Promise<void>
 }
 
-export interface IMigratorOptions {
-  uri: string
+interface CommonOptions {
   connectOptions?: ConnectOptions
   migrationsPath?: string
   templatePath?: string
   collection?: string
   autosync?: boolean
-  cli?: boolean
 }
 
-export interface IOptions {
+export interface ConfigOptions extends CommonOptions {
   uri?: string
-  connectOptions?: ConnectOptions
-  migrationsPath?: string
-  templatePath?: string
-  collection?: string
-  autosync?: boolean
   configPath?: string
   mode?: string
+}
+
+export interface MigratorOptions extends CommonOptions {
+  uri: string
+  cli?: boolean
 }

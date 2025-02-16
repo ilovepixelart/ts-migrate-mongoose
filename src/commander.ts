@@ -9,31 +9,31 @@ import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CONFIG_PATH, DEFAULT_MIGRATE_
 
 import '@swc-node/register'
 
-import type { IConfigModule, IMigratorOptions, IOptions } from './types'
+import type { ConfigModule, ConfigOptions, MigratorOptions } from './types'
 
 /**
  * Get the options from the config file
  * @param configPath The options passed to the CLI
  * @returns The options from the config file
  */
-export const getConfig = async (configPath: string): Promise<IOptions> => {
-  let fileOptions: IOptions = {}
+export const getConfig = async (configPath: string): Promise<ConfigOptions> => {
+  let configOptions: ConfigOptions = {}
   if (configPath) {
     try {
       const file = path.resolve(configPath)
-      const module = (await import(file)) as IConfigModule
+      const module = (await import(file)) as ConfigModule
       // In case of ESM module, default is nested twice
-      const esm = module.default as IConfigModule | undefined
+      const esm = module.default as ConfigModule | undefined
       if (esm?.default) {
-        fileOptions = esm.default ?? {}
+        configOptions = esm.default ?? {}
       } else {
-        fileOptions = module.default ?? {}
+        configOptions = module.default ?? {}
       }
     } catch {
-      fileOptions = {}
+      configOptions = {}
     }
   }
-  return fileOptions
+  return configOptions
 }
 
 /**
@@ -42,7 +42,7 @@ export const getConfig = async (configPath: string): Promise<IOptions> => {
  * @returns The migrator instance
  * @throws Error if the uri is not provided in the config file, environment or CLI
  */
-export const getMigrator = async (options: IOptions): Promise<Migrator> => {
+export const getMigrator = async (options: ConfigOptions): Promise<Migrator> => {
   config({ path: '.env' })
   config({ path: '.env.local', override: true })
 
@@ -71,7 +71,7 @@ export const getMigrator = async (options: IOptions): Promise<Migrator> => {
     throw new Error(message)
   }
 
-  const migratorOptions: IMigratorOptions = {
+  const migratorOptions: MigratorOptions = {
     migrationsPath,
     uri,
     collection,
@@ -112,8 +112,8 @@ export class Migrate {
       .option('-t, --template-path <path>', 'template file to use when creating a migration')
       .option('--mode <string>', 'environment mode to use .env.[mode] file')
       .hook('preAction', async () => {
-        const opts = this.program.opts<IOptions>()
-        this.migrator = await getMigrator(opts)
+        const options = this.program.opts<ConfigOptions>()
+        this.migrator = await getMigrator(options)
       })
 
     this.program
@@ -163,7 +163,7 @@ export class Migrate {
    * @returns The parsed console arguments
    * @throws Error if error is provided
    */
-  public async finish(exit: boolean, error?: Error): Promise<IOptions> {
+  public async finish(exit: boolean, error?: Error): Promise<ConfigOptions> {
     if (this.migrator instanceof Migrator) {
       await this.migrator.close()
     }
@@ -176,7 +176,7 @@ export class Migrate {
 
     if (exit) process.exit(0)
 
-    return this.program.opts<IOptions>()
+    return this.program.opts<ConfigOptions>()
   }
 
   /**
@@ -184,7 +184,7 @@ export class Migrate {
    * @param exit Whether to exit the process after running the command, defaults to true
    * @returns The parsed options or void if exit is true
    */
-  public async run(exit = true): Promise<IOptions> {
+  public async run(exit = true): Promise<ConfigOptions> {
     return this.program
       .parseAsync(process.argv)
       .then(() => {
