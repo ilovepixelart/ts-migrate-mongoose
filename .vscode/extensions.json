@@ -4,7 +4,7 @@
     "mikestead.dotenv",
     "biomejs.biome",
     "eamodio.gitlens",
-    "firsttris.vscode-jest-runner",
+    "vitest.explorer",
     "DavidAnson.vscode-markdownlint"
   ]
 }

@@ -1,56 +1,63 @@
-import chalk from 'chalk'
-import mongoose from 'mongoose'
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { Migrate, getConfig, getMigrator } from '../src/commander'
-import Migrator from '../src/migrator'
-import { clearDirectory } from './utils/filesystem'
+import chalk from 'chalk'
 
 import type { Connection } from 'mongoose'
+import mongoose from 'mongoose'
+import { Migrate, getConfig, getMigrator } from '../src/commander'
+import Migrator from '../src/migrator'
+import { create } from './mongo/server'
+import { clearDirectory, deleteDirectory } from './utils/filesystem'
 
 const setProcessArgv = (...args: string[]) => {
   process.argv = ['node', 'migrate', ...args]
 }
 
-describe('commander', () => {
-  const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
-  let connection: Connection
+describe('commander', async () => {
+  const migrationsPath = 'commander'
   const migrate = new Migrate()
+  const { uri, destroy } = await create('commander')
+  const commandLineOptions = ['-d', uri, '-m', migrationsPath]
+  let connection: Connection
 
-  beforeEach(async () => {
-    clearDirectory('migrations')
-    connection = await mongoose.createConnection(uri).asPromise()
-    await connection.collection('migrations').deleteMany({})
+  afterAll(async () => {
+    await deleteDirectory(migrationsPath)
+    await destroy()
   })
 
-  afterEach(async () => {
-    if (connection.readyState !== 0) {
-      await connection.close()
-    }
+  beforeEach(async () => {
+    await clearDirectory(migrationsPath)
+    connection = await mongoose.createConnection(uri).asPromise()
+    await connection.collection(migrationsPath).deleteMany({})
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it('should exit 0', async () => {
-    const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation((number) => {
       throw new Error(`process.exit: ${number}`)
     })
-    setProcessArgv('list', '-d', uri)
+    setProcessArgv('list', ...commandLineOptions)
     await expect(migrate.run(true)).rejects.toThrow()
     expect(mockExit).toHaveBeenCalledWith(0)
     mockExit.mockRestore()
   })
 
   it('should exit 1', async () => {
-    const mockExit = jest.spyOn(process, 'exit').mockImplementation((number) => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation((number) => {
       throw new Error(`process.exit: ${number}`)
     })
-    setProcessArgv('list', '-d', uri, '--invalid')
+    setProcessArgv('list', '--invalid', ...commandLineOptions)
     await expect(migrate.run(true)).rejects.toThrow()
     expect(mockExit).toHaveBeenCalledWith(1)
     mockExit.mockRestore()
   })
 
   it('should run list command', async () => {
-    const consoleSpy = jest.spyOn(console, 'log')
-    setProcessArgv('list', '-d', uri)
+    const consoleSpy = vi.spyOn(console, 'log')
+    setProcessArgv('list', ...commandLineOptions)
     await migrate.run(false)
     expect(consoleSpy).toHaveBeenCalledWith(chalk.cyan('Listing migrations'))
     expect(consoleSpy).toHaveBeenCalledWith(chalk.yellow('There are no migrations to list'))
@@ -88,7 +95,7 @@ describe('commander', () => {
 
   it('should check if connectionOptions .ts are passed', async () => {
     // Mocking connect method to avoid connecting to database
-    const connectSpy = jest.spyOn(Migrator, 'connect').mockImplementation()
+    const connectSpy = vi.spyOn(Migrator, 'connect').mockImplementation(vi.fn())
     // Only providing configPath, connectOptions should come from config file
     await getMigrator({
       configPath: './examples/config-file-usage/src/migrate.ts',
@@ -110,7 +117,7 @@ describe('commander', () => {
 
   it('should check if connectionOptions .js are passed', async () => {
     // Mocking connect method to avoid connecting to database
-    const connectSpy = jest.spyOn(Migrator, 'connect').mockImplementation()
+    const connectSpy = vi.spyOn(Migrator, 'connect').mockImplementation(vi.fn())
     // Only providing configPath, connectOptions should come from config file
     await getMigrator({
       configPath: './examples/config-file-usage/dist/migrate.js',

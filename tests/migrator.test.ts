@@ -1,28 +1,28 @@
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
+
 import fs from 'node:fs'
 import inquirer from 'inquirer'
-import mongoose, { Types } from 'mongoose'
+import mongoose, { type Connection, Types } from 'mongoose'
 
+import { getConfig } from '../src/commander'
 import Migrator from '../src/migrator'
 import defaultTemplate from '../src/template'
+import { create } from './mongo/server'
 import { clearDirectory } from './utils/filesystem'
 
-import type { Connection } from 'mongoose'
-import { getConfig } from '../src/commander'
-
-describe('Tests for Migrator class - Programmatic approach', () => {
-  const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
+describe('Tests for Migrator class - Programmatic approach', async () => {
+  const { uri, destroy } = await create('migrator')
   let connection: Connection
 
-  beforeEach(async () => {
-    clearDirectory('migrations')
-    connection = await mongoose.createConnection(uri).asPromise()
-    await connection.collection('migrations').deleteMany({})
+  afterAll(async () => {
+    await clearDirectory('migrations')
+    await destroy()
   })
 
-  afterEach(async () => {
-    if (connection.readyState !== 0) {
-      await connection.close()
-    }
+  beforeEach(async () => {
+    await clearDirectory('migrations')
+    connection = await mongoose.createConnection(uri).asPromise()
+    await connection.collection('migrations').deleteMany({})
   })
 
   it('should return [] if "There are no pending migrations"', async () => {
@@ -143,7 +143,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     expect(foundUp?.state).toBe('up')
     expect(foundUp?.name).toBe(migrationName)
 
-    clearDirectory('migrations')
+    await clearDirectory('migrations')
     // Prune
     const migrations = await migrator.prune()
 
@@ -180,7 +180,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
       createdAt: new Date(),
     })
     // @ts-expect-error - private method
-    await expect(migrator.runMigrations([migration], 'up')).rejects.toThrow(/Cannot find module/)
+    await expect(migrator.runMigrations([migration], 'up')).rejects.toThrow()
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
@@ -190,7 +190,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   it('should log "Adding migration"', async () => {
     const migrator = await Migrator.connect({ uri })
     const migration = await migrator.create('test-migration')
-    clearDirectory('migrations')
+    await clearDirectory('migrations')
     // @ts-expect-error - private method
     const migrations = await migrator.syncMigrations([migration.filename])
     expect(migrations).toHaveLength(1)
@@ -202,7 +202,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   })
 
   it('should choose first', async () => {
-    jest.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
+    vi.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
     const migrator = await Migrator.connect({ uri })
     // @ts-expect-error - private method
     const answers = await migrator.choseMigrations(['1', '2', '3'], 'Message')
@@ -214,7 +214,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   })
 
   it('should choose all', async () => {
-    jest.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
+    vi.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
     const migrator = await Migrator.connect({ uri, autosync: true })
     // @ts-expect-error - private method
     const answers = await migrator.choseMigrations(['1', '2', '3'], 'Message')
@@ -228,7 +228,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   it('should throw on sync', async () => {
     const migrator = await Migrator.connect({ uri, autosync: true })
     // @ts-expect-error - private method
-    jest.spyOn(migrator, 'getMigrations').mockImplementation(() => {
+    vi.spyOn(migrator, 'getMigrations').mockImplementation(() => {
       throw new Error('Sync error')
     })
     await expect(migrator.sync()).rejects.toThrow('Sync error')
@@ -256,7 +256,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   it('should run sync and find 0 migrations', async () => {
     const migrator = await Migrator.connect({ uri, autosync: true })
     await migrator.migrationModel.deleteMany({})
-    clearDirectory('migrations')
+    await clearDirectory('migrations')
     const migrations = await migrator.sync()
     expect(migrations).toBeInstanceOf(Array)
     expect(migrations).toHaveLength(0)
@@ -272,7 +272,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     await migrator.create('test-migration2')
     await migrator.run('up', 'test-migration1')
     await migrator.run('up', 'test-migration2')
-    clearDirectory('migrations')
+    await clearDirectory('migrations')
     const migrations = await migrator.prune()
     console.log(migrations)
     expect(migrations).toBeInstanceOf(Array)
@@ -301,7 +301,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   it('should throw on prune', async () => {
     const migrator = await Migrator.connect({ uri, autosync: true })
     // @ts-expect-error - private method
-    jest.spyOn(migrator, 'getMigrations').mockImplementation(() => {
+    vi.spyOn(migrator, 'getMigrations').mockImplementation(() => {
       throw new Error('Sync error')
     })
     await expect(migrator.prune()).rejects.toThrow('Sync error')

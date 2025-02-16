@@ -16,6 +16,8 @@ npm-debug.log
 
 # Folder for migrations
 /migrations
+/cli
+/commander
 
 # Migration config
 /migrate.ts
