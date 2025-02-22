@@ -5,7 +5,7 @@ import inquirer from 'inquirer'
 import mongoose, { type Connection, Types } from 'mongoose'
 
 import { getConfig } from '../src/commander'
-import Migrator from '../src/migrator'
+import Migrator from '../src/index'
 import defaultTemplate from '../src/template'
 import { create } from './mongo/server'
 import { clearDirectory } from './utils/filesystem'

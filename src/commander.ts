@@ -3,7 +3,7 @@ import chalk from 'chalk'
 import { Command } from 'commander'
 import { config } from 'dotenv'
 
-import Migrator from '.'
+import Migrator from './index'
 
 import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CONFIG_PATH, DEFAULT_MIGRATE_MIGRATIONS_PATH, DEFAULT_MIGRATE_MONGO_COLLECTION } from './defaults'
 
