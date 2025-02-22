@@ -120,14 +120,6 @@ MIGRATE_CONFIG_PATH=./migrate
 MIGRATE_MIGRATIONS_PATH=./migrations
 MIGRATE_TEMPLATE_PATH=./migrations/template.ts
 MIGRATE_AUTOSYNC=false
-# or
-migrateMode=development
-migrateMongoUri=mongodb://localhost/my-db
-migrateMongoCollection=migrations
-migrateConfigPath=./migrate
-migrateMigrationsPath=./migrations
-migrateTemplatePath=./migrations/template.ts
-migrateAutosync=false
 ```
 
 | Config file          | `.env` / export          | Default      | Required | Description                                      |

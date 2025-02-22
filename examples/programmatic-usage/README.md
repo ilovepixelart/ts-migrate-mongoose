@@ -3,7 +3,7 @@
 Check full example [here using express + typescript 5](https://github.com/ilovepixelart/ts-express-swc)
 
 ```typescript
-import Migrator from 'ts-migrate-mongoose'
+import { Migrator } from 'ts-migrate-mongoose'
 
 const migrator = await Migrator.connect({
   // This is the only required property you need to set
