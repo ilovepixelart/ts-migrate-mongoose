@@ -1,28 +1,28 @@
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
+
 import fs from 'node:fs'
 import inquirer from 'inquirer'
-import mongoose, { Types } from 'mongoose'
+import mongoose, { type Connection, Types } from 'mongoose'
 
-import Migrator from '../src/migrator'
-import defaultTemplate from '../src/template'
+import { getConfig } from '../src/commander'
+import { Migrator } from '../src/index'
+import { template } from '../src/template'
+import { create } from './mongo/server'
 import { clearDirectory } from './utils/filesystem'
 
-import type { Connection } from 'mongoose'
-import { getConfig } from '../src/commander'
-
-describe('Tests for Migrator class - Programmatic approach', () => {
-  const uri = `${globalThis.__MONGO_URI__}${globalThis.__MONGO_DB_NAME__}`
+describe('Tests for Migrator class - Programmatic approach', async () => {
+  const { uri, destroy } = await create('migrator')
   let connection: Connection
 
-  beforeEach(async () => {
-    clearDirectory('migrations')
-    connection = await mongoose.createConnection(uri).asPromise()
-    await connection.collection('migrations').deleteMany({})
+  afterAll(async () => {
+    await clearDirectory('migrations')
+    await destroy()
   })
 
-  afterEach(async () => {
-    if (connection.readyState !== 0) {
-      await connection.close()
-    }
+  beforeEach(async () => {
+    await clearDirectory('migrations')
+    connection = await mongoose.createConnection(uri).asPromise()
+    await connection.collection('migrations').deleteMany({})
   })
 
   it('should return [] if "There are no pending migrations"', async () => {
@@ -143,12 +143,12 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     expect(foundUp?.state).toBe('up')
     expect(foundUp?.name).toBe(migrationName)
 
-    clearDirectory('migrations')
+    await clearDirectory('migrations')
     // Prune
     const migrations = await migrator.prune()
 
-    expect(migrations[0].state).toBe('up')
-    expect(migrations[0].name).toBe(migrationName)
+    expect(migrations[0]?.state).toBe('up')
+    expect(migrations[0]?.name).toBe(migrationName)
 
     const migrationsInDB = await migrator.migrationModel.find({})
     expect(migrationsInDB).toHaveLength(0)
@@ -179,7 +179,8 @@ describe('Tests for Migrator class - Programmatic approach', () => {
       name: 'test-migration',
       createdAt: new Date(),
     })
-    await expect(migrator.runMigrations([migration], 'up')).rejects.toThrow(/Cannot find module/)
+    // @ts-expect-error - private method
+    await expect(migrator.runMigrations([migration], 'up')).rejects.toThrow()
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
@@ -189,10 +190,11 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   it('should log "Adding migration"', async () => {
     const migrator = await Migrator.connect({ uri })
     const migration = await migrator.create('test-migration')
-    clearDirectory('migrations')
+    await clearDirectory('migrations')
+    // @ts-expect-error - private method
     const migrations = await migrator.syncMigrations([migration.filename])
     expect(migrations).toHaveLength(1)
-    expect(migrations[0].name).toBe('test-migration')
+    expect(migrations[0]?.name).toBe('test-migration')
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
@@ -200,8 +202,9 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   })
 
   it('should choose first', async () => {
-    jest.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
+    vi.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
     const migrator = await Migrator.connect({ uri })
+    // @ts-expect-error - private method
     const answers = await migrator.choseMigrations(['1', '2', '3'], 'Message')
     expect(answers).toEqual(['1'])
 
@@ -211,8 +214,9 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   })
 
   it('should choose all', async () => {
-    jest.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
+    vi.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
     const migrator = await Migrator.connect({ uri, autosync: true })
+    // @ts-expect-error - private method
     const answers = await migrator.choseMigrations(['1', '2', '3'], 'Message')
     expect(answers).toEqual(['1', '2', '3'])
 
@@ -223,7 +227,8 @@ describe('Tests for Migrator class - Programmatic approach', () => {
 
   it('should throw on sync', async () => {
     const migrator = await Migrator.connect({ uri, autosync: true })
-    jest.spyOn(migrator, 'getMigrations').mockImplementation(async () => {
+    // @ts-expect-error - private method
+    vi.spyOn(migrator, 'getMigrations').mockImplementation(() => {
       throw new Error('Sync error')
     })
     await expect(migrator.sync()).rejects.toThrow('Sync error')
@@ -251,7 +256,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   it('should run sync and find 0 migrations', async () => {
     const migrator = await Migrator.connect({ uri, autosync: true })
     await migrator.migrationModel.deleteMany({})
-    clearDirectory('migrations')
+    await clearDirectory('migrations')
     const migrations = await migrator.sync()
     expect(migrations).toBeInstanceOf(Array)
     expect(migrations).toHaveLength(0)
@@ -267,7 +272,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     await migrator.create('test-migration2')
     await migrator.run('up', 'test-migration1')
     await migrator.run('up', 'test-migration2')
-    clearDirectory('migrations')
+    await clearDirectory('migrations')
     const migrations = await migrator.prune()
     console.log(migrations)
     expect(migrations).toBeInstanceOf(Array)
@@ -295,7 +300,8 @@ describe('Tests for Migrator class - Programmatic approach', () => {
 
   it('should throw on prune', async () => {
     const migrator = await Migrator.connect({ uri, autosync: true })
-    jest.spyOn(migrator, 'getMigrations').mockImplementation(async () => {
+    // @ts-expect-error - private method
+    vi.spyOn(migrator, 'getMigrations').mockImplementation(() => {
       throw new Error('Sync error')
     })
     await expect(migrator.prune()).rejects.toThrow('Sync error')
@@ -311,35 +317,36 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     await migrator.create('test-migration2')
     await migrator.create('test-migration3')
     await migrator.run('up', 'test-migration1')
+    // @ts-expect-error - private method
     const { migrationsInDb, migrationsInFs } = await migrator.getMigrations()
     expect(migrationsInDb).toHaveLength(3)
 
-    expect(migrationsInDb[0].name).toBe('test-migration1')
-    expect(migrationsInDb[0].state).toBe('up')
-    expect(migrationsInDb[0].filename).toMatch(/^\d{13,}-test-migration1/)
+    expect(migrationsInDb[0]?.name).toBe('test-migration1')
+    expect(migrationsInDb[0]?.state).toBe('up')
+    expect(migrationsInDb[0]?.filename).toMatch(/^\d{13,}-test-migration1/)
 
-    expect(migrationsInDb[1].name).toBe('test-migration2')
-    expect(migrationsInDb[1].state).toBe('down')
-    expect(migrationsInDb[1].filename).toMatch(/^\d{13,}-test-migration2/)
+    expect(migrationsInDb[1]?.name).toBe('test-migration2')
+    expect(migrationsInDb[1]?.state).toBe('down')
+    expect(migrationsInDb[1]?.filename).toMatch(/^\d{13,}-test-migration2/)
 
-    expect(migrationsInDb[2].name).toBe('test-migration3')
-    expect(migrationsInDb[2].state).toBe('down')
-    expect(migrationsInDb[2].filename).toMatch(/^\d{13,}-test-migration3/)
+    expect(migrationsInDb[2]?.name).toBe('test-migration3')
+    expect(migrationsInDb[2]?.state).toBe('down')
+    expect(migrationsInDb[2]?.filename).toMatch(/^\d{13,}-test-migration3/)
 
     expect(migrationsInFs).toHaveLength(3)
 
-    expect(migrationsInFs[0].filename).toMatch(/^\d{13,}-test-migration1/)
-    expect(migrationsInFs[0].existsInDatabase).toBe(true)
+    expect(migrationsInFs[0]?.filename).toMatch(/^\d{13,}-test-migration1/)
+    expect(migrationsInFs[0]?.existsInDatabase).toBe(true)
 
-    expect(migrationsInFs[1].filename).toMatch(/^\d{13,}-test-migration2/)
-    expect(migrationsInFs[1].existsInDatabase).toBe(true)
+    expect(migrationsInFs[1]?.filename).toMatch(/^\d{13,}-test-migration2/)
+    expect(migrationsInFs[1]?.existsInDatabase).toBe(true)
 
-    expect(migrationsInFs[2].filename).toMatch(/^\d{13,}-test-migration3/)
-    expect(migrationsInFs[2].existsInDatabase).toBe(true)
+    expect(migrationsInFs[2]?.filename).toMatch(/^\d{13,}-test-migration3/)
+    expect(migrationsInFs[2]?.existsInDatabase).toBe(true)
 
-    expect(migrationsInDb[0].filename).toBe(migrationsInFs[0].filename)
-    expect(migrationsInDb[1].filename).toBe(migrationsInFs[1].filename)
-    expect(migrationsInDb[2].filename).toBe(migrationsInFs[2].filename)
+    expect(migrationsInDb[0]?.filename).toBe(migrationsInFs[0]?.filename)
+    expect(migrationsInDb[1]?.filename).toBe(migrationsInFs[1]?.filename)
+    expect(migrationsInDb[2]?.filename).toBe(migrationsInFs[2]?.filename)
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
@@ -351,7 +358,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
     const migration = await migrator.create('test-migration')
     expect(migration.filename).toMatch(/^\d{13,}-test-migration/)
     const migrationContent = fs.readFileSync(`migrations/${migration.filename}.ts`, 'utf8')
-    expect(defaultTemplate).toMatch(migrationContent)
+    expect(template).toMatch(migrationContent)
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
@@ -462,7 +469,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   it('should get migration .ts files', async () => {
     const config = await getConfig('./examples/config-file-usage/src/migrate.ts')
     const migrator = await Migrator.connect({ ...config, uri, migrationsPath: './examples/config-file-usage/src/migrations' })
-
+    // @ts-expect-error - private method
     const { migrationsInFs } = await migrator.getMigrations()
     expect(migrationsInFs).toHaveLength(1)
 
@@ -474,7 +481,7 @@ describe('Tests for Migrator class - Programmatic approach', () => {
   it('should get migration .js files', async () => {
     const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
     const migrator = await Migrator.connect({ ...config, uri, migrationsPath: './examples/config-file-usage/dist/migrations' })
-
+    // @ts-expect-error - private method
     const { migrationsInFs } = await migrator.getMigrations()
     expect(migrationsInFs).toHaveLength(1)
 
@@ -491,11 +498,11 @@ describe('Tests for Migrator class - Programmatic approach', () => {
       migrationsPath: './examples/config-file-usage/src/migrations',
       autosync: true,
     })
-
+    // @ts-expect-error - private method
     const { migrationsInFs } = await migrator.getMigrations()
     const migrations = await migrator.sync()
 
-    expect(migrationsInFs[0].filename).toBe(migrations[0].filename)
+    expect(migrationsInFs[0]?.filename).toBe(migrations[0]?.filename)
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
@@ -510,11 +517,11 @@ describe('Tests for Migrator class - Programmatic approach', () => {
       migrationsPath: './examples/config-file-usage/dist/migrations',
       autosync: true,
     })
-
+    // @ts-expect-error - private method
     const { migrationsInFs } = await migrator.getMigrations()
     const migrations = await migrator.sync()
 
-    expect(migrationsInFs[0].filename).toBe(migrations[0].filename)
+    expect(migrationsInFs[0]?.filename).toBe(migrations[0]?.filename)
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()

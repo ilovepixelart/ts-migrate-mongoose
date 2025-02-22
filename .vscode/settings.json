@@ -1,4 +1,10 @@
 {
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "tsconfig.json": "tsconfig.*.json, env.d.ts",
+    "package.json": "package-lock.json, .gitignore",
+    "README.md": "CHANGELOG.md, CODE_OF_CONDUCT.md, CONTRIBUTING.md"
+  },
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.defaultFormatter": "biomejs.biome",
@@ -19,11 +25,12 @@
     "nosql",
     "npmignore",
     "parens",
+    "pkgroll",
     "singleline",
     "sonarcloud",
     "sonarqube",
     "sonarsource",
-    "swcrc",
-    "virtuals"
+    "virtuals",
+    "Webstorm"
   ]
 }

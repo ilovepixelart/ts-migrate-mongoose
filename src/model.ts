@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose'
 
 import type { Connection, Model } from 'mongoose'
-import type IMigration from './interfaces/IMigration'
+import type { Migration } from './types'
 
 /**
  * This function returns a mongoose model for the migration collection.
@@ -9,8 +9,8 @@ import type IMigration from './interfaces/IMigration'
  * @param connection The mongoose connection to use
  * @param collection The name of the collection to use
  */
-export const getMigrationModel = (connection: Connection, collection: string): Model<IMigration> => {
-  const MigrationSchema = new Schema<IMigration>(
+export const getMigrationModel = (connection: Connection, collection: string): Model<Migration> => {
+  const MigrationSchema = new Schema<Migration>(
     {
       name: String,
       state: {
@@ -37,5 +37,5 @@ export const getMigrationModel = (connection: Connection, collection: string): M
     return `${this.createdAt.getTime().toString()}-${this.name}`
   })
 
-  return connection.model<IMigration>(collection, MigrationSchema)
+  return connection.model<Migration>(collection, MigrationSchema)
 }

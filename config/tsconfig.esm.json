@@ -1,9 +1,0 @@
-{
-  "extends": "../tsconfig",
-  "compilerOptions": {
-    "rootDir": "../src",
-    "outDir": "../dist/esm",
-    "declarationDir": "../dist/esm/types",
-    "module": "ESNext"
-  }
-}
