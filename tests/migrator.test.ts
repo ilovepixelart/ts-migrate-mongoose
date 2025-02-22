@@ -5,8 +5,8 @@ import inquirer from 'inquirer'
 import mongoose, { type Connection, Types } from 'mongoose'
 
 import { getConfig } from '../src/commander'
-import Migrator from '../src/index'
-import defaultTemplate from '../src/template'
+import { Migrator } from '../src/index'
+import { template } from '../src/template'
 import { create } from './mongo/server'
 import { clearDirectory } from './utils/filesystem'
 
@@ -358,7 +358,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
     const migration = await migrator.create('test-migration')
     expect(migration.filename).toMatch(/^\d{13,}-test-migration/)
     const migrationContent = fs.readFileSync(`migrations/${migration.filename}.ts`, 'utf8')
-    expect(defaultTemplate).toMatch(migrationContent)
+    expect(template).toMatch(migrationContent)
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()

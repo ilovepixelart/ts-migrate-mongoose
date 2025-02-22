@@ -1,7 +1,9 @@
 {
+  "include": ["src", "env.d.ts"],
   "compilerOptions": {
     "target": "ES2021",
     "lib": ["ES2021"],
+    "types": ["node"],
     "module": "CommonJS",
     "moduleResolution": "Node",
     "outDir": "dist",
@@ -28,6 +30,4 @@
     "skipLibCheck": true,
     "sourceMap": true
   },
-  "include": ["src"],
-  "exclude": ["tests", "dist", "coverage", "node_modules"]
 }

@@ -1,4 +1,4 @@
-export default `// Import your schemas here
+export const template = `// Import your schemas here
 import type { Connection } from 'mongoose'
 
 export async function up (connection: Connection): Promise<void> {

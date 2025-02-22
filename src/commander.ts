@@ -3,9 +3,8 @@ import chalk from 'chalk'
 import { Command } from 'commander'
 import { config } from 'dotenv'
 
-import Migrator from './index'
-
-import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CONFIG_PATH, DEFAULT_MIGRATE_MIGRATIONS_PATH, DEFAULT_MIGRATE_MONGO_COLLECTION } from './defaults'
+import { defaults } from './defaults'
+import { Migrator } from './index'
 
 import type { ConfigOptions, ConfigOptionsDefault, MigratorOptions } from './types'
 
@@ -49,18 +48,18 @@ export const getMigrator = async (options: ConfigOptions): Promise<Migrator> => 
     config({ path: `.env.${mode}.local`, override: true })
   }
 
-  const configPath = options.configPath ?? process.env.MIGRATE_CONFIG_PATH ?? process.env.migrateConfigPath ?? DEFAULT_MIGRATE_CONFIG_PATH
+  const configPath = options.configPath ?? process.env.MIGRATE_CONFIG_PATH ?? process.env.migrateConfigPath ?? defaults.MIGRATE_CONFIG_PATH
 
   const fileOptions = await getConfig(configPath)
   // No default value always required
   const uri = options.uri ?? process.env.MIGRATE_MONGO_URI ?? process.env.migrateMongoUri ?? fileOptions.uri
   // Connect options can be only provided in the config file for cli usage
   const connectOptions = fileOptions.connectOptions
-  const collection = options.collection ?? process.env.MIGRATE_MONGO_COLLECTION ?? process.env.migrateMongoCollection ?? fileOptions.collection ?? DEFAULT_MIGRATE_MONGO_COLLECTION
-  const migrationsPath = options.migrationsPath ?? process.env.MIGRATE_MIGRATIONS_PATH ?? process.env.migrateMigrationsPath ?? fileOptions.migrationsPath ?? DEFAULT_MIGRATE_MIGRATIONS_PATH
+  const collection = options.collection ?? process.env.MIGRATE_MONGO_COLLECTION ?? process.env.migrateMongoCollection ?? fileOptions.collection ?? defaults.MIGRATE_MONGO_COLLECTION
+  const migrationsPath = options.migrationsPath ?? process.env.MIGRATE_MIGRATIONS_PATH ?? process.env.migrateMigrationsPath ?? fileOptions.migrationsPath ?? defaults.MIGRATE_MIGRATIONS_PATH
   const templatePath = options.templatePath ?? process.env.MIGRATE_TEMPLATE_PATH ?? process.env.migrateTemplatePath ?? fileOptions.templatePath
   // can be empty then we use default template
-  const autosync = Boolean(options.autosync ?? process.env.MIGRATE_AUTOSYNC ?? process.env.migrateAutosync ?? fileOptions.autosync ?? DEFAULT_MIGRATE_AUTOSYNC)
+  const autosync = Boolean(options.autosync ?? process.env.MIGRATE_AUTOSYNC ?? process.env.migrateAutosync ?? fileOptions.autosync ?? defaults.MIGRATE_AUTOSYNC)
 
   if (!uri) {
     const message = chalk.red('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.')

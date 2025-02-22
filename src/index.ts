@@ -5,10 +5,9 @@ import chalk from 'chalk'
 import inquirer from 'inquirer'
 import mongoose from 'mongoose'
 
+import { template } from './template'
+import { defaults } from './defaults'
 import { getMigrationModel } from './model'
-import defaultTemplate from './template'
-
-import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CLI, DEFAULT_MIGRATE_MIGRATIONS_PATH, DEFAULT_MIGRATE_MONGO_COLLECTION } from './defaults'
 
 import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
 import type { Migration, MigrationFile, MigrationFunctions, MigrationFunctionsDefault, MigratorOptions } from './types'
@@ -19,7 +18,7 @@ export * from './types'
  * This class is responsible for running migrations
  * @class Migrator
  */
-class Migrator {
+export class Migrator {
   readonly migrationModel: Model<Migration>
   readonly connection: Connection
 
@@ -35,10 +34,10 @@ class Migrator {
     mongoose.set('strictQuery', false)
 
     this.template = this.getTemplate(options.templatePath)
-    this.migrationsPath = path.resolve(options.migrationsPath ?? DEFAULT_MIGRATE_MIGRATIONS_PATH)
-    this.collection = options.collection ?? DEFAULT_MIGRATE_MONGO_COLLECTION
-    this.autosync = options.autosync ?? DEFAULT_MIGRATE_AUTOSYNC
-    this.cli = options.cli ?? DEFAULT_MIGRATE_CLI
+    this.migrationsPath = path.resolve(options.migrationsPath ?? defaults.MIGRATE_MIGRATIONS_PATH)
+    this.collection = options.collection ?? defaults.MIGRATE_MONGO_COLLECTION
+    this.autosync = options.autosync ?? defaults.MIGRATE_AUTOSYNC
+    this.cli = options.cli ?? defaults.MIGRATE_CLI
 
     this.ensureMigrationsPath()
 
@@ -289,7 +288,7 @@ class Migrator {
     if (templatePath && fs.existsSync(templatePath)) {
       return fs.readFileSync(templatePath, 'utf8')
     }
-    return defaultTemplate
+    return template
   }
 
   /**
@@ -438,5 +437,3 @@ class Migrator {
     return migrationsRan
   }
 }
-
-export default Migrator

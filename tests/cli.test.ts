@@ -3,7 +3,7 @@ import chalk from 'chalk'
 import mongoose, { type Connection } from 'mongoose'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Migrate, getMigrator } from '../src/commander'
-import defaultTemplate from '../src/template'
+import { template } from '../src/template'
 import { create } from './mongo/server'
 import { clearDirectory, deleteDirectory } from './utils/filesystem'
 
@@ -176,7 +176,7 @@ export const ExampleSchema = new Schema({
 
 export default models.User ?? model<IExample>('Example', ExampleSchema)`
 
-    const testTemplate = defaultTemplate
+    const testTemplate = template
       .replace('// Import your schemas here', `import { ExampleSchema } from './Example.ts'`)
       .replace(
         '// Write migration here',
