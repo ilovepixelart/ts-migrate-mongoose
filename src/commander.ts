@@ -18,10 +18,11 @@ export const getConfig = async (configPath: string): Promise<ConfigOptions> => {
   if (configPath) {
     try {
       const file = path.resolve(configPath)
-      const module = (await import(file)) as ConfigOptions | ConfigOptionsDefault | { default?: ConfigOptionsDefault }
+      const module = (await import(file)) as { default?: ConfigOptionsDefault | ConfigOptions }
       let fileOptions: ConfigOptions | undefined
-      if ('default' in module) {
-        fileOptions = 'default' in module.default ? module.default.default : (module.default as ConfigOptions)
+
+      if (module.default) {
+        fileOptions = 'default' in module.default ? module.default.default : module.default as ConfigOptions
       } else {
         fileOptions = module as ConfigOptions
       }
