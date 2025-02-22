@@ -4,7 +4,7 @@ import { Command } from 'commander'
 import { config } from 'dotenv'
 
 import { defaults } from './defaults'
-import { Migrator } from './index'
+import { Env, Migrator } from './index'
 
 import type { ConfigOptions, ConfigOptionsDefault, MigratorOptions } from './types'
 
@@ -31,6 +31,21 @@ export const getConfig = async (configPath: string): Promise<ConfigOptions> => {
   return configOptions
 }
 
+export const toCamelCase = (str: Env): string => {
+  return str.toLocaleLowerCase().replace(/_([a-z])/g, (g) => (g[1] ? g[1].toUpperCase() : ''))
+}
+
+export const getEnv = (key: Env): string | undefined => {
+  // To automatically support camelCase keys
+  return process.env[key] ?? process.env[toCamelCase(key)]
+}
+
+export const getEnvBoolean = (key: Env): boolean | undefined => {
+  const value = getEnv(key)
+  if (value === 'true') return true
+  return undefined
+}
+
 /**
  * Get the migrator instance
  * @param options The options passed to the CLI
@@ -41,25 +56,25 @@ export const getMigrator = async (options: ConfigOptions): Promise<Migrator> => 
   config({ path: '.env' })
   config({ path: '.env.local', override: true })
 
-  const mode = options.mode ?? process.env.MIGRATE_MODE ?? process.env.migrateMode
+  const mode = options.mode ?? getEnv(Env.MIGRATE_MODE)
 
   if (mode) {
     config({ path: `.env.${mode}`, override: true })
     config({ path: `.env.${mode}.local`, override: true })
   }
 
-  const configPath = options.configPath ?? process.env.MIGRATE_CONFIG_PATH ?? process.env.migrateConfigPath ?? defaults.MIGRATE_CONFIG_PATH
+  const configPath = options.configPath ?? getEnv(Env.MIGRATE_CONFIG_PATH) ?? defaults.MIGRATE_CONFIG_PATH
 
   const fileOptions = await getConfig(configPath)
   // No default value always required
-  const uri = options.uri ?? process.env.MIGRATE_MONGO_URI ?? process.env.migrateMongoUri ?? fileOptions.uri
+  const uri = options.uri ?? getEnv(Env.MIGRATE_MONGO_URI) ?? fileOptions.uri
   // Connect options can be only provided in the config file for cli usage
   const connectOptions = fileOptions.connectOptions
-  const collection = options.collection ?? process.env.MIGRATE_MONGO_COLLECTION ?? process.env.migrateMongoCollection ?? fileOptions.collection ?? defaults.MIGRATE_MONGO_COLLECTION
-  const migrationsPath = options.migrationsPath ?? process.env.MIGRATE_MIGRATIONS_PATH ?? process.env.migrateMigrationsPath ?? fileOptions.migrationsPath ?? defaults.MIGRATE_MIGRATIONS_PATH
-  const templatePath = options.templatePath ?? process.env.MIGRATE_TEMPLATE_PATH ?? process.env.migrateTemplatePath ?? fileOptions.templatePath
+  const collection = options.collection ?? getEnv(Env.MIGRATE_MONGO_COLLECTION) ?? fileOptions.collection ?? defaults.MIGRATE_MONGO_COLLECTION
+  const migrationsPath = options.migrationsPath ?? getEnv(Env.MIGRATE_MIGRATIONS_PATH) ?? fileOptions.migrationsPath ?? defaults.MIGRATE_MIGRATIONS_PATH
+  const templatePath = options.templatePath ?? getEnv(Env.MIGRATE_TEMPLATE_PATH) ?? fileOptions.templatePath
   // can be empty then we use default template
-  const autosync = Boolean(options.autosync ?? process.env.MIGRATE_AUTOSYNC ?? process.env.migrateAutosync ?? fileOptions.autosync ?? defaults.MIGRATE_AUTOSYNC)
+  const autosync = Boolean(options.autosync ?? getEnvBoolean(Env.MIGRATE_AUTOSYNC) ?? fileOptions.autosync ?? defaults.MIGRATE_AUTOSYNC)
 
   if (!uri) {
     const message = chalk.red('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.')
