@@ -1,3 +1,20 @@
+<a id="v4.0.1"></a>
+# [v4.0.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.0.1) - 2025-02-22
+
+- Merge pull request [#388](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/388) from ilovepixelart/feature/patch  d67857b
+- Biome  314e9b6
+- Simplify  69c756d
+- Biome  5de8e95
+- Patch config file module default  724f2a7
+- Update changelog for v4.0.0  4589bf2
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.0...v4.0.1
+
+[Changes][v4.0.1]
+
+
 <a id="v4.0.0"></a>
 # [v4.0.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.0.0) - 2025-02-22
 
@@ -1617,6 +1634,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v4.0.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.0...v4.0.1
 [v4.0.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.9...v4.0.0
 [v3.8.9]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.8...v3.8.9
 [v3.8.8]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.7...v3.8.8
