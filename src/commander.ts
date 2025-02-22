@@ -22,7 +22,7 @@ export const getConfig = async (configPath: string): Promise<ConfigOptions> => {
       let fileOptions: ConfigOptions | undefined
 
       if (module.default) {
-        fileOptions = 'default' in module.default ? module.default.default : module.default as ConfigOptions
+        fileOptions = 'default' in module.default ? module.default.default : (module.default as ConfigOptions)
       } else {
         fileOptions = module as ConfigOptions
       }
