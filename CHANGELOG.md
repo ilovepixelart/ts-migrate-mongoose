@@ -1,3 +1,44 @@
+<a id="v4.0.0"></a>
+# [v4.0.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.0.0) - 2025-02-22
+
+- Dep  a875eff
+- Merge pull request [#386](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/386) from ilovepixelart/feature/v4  e926cc3
+- Biome  4f75f0a
+- Test for bin  1b7b16c
+- Editor config  e3067cb
+- Update description  788b6d1
+- Path for local development  31d46f0
+- Leave it to pkgroll  e500962
+- chmod  43ce17d
+- Doc  073fe36
+- Env  46315f4
+- Biome formatting  e7a982a
+- Import, export, naming, shims for env variables  3d1d6b6
+- Update paths  3f3d689
+- Switch to pkgroll, dependency updates, rename some files  6a05baa
+- Adjust paths for test  b6809b0
+- Pre test  3237f3d
+- Transition from jest to vitest  a9811c1
+- Biome  a80c140
+- Drop old register  42e5a30
+- Biome  5a91f86
+- Renamed types, pre commit hooks  07df715
+- Types in one file and export  1a94c14
+- Merge pull request [#384](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/384) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-96c1e75aa5  4c68593
+- Update dependencies: Bump the all-dependencies group with 2 updates  b89fc25
+- Merge pull request [#383](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/383) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-e2acaba4f4  babfc26
+- Update dependencies: Bump the all-dependencies group with 2 updates  d84c532
+- Merge pull request [#382](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/382) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-81176970cb  fac7181
+- Update dependencies: Bump the all-dependencies group with 2 updates  64aa49d
+- Update changelog for v3.8.9  a382b65
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.9...v4.0.0
+
+[Changes][v4.0.0]
+
+
 <a id="v3.8.9"></a>
 # [v3.8.9](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v3.8.9) - 2025-01-19
 
@@ -1576,6 +1617,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v4.0.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.9...v4.0.0
 [v3.8.9]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.8...v3.8.9
 [v3.8.8]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.7...v3.8.8
 [v3.8.7]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.6...v3.8.7
