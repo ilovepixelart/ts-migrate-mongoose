@@ -34,7 +34,7 @@ ts-migrate-mongoose is a migration framework for projects that are already using
 
 How to use it with:
 
-- Express: [ts-express-swc](https://github.com/ilovepixelart/ts-express-swc), [ts-express-esbuild](https://github.com/ilovepixelart/ts-express-esbuild)
+- Express: [ts-express-tsx](https://github.com/ilovepixelart/ts-express-tsx), [ts-express-esbuild](https://github.com/ilovepixelart/ts-express-esbuild)
 - Nest: [ts-express-nest](https://github.com/ilovepixelart/ts-express-nest)
 
 ## Installation

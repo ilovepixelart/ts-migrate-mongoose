@@ -1,6 +1,6 @@
 # Example of using the library programmatically
 
-Check full example [here using express + typescript 5](https://github.com/ilovepixelart/ts-express-swc)
+Check full example [here using express + typescript 5](https://github.com/ilovepixelart/ts-express-tsx)
 
 ```typescript
 import { Migrator } from 'ts-migrate-mongoose'
