@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { Migrate } from '../src/commander'
 
 // Mock the Migrate class
