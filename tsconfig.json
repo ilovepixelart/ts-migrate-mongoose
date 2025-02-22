@@ -29,5 +29,5 @@
     "removeComments": true,
     "skipLibCheck": true,
     "sourceMap": true
-  },
+  }
 }

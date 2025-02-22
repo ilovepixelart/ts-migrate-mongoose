@@ -5,9 +5,9 @@ import chalk from 'chalk'
 import inquirer from 'inquirer'
 import mongoose from 'mongoose'
 
-import { template } from './template'
 import { defaults } from './defaults'
 import { getMigrationModel } from './model'
+import { template } from './template'
 
 import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
 import type { Migration, MigrationFile, MigrationFunctions, MigrationFunctionsDefault, MigratorOptions } from './types'
