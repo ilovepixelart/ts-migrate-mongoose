@@ -61,7 +61,6 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.cts",
   "scripts": {
-    "prepublish": "bash/chmod.sh",
     "prepare": "simple-git-hooks",
     "migrate": "tsx src/bin.ts",
     "biome": "npx @biomejs/biome check",
