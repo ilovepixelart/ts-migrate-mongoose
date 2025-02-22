@@ -14,13 +14,17 @@ export interface Migration {
   updatedAt: Date
 }
 
-export interface ConfigModule {
+export interface ConfigOptionsDefault {
   default?: ConfigOptions
 }
 
-export interface MigrationModule {
+export interface MigrationFunctions {
   up?: (connection: Connection) => Promise<void>
   down?: (connection: Connection) => Promise<void>
+}
+
+export interface MigrationFunctionsDefault {
+  default?: MigrationFunctions
 }
 
 interface CommonOptions {

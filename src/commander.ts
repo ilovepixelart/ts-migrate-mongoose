@@ -3,11 +3,11 @@ import chalk from 'chalk'
 import { Command } from 'commander'
 import { config } from 'dotenv'
 
-import Migrator from './migrator'
+import Migrator from '.'
 
 import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CONFIG_PATH, DEFAULT_MIGRATE_MIGRATIONS_PATH, DEFAULT_MIGRATE_MONGO_COLLECTION } from './defaults'
 
-import type { ConfigModule, ConfigOptions, MigratorOptions } from './types'
+import type { ConfigOptions, ConfigOptionsDefault, MigratorOptions } from './types'
 
 /**
  * Get the options from the config file
@@ -19,13 +19,11 @@ export const getConfig = async (configPath: string): Promise<ConfigOptions> => {
   if (configPath) {
     try {
       const file = path.resolve(configPath)
-      const module = (await import(file)) as ConfigModule
+      const module = (await import(file)) as ConfigOptions | ConfigOptionsDefault
       // In case of ESM module, default is nested twice
-      const esm = module.default as ConfigModule | undefined
-      if (esm?.default) {
-        configOptions = esm.default ?? {}
-      } else {
-        configOptions = module.default ?? {}
+      const fileOptions = 'default' in module ? module.default : (module as ConfigOptions)
+      if (fileOptions) {
+        configOptions = fileOptions
       }
     } catch {
       configOptions = {}

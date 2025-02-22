@@ -1,3 +1,4 @@
+import 'tsx'
 import fs from 'node:fs'
 import path from 'node:path'
 import chalk from 'chalk'
@@ -10,7 +11,7 @@ import defaultTemplate from './template'
 import { DEFAULT_MIGRATE_AUTOSYNC, DEFAULT_MIGRATE_CLI, DEFAULT_MIGRATE_MIGRATIONS_PATH, DEFAULT_MIGRATE_MONGO_COLLECTION } from './defaults'
 
 import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
-import type { Migration, MigrationFile, MigrationModule, MigratorOptions } from './types'
+import type { Migration, MigrationFile, MigrationFunctions, MigrationFunctionsDefault, MigratorOptions } from './types'
 
 export * from './types'
 
@@ -407,9 +408,9 @@ class Migrator {
     const migrationsRan: HydratedDocument<Migration>[] = []
     for await (const migration of migrationsToRun) {
       const migrationFilePath = path.join(this.migrationsPath, migration.filename)
-      const migrationFunctions = (await import(migrationFilePath)) as MigrationModule
+      const migrationFunctions = (await import(migrationFilePath)) as MigrationFunctions | MigrationFunctionsDefault
 
-      const migrationFunction = migrationFunctions[direction]
+      const migrationFunction = 'default' in migrationFunctions ? migrationFunctions.default[direction] : (migrationFunctions as MigrationFunctions)[direction]
       if (!migrationFunction) {
         const message = chalk.red(`The '${direction}' export is not defined in ${migration.filename}.`)
         throw new Error(message)
