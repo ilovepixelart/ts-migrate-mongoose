@@ -79,19 +79,19 @@
     "commander": "13.1.0",
     "dotenv": "16.4.7",
     "inquirer": "8.2.6",
-    "mongoose": "8.10.1",
+    "mongoose": "8.10.2",
     "tsx": "4.19.3"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/node": "22.13.5",
-    "@vitest/coverage-v8": "3.0.6",
+    "@vitest/coverage-v8": "3.0.7",
     "mongodb-memory-server": "10.1.4",
     "open-cli": "8.0.0",
     "pkgroll": "2.11.0",
     "simple-git-hooks": "2.11.1",
     "typescript": "5.7.3",
-    "vitest": "3.0.6"
+    "vitest": "3.0.7"
   },
   "simple-git-hooks": {
     "pre-commit": "npm run type:check",
