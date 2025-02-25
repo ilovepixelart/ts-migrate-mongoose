@@ -96,5 +96,8 @@
   "simple-git-hooks": {
     "pre-commit": "npm run type:check",
     "pre-push": "npm run biome:fix"
+  },
+  "overrides": {
+    "esbuild": "0.25.0"
   }
 }
