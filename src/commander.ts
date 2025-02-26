@@ -1,5 +1,6 @@
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { tsImport } from 'tsx/esm/api'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { config } from 'dotenv'
@@ -20,7 +21,9 @@ export const getConfig = async (configPath: string): Promise<ConfigOptions> => {
     try {
       const configFilePath = path.resolve(configPath)
       const fileUrl = pathToFileURL(configFilePath).href
-      const module = (await import(fileUrl)) as { default?: ConfigOptionsDefault | ConfigOptions }
+      const module = (await tsImport(fileUrl, {
+        parentURL: import.meta.url,
+      })) as { default?: ConfigOptionsDefault | ConfigOptions }
       let fileOptions: ConfigOptions | undefined
 
       if (module.default) {
