@@ -1,6 +1,7 @@
 import 'tsx'
 import fs from 'node:fs'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import chalk from 'chalk'
 import inquirer from 'inquirer'
 import mongoose from 'mongoose'
@@ -406,8 +407,9 @@ export class Migrator {
   private async runMigrations(migrationsToRun: HydratedDocument<Migration>[], direction: 'down' | 'up'): Promise<HydratedDocument<Migration>[]> {
     const migrationsRan: HydratedDocument<Migration>[] = []
     for await (const migration of migrationsToRun) {
-      const migrationFilePath = path.join(this.migrationsPath, migration.filename)
-      const migrationFunctions = (await import(migrationFilePath)) as MigrationFunctions | MigrationFunctionsDefault
+      const migrationFilePath = path.resolve(path.join(this.migrationsPath, migration.filename))
+      const fileUrl = pathToFileURL(migrationFilePath).href
+      const migrationFunctions = (await import(fileUrl)) as MigrationFunctions | MigrationFunctionsDefault
 
       const migrationFunction = 'default' in migrationFunctions ? migrationFunctions.default[direction] : (migrationFunctions as MigrationFunctions)[direction]
       if (!migrationFunction) {

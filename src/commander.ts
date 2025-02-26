@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { config } from 'dotenv'
@@ -17,8 +18,9 @@ export const getConfig = async (configPath: string): Promise<ConfigOptions> => {
   let configOptions: ConfigOptions = {}
   if (configPath) {
     try {
-      const file = path.resolve(configPath)
-      const module = (await import(file)) as { default?: ConfigOptionsDefault | ConfigOptions }
+      const configFilePath = path.resolve(configPath)
+      const fileUrl = pathToFileURL(configFilePath).href
+      const module = (await import(fileUrl)) as { default?: ConfigOptionsDefault | ConfigOptions }
       let fileOptions: ConfigOptions | undefined
 
       if (module.default) {
