@@ -1,9 +1,9 @@
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { tsImport } from 'tsx/esm/api'
 import chalk from 'chalk'
 import { Command } from 'commander'
 import { config } from 'dotenv'
+import { tsImport } from 'tsx/esm/api'
 
 import { defaults } from './defaults'
 import { Env, Migrator } from './index'

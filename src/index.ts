@@ -1,10 +1,10 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { tsImport } from 'tsx/esm/api'
 import chalk from 'chalk'
 import inquirer from 'inquirer'
 import mongoose from 'mongoose'
+import { tsImport } from 'tsx/esm/api'
 
 import { defaults } from './defaults'
 import { getMigrationModel } from './model'
