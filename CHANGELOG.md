@@ -1,3 +1,21 @@
+<a id="v4.0.2"></a>
+# [v4.0.2](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.0.2) - 2025-02-26
+
+- Merge pull request [#390](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/390) from ilovepixelart/feature/path-to-file-url  9952d2e
+- Path to file url  3ac75d0
+- Override  b795d17
+- Dep  b04d6f8
+- Merge pull request [#389](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/389) from ilovepixelart/feature/dep  a572d57
+- Dep  a70466e
+- Update changelog for v4.0.1  ae3cc3f
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.1...v4.0.2
+
+[Changes][v4.0.2]
+
+
 <a id="v4.0.1"></a>
 # [v4.0.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.0.1) - 2025-02-22
 
@@ -1634,6 +1652,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v4.0.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.1...v4.0.2
 [v4.0.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.0...v4.0.1
 [v4.0.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.9...v4.0.0
 [v3.8.9]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.8...v3.8.9
