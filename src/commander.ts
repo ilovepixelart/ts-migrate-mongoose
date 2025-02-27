@@ -33,7 +33,8 @@ const resolveConfigPath = async (configPath: string): Promise<string> => {
 
   for (const ext of validExtensions) {
     const configFilePath = path.resolve(configPath + ext)
-    if (await fileExists(configFilePath)) {
+    const exists = await fileExists(configFilePath)
+    if (exists) {
       console.log(`Found config file: ${configFilePath}`)
 
       return configFilePath
