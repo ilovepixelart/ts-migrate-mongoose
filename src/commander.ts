@@ -12,7 +12,10 @@ import { Env, Migrator } from './index'
 import type { ConfigOptions, ConfigOptionsDefault, MigratorOptions } from './types'
 
 const fileExists = async (filePath: string): Promise<boolean> => {
-  return fs.promises.access(filePath).then(() => true).catch(() => false)
+  return fs.promises
+    .access(filePath)
+    .then(() => true)
+    .catch(() => false)
 }
 
 const resolveConfigPath = async (configPath: string): Promise<string> => {
@@ -41,7 +44,7 @@ const resolveConfigPath = async (configPath: string): Promise<string> => {
 }
 
 const loadModule = async (configPath: string): Promise<{ default?: ConfigOptionsDefault | ConfigOptions }> => {
-  let config = await resolveConfigPath(configPath)
+  const config = await resolveConfigPath(configPath)
   const fileUrl = pathToFileURL(config).href
 
   const extension = path.extname(config)
