@@ -1,3 +1,26 @@
+<a id="v4.0.3"></a>
+# [v4.0.3](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.0.3) - 2025-02-27
+
+- Merge pull request [#393](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/393) from ilovepixelart/feature/dep  3ee55fc
+- Remove log  5f298c4
+- Dep  53cd2ef
+- Merge pull request [#392](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/392) from ilovepixelart/feature/config-file-extension-resolver  1561186
+- Const  670a503
+- Biome  d7766a4
+- Config file extensions resolver  bb2484f
+- Merge pull request [#391](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/391) from ilovepixelart/feature/ts-import-esm  200cfae
+- Node 20 and 22 support  5f7d7c8
+- Biome  6d7ed49
+- TS Import, node@20  0d41cd9
+- Update changelog for v4.0.2  6f04758
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.2...v4.0.3
+
+[Changes][v4.0.3]
+
+
 <a id="v4.0.2"></a>
 # [v4.0.2](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.0.2) - 2025-02-26
 
@@ -1652,6 +1675,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v4.0.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.2...v4.0.3
 [v4.0.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.1...v4.0.2
 [v4.0.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.0...v4.0.1
 [v4.0.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v3.8.9...v4.0.0
