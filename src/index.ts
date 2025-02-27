@@ -1,4 +1,11 @@
-import 'tsx'
+import('tsx')
+  .then(() => {
+    console.log('Loaded tsx')
+  })
+  .catch((err) => {
+    console.error('Error loading tsx:', err)
+  })
+
 import fs from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -31,7 +38,7 @@ export class Migrator {
   private readonly cli: boolean
 
   private constructor(options: MigratorOptions) {
-    // https://mongoosejs.com/docs/guide.
+    // https://mongoosejs.com/docs/guide.html
     mongoose.set('strictQuery', false)
 
     this.template = this.getTemplate(options.templatePath)
@@ -410,7 +417,6 @@ export class Migrator {
       const migrationFilePath = path.resolve(path.join(this.migrationsPath, migration.filename))
       const fileUrl = pathToFileURL(migrationFilePath).href
       const migrationFunctions = (await import(fileUrl)) as MigrationFunctions | MigrationFunctionsDefault
-
       const migrationFunction = 'default' in migrationFunctions ? migrationFunctions.default[direction] : (migrationFunctions as MigrationFunctions)[direction]
       if (!migrationFunction) {
         const message = chalk.red(`The '${direction}' export is not defined in ${migration.filename}.`)
