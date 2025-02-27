@@ -1,6 +1,6 @@
 {
   "name": "ts-migrate-mongoose",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "Migration framework for mongoose",
   "author": "ilovepixelart",
   "license": "MIT",
