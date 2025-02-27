@@ -10,3 +10,5 @@ declare namespace NodeJS {
     MIGRATE_AUTOSYNC: 'true' | undefined
   }
 }
+
+declare module 'tsx'

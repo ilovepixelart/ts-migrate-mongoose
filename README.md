@@ -127,7 +127,7 @@ MIGRATE_AUTOSYNC=false
 | mode                 | MIGRATE_MODE             | -            | No       | environment mode to use .env.[mode] file         |
 | uri                  | MIGRATE_MONGO_URI        | -            | Yes      | mongo connection string                          |
 | collection           | MIGRATE_MONGO_COLLECTION | migrations   | No       | collection name to use for the migrations        |
-| configPath           | MIGRATE_CONFIG_PATH      | ./migrate    | No       | path to the config file                          |
+| configPath           | MIGRATE_CONFIG_PATH      | ./migrate.ts | No       | path to the config file                          |
 | migrationsPath       | MIGRATE_MIGRATIONS_PATH  | ./migrations | No       | path to the migration files                      |
 | templatePath         | MIGRATE_TEMPLATE_PATH    | -            | No       | template file to use when creating a migration   |
 | autosync             | MIGRATE_AUTOSYNC         | false        | No       | automatically sync new migrations without prompt |

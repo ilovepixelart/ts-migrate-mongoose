@@ -10,6 +10,31 @@ import { Env, Migrator } from './index'
 
 import type { ConfigOptions, ConfigOptionsDefault, MigratorOptions } from './types'
 
+const loadModule = async (configPath: string): Promise<{ default?: ConfigOptionsDefault | ConfigOptions }> => {
+  const configExtension = path.extname(configPath)
+  const fileUrl = pathToFileURL(configPath).href
+
+  if (configExtension === '.ts') {
+    return (await tsImport(fileUrl, import.meta.url)) as { default?: ConfigOptionsDefault | ConfigOptions }
+  }
+
+  return await import(fileUrl)
+}
+
+const extractOptions = (module: { default?: ConfigOptionsDefault | ConfigOptions }): ConfigOptions | undefined => {
+  if (module.default) {
+    return 'default' in module.default ? module.default.default : (module.default as ConfigOptions)
+  }
+
+  return module as ConfigOptions
+}
+
+const logError = (error: unknown): void => {
+  if (error instanceof Error) {
+    console.log(chalk.red(error.message))
+  }
+}
+
 /**
  * Get the options from the config file
  * @param configPath The options passed to the CLI
@@ -20,22 +45,14 @@ export const getConfig = async (configPath: string): Promise<ConfigOptions> => {
   if (configPath) {
     try {
       const configFilePath = path.resolve(configPath)
-      const fileUrl = pathToFileURL(configFilePath).href
-      const module = (await tsImport(fileUrl, {
-        parentURL: import.meta.url,
-      })) as { default?: ConfigOptionsDefault | ConfigOptions }
-      let fileOptions: ConfigOptions | undefined
-
-      if (module.default) {
-        fileOptions = 'default' in module.default ? module.default.default : (module.default as ConfigOptions)
-      } else {
-        fileOptions = module as ConfigOptions
-      }
+      const module = await loadModule(configFilePath)
+      const fileOptions = extractOptions(module)
 
       if (fileOptions) {
         configOptions = fileOptions
       }
-    } catch {
+    } catch (error) {
+      logError(error)
       configOptions = {}
     }
   }
@@ -212,7 +229,6 @@ export class Migrate {
         return this.finish(exit)
       })
       .catch((error: unknown) => {
-        console.error(error)
         return this.finish(exit, error instanceof Error ? error : new Error('An unknown error occurred'))
       })
   }
