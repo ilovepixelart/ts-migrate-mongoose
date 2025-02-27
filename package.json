@@ -80,7 +80,7 @@
     "commander": "13.1.0",
     "dotenv": "16.4.7",
     "inquirer": "8.2.6",
-    "mongoose": "8.10.2",
+    "mongoose": "8.11.0",
     "tsx": "4.19.3"
   },
   "devDependencies": {

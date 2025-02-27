@@ -196,7 +196,6 @@ export class Migrator {
 
       let migrationsToImport = migrationsInFs.filter((file) => !file.existsInDatabase).map((file) => file.filename)
 
-      this.log('Synchronizing database with file system migrations...')
       migrationsToImport = await this.choseMigrations(migrationsToImport, 'The following migrations exist in the migrations folder but not in the database.\nSelect the ones you want to import into the database')
 
       return this.syncMigrations(migrationsToImport)
