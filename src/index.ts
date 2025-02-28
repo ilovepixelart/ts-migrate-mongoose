@@ -1,11 +1,3 @@
-import('tsx')
-  .then(() => {
-    console.log('Loaded tsx')
-  })
-  .catch((err) => {
-    console.error('Error loading tsx:', err)
-  })
-
 import fs from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -69,6 +61,14 @@ export class Migrator {
    * @async
    */
   static async connect(options: MigratorOptions): Promise<Migrator> {
+    await import('tsx')
+      .then(() => {
+        console.log('Loaded tsx')
+      })
+      .catch(() => {
+        console.log('Skipped tsx')
+      })
+
     const migrator = new Migrator(options)
     await migrator.connected()
     return migrator
