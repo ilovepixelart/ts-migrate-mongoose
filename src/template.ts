@@ -1,3 +1,8 @@
+/**
+ * Template for migration files.
+ * @constant
+ * @type {string}
+ */
 export const template = `// Import your schemas here
 import type { Connection } from 'mongoose'
 
