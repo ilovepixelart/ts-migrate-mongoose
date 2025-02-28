@@ -11,6 +11,11 @@ import { Env, Migrator } from './index'
 
 import type { ConfigOptions, ConfigOptionsDefault, MigratorOptions } from './types'
 
+/**
+ * Checks if a file exists at the given path.
+ * @param filePath The path to the file
+ * @returns A promise that resolves to true if the file exists, false otherwise
+ */
 const fileExists = async (filePath: string): Promise<boolean> => {
   return fs.promises
     .access(filePath)
@@ -18,6 +23,12 @@ const fileExists = async (filePath: string): Promise<boolean> => {
     .catch(() => false)
 }
 
+/**
+ * Resolves the config path by checking for valid extensions.
+ * @param configPath The path to the config file
+ * @returns A promise that resolves to the resolved config path
+ * @throws Error if the config file does not have a valid extension
+ */
 const resolveConfigPath = async (configPath: string): Promise<string> => {
   const validExtensions = ['.ts', '.js', '.json']
   const message = `Config file must have an extension of ${validExtensions.join(', ')}`
@@ -44,6 +55,11 @@ const resolveConfigPath = async (configPath: string): Promise<string> => {
   throw new Error(message)
 }
 
+/**
+ * Loads a module from the given config path.
+ * @param configPath The path to the config file
+ * @returns A promise that resolves to the loaded module
+ */
 const loadModule = async (configPath: string): Promise<{ default?: ConfigOptionsDefault | ConfigOptions }> => {
   const config = await resolveConfigPath(configPath)
   const fileUrl = pathToFileURL(config).href
@@ -56,6 +72,11 @@ const loadModule = async (configPath: string): Promise<{ default?: ConfigOptions
   return await import(fileUrl)
 }
 
+/**
+ * Extracts options from the loaded module.
+ * @param module The loaded module
+ * @returns The extracted options
+ */
 const extractOptions = (module: { default?: ConfigOptionsDefault | ConfigOptions }): ConfigOptions | undefined => {
   if (module.default) {
     return 'default' in module.default ? module.default.default : (module.default as ConfigOptions)
@@ -64,6 +85,10 @@ const extractOptions = (module: { default?: ConfigOptionsDefault | ConfigOptions
   return module as ConfigOptions
 }
 
+/**
+ * Logs an error message to the console.
+ * @param error The error to log
+ */
 const logError = (error: unknown): void => {
   if (error instanceof Error) {
     console.log(chalk.red(error.message))

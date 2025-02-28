@@ -247,6 +247,10 @@ export class Migrator {
    * @memberof Migrator
    * @private
    * @async
+   * @example
+   * const migrator = new Migrator({ uri: 'mongodb://localhost:27017' })
+   * const connected = await migrator.connected()
+   * console.log(connected) // true
    */
   private async noPendingMigrations(): Promise<HydratedDocument<Migration>[]> {
     this.log(chalk.yellow('There are no pending migrations'))
