@@ -1,6 +1,6 @@
 # ts-migrate-mongoose
 
-A node/typescript based migration framework for mongoose
+A migration framework for Mongoose, built with TypeScript.
 
 [![npm](https://img.shields.io/npm/v/ts-migrate-mongoose)](https://www.npmjs.com/package/ts-migrate-mongoose)
 [![npm](https://img.shields.io/npm/dt/ts-migrate-mongoose)](https://www.npmjs.com/package/ts-migrate-mongoose)
@@ -13,22 +13,17 @@ A node/typescript based migration framework for mongoose
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ilovepixelart_ts-migrate-mongoose&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=ilovepixelart_ts-migrate-mongoose)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ilovepixelart_ts-migrate-mongoose&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=ilovepixelart_ts-migrate-mongoose)
 
-## Motivation
-
-ts-migrate-mongoose is a migration framework for projects that are already using mongoose
-
 ## Features
 
-- [x] Stores migration state in MongoDB
-- [x] Flexibility in configuration `migrate.json` or `migrate.ts` or `.env` and/or `.env.local`
-- [x] Use mongoose models when running migrations
-- [x] Use async/await in migrations
-- [x] Run migrations from the CLI
-- [x] Run migrations programmatically
-- [x] Prune old migrations, and sync new migrations
-- [x] Create custom templates for migrations
-- [x] Run individual migration up/down using -s, --single
-- [x] Supports CommonJS
+- Stores migration state in MongoDB
+- Flexible configuration using `migrate.json`, `migrate.ts`, `.env`
+- Utilizes mongoose models during migrations
+- Supports async/await in migrations
+- Run migrations from the CLI or programmatically
+- Prune old migrations and sync new migrations
+- Create custom templates for migrations
+- Run individual migration up/down using -s, --single
+- Supports CommonJS
 
 ## Example
 
@@ -59,7 +54,7 @@ bun add -g ts-migrate-mongoose
 
 ## Migrations and alias imports
 
-If you are using alias imports in your project, you can use `tsconfig.json` paths to resolve them for you project.
+If you are using alias imports in your project, you can use `tsconfig.json` paths to resolve them for your project.
 
 ## Configuration
 
@@ -134,7 +129,7 @@ MIGRATE_AUTOSYNC=false
 
 ## Getting started with the CLI
 
-Explore and lear commands, rest of the tutorial will be using npm
+Explore and learn commands, rest of the tutorial will be using npm
 
 ```bash
 npx migrate -h
@@ -274,6 +269,14 @@ export async function down(connection: Connection) {
   await User.deleteMany({ firstName: { $in: ['Jane', 'John'] } }).exec()
 }
 ```
+
+## Contributing
+
+We welcome contributions from the community. Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
+
+## Code of Conduct
+
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) to understand the expectations we have for everyone who participates in our community.
 
 ## Notes
 
