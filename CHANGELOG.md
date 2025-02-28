@@ -1,3 +1,17 @@
+<a id="v4.0.4"></a>
+# [v4.0.4](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.0.4) - 2025-02-28
+
+- Merge pull request [#394](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/394) from ilovepixelart/feature/import-on-connect  562e959
+- Import on connect  3fa84ad
+- Update changelog for v4.0.3  dbcb8b0
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.3...v4.0.4
+
+[Changes][v4.0.4]
+
+
 <a id="v4.0.3"></a>
 # [v4.0.3](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.0.3) - 2025-02-27
 
@@ -1675,6 +1689,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v4.0.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.3...v4.0.4
 [v4.0.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.2...v4.0.3
 [v4.0.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.1...v4.0.2
 [v4.0.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.0...v4.0.1
