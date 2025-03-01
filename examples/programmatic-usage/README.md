@@ -1,32 +1,20 @@
 # Example of using the library programmatically
 
-Check full example [here using express + typescript 5](https://github.com/ilovepixelart/ts-express-tsx)
+Check the full example [here using express + typescript 5](https://github.com/ilovepixelart/ts-express-tsx)
 
 ```typescript
 import { Migrator } from 'ts-migrate-mongoose'
 
 const migrator = await Migrator.connect({
-  // This is the only required property you need to set
-  // MongoDB connection string URI
   uri: 'mongodb://localhost/my-db',
-  // All the options below are optional
-  // Collection name to use for migrations (defaults to 'migrations')
-  collection: 'migrations', 
-  // Path to migrations directory, default is ./migrations
-  migrationsPath:  '/path/to/migrations/',
-  // The template to use when creating migrations needs up and down functions exposed
-  // No need to specify unless you want to use a custom template
-  templatePath: '/path/to/template.ts',
-  // Ff making a CLI app, set this to false to prompt the user, otherwise true
   autosync: true
 })
 
-
-const migrationName = 'my-migration-name'
+const migrationName = 'add-users'
 
 // Create a new migration
 await migrator.create(migrationName).then(() => {
-  console.log(`Migration created. Run `+ `migrate up ${migrationName}`.cyan + ` to apply the migration`)
+  console.log('Migration created')
 })
 
 // Migrate Up
@@ -37,26 +25,27 @@ await migrator.run('down', migrationName)
 
 // List Migrations
 /*
-Example return val
-
-Promise which resolves with
+Example return value:
 [
- { name: 'my-migration', filename: '149213223424_my-migration.ts', state: 'up' },
- { name: 'add-cows', filename: '149213223453_add-cows.ts', state: 'down' }
+ { name: 'add-users', filename: '1735680000000-add-users.ts', state: 'down' }
 ]
 */
 await migrator.list()
 
-
-// Prune extraneous migrations from file system
+// Prune extraneous migrations from the file system
 await migrator.prune()
 
-// Synchronize DB with latest migrations from file system
+// Synchronize DB with the latest migrations from the file system
 /*
-Looks at the file system migrations and imports any migrations that are
-on the file system but missing in the database into the database
-
-This functionality is opposite of prune()
+Imports any migrations that are on the file system but missing in the database into the database.
+This functionality is the opposite of prune()
 */
 await migrator.sync()
 ```
+
+## Additional Information
+
+- **Migration Naming**: Use descriptive names for your migrations.
+- **Error Handling**: Handle errors gracefully in your migration functions.
+- **Testing Migrations**: Test your migrations in a staging environment.
+- **Backup**: Always back up your database before running migrations.

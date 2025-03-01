@@ -15,8 +15,7 @@ import type { Migration, MigrationFile, MigrationFunctions, MigrationFunctionsDe
 export * from './types'
 
 /**
- * This class is responsible for running migrations
- * @class Migrator
+ * This class is responsible for running migrations in the CLI and Programmatic mode
  */
 export class Migrator {
   readonly migrationModel: Model<Migration>
@@ -54,11 +53,6 @@ export class Migrator {
 
   /**
    * Asynchronously creates a new migrator instance
-   * @param options The options to use
-   * @returns A promise that resolves to the created migrator
-   * @memberof Migrator
-   * @static
-   * @async
    */
   static async connect(options: MigratorOptions): Promise<Migrator> {
     await import('tsx')
@@ -76,8 +70,6 @@ export class Migrator {
 
   /**
    * Close the underlying connection to mongo
-   * @memberof Migrator
-   * @async
    */
   async close(): Promise<void> {
     await this.connection.close()
@@ -85,12 +77,6 @@ export class Migrator {
 
   /**
    * Lists all migrations in the database and their status
-   * @returns A promise that resolves to the migrations
-   * @example
-   *   [
-   *    { name: 'my-migration', filename: '149213223424_my-migration.ts', state: 'up' },
-   *    { name: 'add-cows', filename: '149213223453_add-cows.ts', state: 'down' }
-   *   ]
    */
   async list(): Promise<HydratedDocument<Migration>[]> {
     await this.sync()
@@ -104,8 +90,6 @@ export class Migrator {
 
   /**
    * Create a new migration file
-   * @param migrationName Name of the migration
-   * @returns A promise that resolves to the created migration
    */
   async create(migrationName: string): Promise<HydratedDocument<Migration>> {
     const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
@@ -128,9 +112,6 @@ export class Migrator {
 
   /**
    * Runs migrations up to or down to a given migration name
-   * @param direction Direction to run the migrations
-   * @param migrationName Name of the migration to run to
-   * @returns A promise that resolves to the ran migrations
    */
   async run(direction: 'up' | 'down', migrationName?: string, single = false): Promise<HydratedDocument<Migration>[]> {
     await this.sync()
@@ -188,7 +169,6 @@ export class Migrator {
    * on the file system but missing in the database into the database
    *
    * This functionality is opposite of prune()
-   * @returns A promise that resolves to the imported migrations
    */
   async sync(): Promise<HydratedDocument<Migration>[]> {
     try {
@@ -214,7 +194,6 @@ export class Migrator {
    * And then remove them from the database using prune()
    *
    * This functionality is opposite of sync().
-   * @returns A promise that resolves to the deleted migrations
    */
   async prune(): Promise<HydratedDocument<Migration>[]> {
     try {
@@ -243,10 +222,8 @@ export class Migrator {
   }
 
   /**
-   * @returns A promise that resolves to the migrations in the database
-   * @memberof Migrator
-   * @private
-   * @async
+   * Logs a message to the console if there are no pending migrations
+   * In cli mode, it also lists all migrations and their status
    */
   private async noPendingMigrations(): Promise<HydratedDocument<Migration>[]> {
     this.log(chalk.yellow('There are no pending migrations'))
@@ -259,10 +236,6 @@ export class Migrator {
 
   /**
    * Logs a message to the console if the migrator is running in cli mode or if force is true
-   * @param message The string to log
-   * @returns void
-   * @memberof Migrator
-   * @private
    */
   private log(message: string): void {
     if (this.cli) {
@@ -272,11 +245,6 @@ export class Migrator {
 
   /**
    * Logs migration status to the console
-   * @param direction The direction of the migration
-   * @param filename The filename of the migration
-   * @returns void
-   * @memberof Migrator
-   * @private
    */
   private logMigrationStatus(direction: 'down' | 'up', filename: string): void {
     const color = direction === 'up' ? 'green' : 'red'
@@ -286,10 +254,6 @@ export class Migrator {
 
   /**
    * Gets template from file system
-   * @param templatePath The path to the template
-   * @returns The template string
-   * @memberof Migrator
-   * @private
    */
   private getTemplate(templatePath: string | undefined): string {
     if (templatePath && fs.existsSync(templatePath)) {
@@ -300,9 +264,6 @@ export class Migrator {
 
   /**
    * Ensures that the migrations path exists
-   * @returns void
-   * @memberof Migrator
-   * @private
    */
   private ensureMigrationsPath(): void {
     if (!fs.existsSync(this.migrationsPath)) {
@@ -311,15 +272,7 @@ export class Migrator {
   }
 
   /**
-   * Connection status of the migrator
-   * @returns A promise that resolves to the connection status
-   * @memberof Migrator
-   * @private
-   * @async
-   * @example
-   * const migrator = new Migrator({ uri: 'mongodb://localhost:27017' })
-   * const connected = await migrator.connected()
-   * console.log(connected) // true
+   * Connection status of the migrator to the database
    */
   private async connected(): Promise<Connection> {
     return this.connection.asPromise()
@@ -327,11 +280,6 @@ export class Migrator {
 
   /**
    * Creates a new migration in database to reflect the changes in file system
-   * @param migrationName The name of the migration
-   * @returns A promise that resolves to the created migrations
-   * @memberof Migrator
-   * @private
-   * @async
    */
   private async syncMigrations(migrationsInFs: string[]): Promise<HydratedDocument<Migration>[]> {
     const promises = migrationsInFs.map(async (filename) => {
@@ -352,10 +300,6 @@ export class Migrator {
 
   /**
    * Get migrations in database and in file system at the same time
-   * @returns A promise that resolves to the migrations in database and in file system
-   * @memberof Migrator
-   * @private
-   * @async
    */
   private async getMigrations(): Promise<{
     migrationsInDb: Migration[]
@@ -380,13 +324,7 @@ export class Migrator {
   }
 
   /**
-   * Creates a prompt for the user to chose migrations to run
-   * @param migrations The migrations to chose from
-   * @param message The message to display to the user
-   * @returns A promise that resolves to the chosen migrations or all migrations if autosync is true
-   * @memberof Migrator
-   * @private
-   * @async
+   * Creates a prompt for the user to chose the migrations to run
    */
   private async choseMigrations(migrations: string[], message: string): Promise<string[]> {
     if (!this.autosync && migrations.length) {
@@ -403,12 +341,6 @@ export class Migrator {
 
   /**
    * Run migrations in a given direction
-   * @param migrationsToRun The migrations to run
-   * @param direction The direction of the migrations
-   * @returns A promise that resolves to the ran migrations
-   * @memberof Migrator
-   * @private
-   * @async
    */
   private async runMigrations(migrationsToRun: HydratedDocument<Migration>[], direction: 'down' | 'up'): Promise<HydratedDocument<Migration>[]> {
     const migrationsRan: HydratedDocument<Migration>[] = []

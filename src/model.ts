@@ -6,13 +6,14 @@ import type { Migration } from './types'
 /**
  * This function returns a mongoose model for the migration collection.
  * The model is used to query the database for the migrations.
- * @param connection The mongoose connection to use
- * @param collection The name of the collection to use
  */
 export const getMigrationModel = (connection: Connection, collection: string): Model<Migration> => {
   const MigrationSchema = new Schema<Migration>(
     {
-      name: String,
+      name: {
+        type: String,
+        required: true,
+      },
       state: {
         type: String,
         enum: ['down', 'up'],

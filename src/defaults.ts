@@ -1,3 +1,6 @@
+/**
+ * Default configuration values for the migration tool.
+ */
 export const defaults = {
   MIGRATE_CONFIG_PATH: './migrate',
   MIGRATE_MONGO_COLLECTION: 'migrations',
