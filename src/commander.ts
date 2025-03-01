@@ -5,12 +5,16 @@ import chalk from 'chalk'
 import { Command } from 'commander'
 import { config } from 'dotenv'
 import { tsImport } from 'tsx/esm/api'
-
 import { defaults } from './defaults'
 import { Env, Migrator } from './index'
 
 import type { ConfigOptions, ConfigOptionsDefault, MigratorOptions } from './types'
 
+/**
+ * Checks if a file exists at the given path.
+ * @param filePath The path to the file
+ * @returns A promise that resolves to true if the file exists, false otherwise
+ */
 const fileExists = async (filePath: string): Promise<boolean> => {
   return fs.promises
     .access(filePath)
@@ -18,6 +22,12 @@ const fileExists = async (filePath: string): Promise<boolean> => {
     .catch(() => false)
 }
 
+/**
+ * Resolves the config path by checking for valid extensions.
+ * @param configPath The path to the config file
+ * @returns A promise that resolves to the resolved config path
+ * @throws Error if the config file does not have a valid extension
+ */
 const resolveConfigPath = async (configPath: string): Promise<string> => {
   const validExtensions = ['.ts', '.js', '.json']
   const message = `Config file must have an extension of ${validExtensions.join(', ')}`
@@ -44,6 +54,9 @@ const resolveConfigPath = async (configPath: string): Promise<string> => {
   throw new Error(message)
 }
 
+/**
+ * Loads a module from the given config path.
+ */
 const loadModule = async (configPath: string): Promise<{ default?: ConfigOptionsDefault | ConfigOptions }> => {
   const config = await resolveConfigPath(configPath)
   const fileUrl = pathToFileURL(config).href
@@ -56,6 +69,9 @@ const loadModule = async (configPath: string): Promise<{ default?: ConfigOptions
   return await import(fileUrl)
 }
 
+/**
+ * Extracts options from the loaded module.
+ */
 const extractOptions = (module: { default?: ConfigOptionsDefault | ConfigOptions }): ConfigOptions | undefined => {
   if (module.default) {
     return 'default' in module.default ? module.default.default : (module.default as ConfigOptions)
@@ -64,6 +80,9 @@ const extractOptions = (module: { default?: ConfigOptionsDefault | ConfigOptions
   return module as ConfigOptions
 }
 
+/**
+ * Logs an error message to the console.
+ */
 const logError = (error: unknown): void => {
   if (error instanceof Error) {
     console.log(chalk.red(error.message))
@@ -72,8 +91,6 @@ const logError = (error: unknown): void => {
 
 /**
  * Get the options from the config file
- * @param configPath The options passed to the CLI
- * @returns The options from the config file
  */
 export const getConfig = async (configPath: string): Promise<ConfigOptions> => {
   let configOptions: ConfigOptions = {}
@@ -95,27 +112,31 @@ export const getConfig = async (configPath: string): Promise<ConfigOptions> => {
   return configOptions
 }
 
+/**
+ * Converts a string to camel case.
+ */
 export const toCamelCase = (str: Env): string => {
   return str.toLocaleLowerCase().replace(/_([a-z])/g, (g) => (g[1] ? g[1].toUpperCase() : ''))
 }
 
+/**
+ * Gets an environment variable.
+ */
 export const getEnv = (key: Env): string | undefined => {
   // To automatically support camelCase keys
   return process.env[key] ?? process.env[toCamelCase(key)]
 }
 
+/**
+ * Gets a boolean environment variable.
+ */
 export const getEnvBoolean = (key: Env): boolean | undefined => {
   const value = getEnv(key)
-  if (value === 'true') return true
-
-  return undefined
+  return value === 'true' ? true : undefined
 }
 
 /**
  * Get the migrator instance
- * @param options The options passed to the CLI
- * @returns The migrator instance
- * @throws Error if the uri is not provided in the config file, environment or CLI
  */
 export const getMigrator = async (options: ConfigOptions): Promise<Migrator> => {
   config({ path: '.env' })
@@ -138,7 +159,7 @@ export const getMigrator = async (options: ConfigOptions): Promise<Migrator> => 
   const collection = options.collection ?? getEnv(Env.MIGRATE_MONGO_COLLECTION) ?? fileOptions.collection ?? defaults.MIGRATE_MONGO_COLLECTION
   const migrationsPath = options.migrationsPath ?? getEnv(Env.MIGRATE_MIGRATIONS_PATH) ?? fileOptions.migrationsPath ?? defaults.MIGRATE_MIGRATIONS_PATH
   const templatePath = options.templatePath ?? getEnv(Env.MIGRATE_TEMPLATE_PATH) ?? fileOptions.templatePath
-  // can be empty then we use default template
+  // Can be empty then we use default template
   const autosync = Boolean(options.autosync ?? getEnvBoolean(Env.MIGRATE_AUTOSYNC) ?? fileOptions.autosync ?? defaults.MIGRATE_AUTOSYNC)
 
   if (!uri) {
@@ -167,7 +188,6 @@ export const getMigrator = async (options: ConfigOptions): Promise<Migrator> => 
 
 /**
  * This class is responsible for running migrations in the CLI
- * @class Migrate
  */
 export class Migrate {
   private readonly program: Command
@@ -233,10 +253,7 @@ export class Migrate {
   }
 
   /**
-   * Finish the CLI
-   * @param error The error to log
-   * @returns The parsed console arguments
-   * @throws Error if error is provided
+   * Finish the CLI process
    */
   public async finish(exit: boolean, error?: Error): Promise<ConfigOptions> {
     if (this.migrator instanceof Migrator) {
@@ -255,18 +272,14 @@ export class Migrate {
   }
 
   /**
-   * Run the CLI
-   * @param exit Whether to exit the process after running the command, defaults to true
-   * @returns The parsed options or void if exit is true
+   * Run the CLI command
    */
   public async run(exit = true): Promise<ConfigOptions> {
-    return this.program
-      .parseAsync(process.argv)
-      .then(() => {
-        return this.finish(exit)
-      })
-      .catch((error: unknown) => {
-        return this.finish(exit, error instanceof Error ? error : new Error('An unknown error occurred'))
-      })
+    try {
+      await this.program.parseAsync(process.argv)
+      return await this.finish(exit)
+    } catch (error: unknown) {
+      return await this.finish(exit, error instanceof Error ? error : new Error('An unknown error occurred'))
+    }
   }
 }

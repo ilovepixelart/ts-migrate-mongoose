@@ -13,6 +13,7 @@ npm-debug.log
 # Webstorm
 .idea
 .env
+.env.local
 
 # Folder for migrations
 /migrations

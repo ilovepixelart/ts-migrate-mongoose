@@ -3,7 +3,7 @@ import mongoose from 'mongoose'
 
 import { MongoMemoryServer } from 'mongodb-memory-server'
 
-export const create = async (dbName: string) => {
+export const create = async (dbName: string): Promise<{ uri: string; destroy: () => Promise<void> }> => {
   const dbPath = `./tests/mongo/${dbName}`
   await fs.mkdir(dbPath, { recursive: true })
 
@@ -20,7 +20,7 @@ export const create = async (dbName: string) => {
     throw new Error('Connection not open')
   }
 
-  const destroy = async () => {
+  const destroy = async (): Promise<void> => {
     await connection.dropDatabase()
     await connection.close()
     await server.stop({ doCleanup: true, force: true })
