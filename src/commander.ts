@@ -1,10 +1,10 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import chalk from 'chalk'
 import { Command } from 'commander'
 import { config } from 'dotenv'
 import { tsImport } from 'tsx/esm/api'
+import { chalk } from './chalk'
 import { defaults } from './defaults'
 import { Env, Migrator } from './index'
 

@@ -1,7 +1,7 @@
 import fs from 'node:fs'
-import chalk from 'chalk'
 import mongoose, { type Connection } from 'mongoose'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { chalk } from '../src/chalk'
 import { Migrate, getMigrator } from '../src/commander'
 import { template } from '../src/template'
 import { create } from './mongo/server'
