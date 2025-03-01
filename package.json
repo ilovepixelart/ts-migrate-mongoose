@@ -1,7 +1,7 @@
 {
   "name": "ts-migrate-mongoose",
   "version": "4.0.4",
-  "description": "Migration framework for mongoose",
+  "description": "A migration framework for Mongoose, built with TypeScript.",
   "author": "ilovepixelart",
   "license": "MIT",
   "repository": {
