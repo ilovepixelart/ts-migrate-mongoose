@@ -1,9 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import chalk from 'chalk'
-import inquirer from 'inquirer'
+import { checkbox } from '@inquirer/prompts'
 import mongoose from 'mongoose'
+import { chalk } from './chalk'
 
 import { defaults } from './defaults'
 import { getMigrationModel } from './model'
@@ -328,13 +328,11 @@ export class Migrator {
    */
   private async choseMigrations(migrations: string[], message: string): Promise<string[]> {
     if (!this.autosync && migrations.length) {
-      const answers = await inquirer.prompt<{ chosen: string[] }>({
-        type: 'checkbox',
+      const selected = await checkbox({
         message,
-        name: 'chosen',
-        choices: migrations,
+        choices: migrations.map((migration) => ({ name: migration, value: migration })),
       })
-      return answers.chosen
+      return selected
     }
     return migrations
   }

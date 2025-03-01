@@ -1,7 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import fs from 'node:fs'
-import inquirer from 'inquirer'
+import { checkbox } from '@inquirer/prompts'
 import mongoose, { type Connection, Types } from 'mongoose'
 
 import { getConfig } from '../src/commander'
@@ -9,6 +9,10 @@ import { Migrator } from '../src/index'
 import { template } from '../src/template'
 import { create } from './mongo/server'
 import { clearDirectory } from './utils/filesystem'
+
+vi.mock('@inquirer/prompts', () => ({
+  checkbox: vi.fn().mockResolvedValue(['1']),
+}))
 
 describe('Tests for Migrator class - Programmatic approach', async () => {
   const { uri, destroy } = await create('migrator')
@@ -202,10 +206,10 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should choose first', async () => {
-    vi.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
     const migrator = await Migrator.connect({ uri })
     // @ts-expect-error - private method
     const answers = await migrator.choseMigrations(['1', '2', '3'], 'Message')
+    expect(checkbox).toHaveBeenCalled()
     expect(answers).toEqual(['1'])
 
     expect(migrator.connection.readyState).toBe(1)
@@ -214,10 +218,10 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should choose all', async () => {
-    vi.spyOn(inquirer, 'prompt').mockReturnValue(Promise.resolve({ chosen: ['1'] }))
     const migrator = await Migrator.connect({ uri, autosync: true })
     // @ts-expect-error - private method
     const answers = await migrator.choseMigrations(['1', '2', '3'], 'Message')
+    expect(checkbox).toHaveBeenCalled()
     expect(answers).toEqual(['1', '2', '3'])
 
     expect(migrator.connection.readyState).toBe(1)

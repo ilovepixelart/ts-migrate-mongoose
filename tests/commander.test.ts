@@ -1,9 +1,8 @@
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import chalk from 'chalk'
-
 import type { Connection } from 'mongoose'
 import mongoose from 'mongoose'
+import { chalk } from '../src/chalk'
 import { Migrate, getConfig, getMigrator } from '../src/commander'
 import { Migrator } from '../src/index'
 import { create } from './mongo/server'
