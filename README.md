@@ -23,7 +23,7 @@ A migration framework for Mongoose, built with TypeScript.
 - Prune old migrations and sync new migrations
 - Create custom templates for migrations
 - Run individual migration up/down using -s, --single
-- Supports CommonJS
+- Supports ESM and CommonJS
 
 ## Example
 

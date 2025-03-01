@@ -62,16 +62,15 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.cts",
   "scripts": {
-    "prepare": "simple-git-hooks",
     "migrate": "tsx src/cli.ts",
+    "prepare": "simple-git-hooks",
     "biome": "npx @biomejs/biome check",
     "biome:fix": "npx @biomejs/biome check --write .",
     "pretest": "cd examples/config-file-usage/src && npx tsc",
     "test": "vitest run --coverage",
     "test:open": "vitest run --coverage && open-cli coverage/lcov-report/index.html",
-    "clean": "rm -rf ./dist",
     "type:check": "tsc --noEmit",
-    "build": "npm run clean && pkgroll",
+    "build": "pkgroll --clean-dist",
     "release": "npm install && npm run biome && npm run build && np"
   },
   "dependencies": {
