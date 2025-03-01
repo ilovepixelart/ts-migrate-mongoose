@@ -7,13 +7,13 @@ For demo purposes, both `migrate.ts` and `migrate.json` files are provided, but 
 Instead of running this command to create a new migration:
 
 ```bash
-npx migrate create add-users-collection -d mongodb://localhost/my-db
+npx migrate create add-users -d mongodb://localhost/my-db
 ```
 
 You can simply run:
 
 ```bash
-npx migrate create add-users-collection
+npx migrate create add-users
 ```
 
 You can change the name of the config file to expect by providing the `--config` option, e.g., `--config custom-config-file-name.json`.

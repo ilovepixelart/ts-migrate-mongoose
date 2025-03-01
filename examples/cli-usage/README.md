@@ -9,10 +9,10 @@ npx migrate <command> <options>
 
 ## Creating a migration
 
-Create a new migration (e.g., `add-users-collection`) by running:
+Create a new migration (e.g., `add-users`) by running:
 
 ```bash
-npx migrate <options> create add-users-collection
+npx migrate <options> create add-users
 ```
 
 where `<options>` must at a MINIMUM contain the database URL (using the `-d`/`--uri` option).
@@ -33,27 +33,27 @@ npx migrate list <options>
 Let's say your `migrate list` command shows:
 
 ```bash
-up: 1735680000000-add-users-collection.ts
-up: 1735683600000-add-products-collection.ts
-up: 1735687200000-add-orders-collection.ts
-down: 1735690800000-add-payments-collection.ts
-down: 1735694400000-add-reviews-collection.ts
+up: 1735680000000-add-users.ts
+up: 1735683600000-add-products.ts
+up: 1735687200000-add-orders.ts
+down: 1735690800000-add-payments.ts
+down: 1735694400000-add-reviews.ts
 ```
 
 This means the first 3 migrations have run. To run the next 2 and be up to date with the latest schema/data changes made by other developers, simply run:
 
 ```bash
-npx migrate up add-reviews-collection <options>
+npx migrate up add-reviews <options>
 ```
 
 Your new state will be:
 
 ```bash
-up: 1735680000000-add-users-collection.ts
-up: 1735683600000-add-products-collection.ts
-up: 1735687200000-add-orders-collection.ts
-up: 1735690800000-add-payments-collection.ts
-up: 1735694400000-add-reviews-collection.ts
+up: 1735680000000-add-users.ts
+up: 1735683600000-add-products.ts
+up: 1735687200000-add-orders.ts
+up: 1735690800000-add-payments.ts
+up: 1735694400000-add-reviews.ts
 ```
 
 ## Undoing migrations (migrate down)
@@ -61,35 +61,35 @@ up: 1735694400000-add-reviews-collection.ts
 To undo the previous step, simply run:
 
 ```bash
-npx migrate down add-payments-collection <options>
+npx migrate down add-payments <options>
 ```
 
 Your new state will be:
 
 ```bash
-up: 1735680000000-add-users-collection.ts
-up: 1735683600000-add-products-collection.ts
-up: 1735687200000-add-orders-collection.ts
-down: 1735690800000-add-payments-collection.ts
-down: 1735694400000-add-reviews-collection.ts
+up: 1735680000000-add-users.ts
+up: 1735683600000-add-products.ts
+up: 1735687200000-add-orders.ts
+down: 1735690800000-add-payments.ts
+down: 1735694400000-add-reviews.ts
 ```
 
 ## Synchronizing your DB with new migrations
 
-Let's say you `git pull` the latest changes from your project and someone had made a new migration called `add-analytics-collection`.
+Let's say you `git pull` the latest changes from your project and someone had made a new migration called `add-analytics`.
 
 When you run any migration command (e.g., `migrate list`), you are prompted with:
 
 ```bash
 ? The following migrations exist in the migrations folder but not in the database.
 Select the ones you want to import into the database (Press <space> to select)
-❯◯ 1735698000000-add-analytics-collection.ts
+❯◯ 1735698000000-add-analytics.ts
 ```
 
 This indicates that someone added a migration file that your database doesn't have yet.
 If you select it by pressing **Space** then **Enter**, you can import it into the database.
 
-Once imported, the default state is down, so you'll have to `migrate up add-analytics-collection` to be up to date.
+Once imported, the default state is down, so you'll have to `migrate up add-analytics` to be up to date.
 
 To remove it from the file system, simply run:
 

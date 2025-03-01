@@ -10,7 +10,7 @@ const migrator = await Migrator.connect({
   autosync: true
 })
 
-const migrationName = 'add-users-collection'
+const migrationName = 'add-users'
 
 // Create a new migration
 await migrator.create(migrationName).then(() => {
@@ -27,7 +27,7 @@ await migrator.run('down', migrationName)
 /*
 Example return value:
 [
- { name: 'add-users-collection', filename: '1735680000000_add-users-collection.ts', state: 'down' }
+ { name: 'add-users', filename: '1735680000000-add-users.ts', state: 'down' }
 ]
 */
 await migrator.list()
