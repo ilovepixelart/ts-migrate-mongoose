@@ -14,7 +14,7 @@ const migrationName = 'add-users-collection'
 
 // Create a new migration
 await migrator.create(migrationName).then(() => {
-  console.log(`Migration created. Run ` + `migrate up ${migrationName}`.cyan + ` to apply the migration`)
+  console.log('Migration created')
 })
 
 // Migrate Up
