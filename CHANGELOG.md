@@ -1,3 +1,18 @@
+<a id="v4.0.6"></a>
+# [v4.0.6](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.0.6) - 2025-03-02
+
+- Type check  fadcd48
+- Type check  2da6026
+- Doc  22611f6
+- Update changelog for v4.0.5  6341bc4
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.5...v4.0.6
+
+[Changes][v4.0.6]
+
+
 <a id="v4.0.5"></a>
 # [v4.0.5](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.0.5) - 2025-03-01
 
@@ -1711,6 +1726,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v4.0.6]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.5...v4.0.6
 [v4.0.5]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.4...v4.0.5
 [v4.0.4]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.3...v4.0.4
 [v4.0.3]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.2...v4.0.3
