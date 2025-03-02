@@ -71,7 +71,7 @@
     "test:open": "vitest run --coverage && open-cli coverage/lcov-report/index.html",
     "type:check": "tsc --noEmit",
     "build": "pkgroll --clean-dist",
-    "release": "npm install && npm run biome && npm run type:check npm run build && np"
+    "release": "npm install && npm run biome && npm run type:check && npm run build && np"
   },
   "dependencies": {
     "@inquirer/prompts": "7.3.2",
