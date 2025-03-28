@@ -8,6 +8,7 @@ import { chalk } from './chalk'
 import { defaults } from './defaults'
 import { getMigrationModel } from './model'
 import { template } from './template'
+import { loader } from './loader'
 
 import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
 import type { Migration, MigrationFile, MigrationFunctions, MigrationFunctionsDefault, MigratorOptions } from './types'
@@ -55,13 +56,7 @@ export class Migrator {
    * Asynchronously creates a new migrator instance
    */
   static async connect(options: MigratorOptions): Promise<Migrator> {
-    await import('tsx')
-      .then(() => {
-        console.log('Loaded tsx')
-      })
-      .catch(() => {
-        console.log('Skipped tsx')
-      })
+    await loader()
 
     const migrator = new Migrator(options)
     await migrator.connected()

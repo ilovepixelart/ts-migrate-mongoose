@@ -3,10 +3,10 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { Command } from 'commander'
 import { config } from 'dotenv'
-import { tsImport } from 'tsx/esm/api'
 import { chalk } from './chalk'
 import { defaults } from './defaults'
 import { Env, Migrator } from './index'
+import { loader } from './loader'
 
 import type { ConfigOptions, ConfigOptionsDefault, MigratorOptions } from './types'
 
@@ -61,9 +61,11 @@ const loadModule = async (configPath: string): Promise<{ default?: ConfigOptions
   const config = await resolveConfigPath(configPath)
   const fileUrl = pathToFileURL(config).href
 
+  await loader()
+
   const extension = path.extname(config)
   if (extension === '.ts') {
-    return (await tsImport(fileUrl, import.meta.url)) as { default?: ConfigOptionsDefault | ConfigOptions }
+    return (await import(fileUrl)) as { default?: ConfigOptionsDefault | ConfigOptions }
   }
 
   return await import(fileUrl)
