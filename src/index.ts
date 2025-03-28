@@ -6,9 +6,9 @@ import mongoose from 'mongoose'
 import { chalk } from './chalk'
 
 import { defaults } from './defaults'
+import { loader } from './loader'
 import { getMigrationModel } from './model'
 import { template } from './template'
-import { loader } from './loader'
 
 import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
 import type { Migration, MigrationFile, MigrationFunctions, MigrationFunctionsDefault, MigratorOptions } from './types'
