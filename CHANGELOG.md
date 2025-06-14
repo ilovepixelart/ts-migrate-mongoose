@@ -1,3 +1,33 @@
+<a id="v4.0.9"></a>
+# [v4.0.9](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.0.9) - 2025-06-14
+
+- Merge pull request [#417](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/417) from ilovepixelart/feature/dep  f2a29d1
+- Dep and Node 24.x  ee282a9
+- Merge pull request [#416](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/416) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-c9ebab5556  25519d3
+- Update dependencies: Bump the all-dependencies group with 3 updates  767ae34
+- Merge pull request [#415](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/415) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-faef09be9f  0b46bd1
+- Update dependencies: Bump the all-dependencies group with 2 updates  e5521b6
+- Merge pull request [#414](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/414) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-9df2a8a1b0  1ecb537
+- Update dependencies: Bump the all-dependencies group with 4 updates  f83001e
+- Merge pull request [#413](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/413) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-c83f79313b  91e58b2
+- Update dependencies: Bump the all-dependencies group with 3 updates  19c7c7e
+- Merge pull request [#411](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/411) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-8737678a05  9597d64
+- Update dependencies: Bump the all-dependencies group with 5 updates  90f3110
+- Merge pull request [#410](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/410) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-f7ddef99f0  c764108
+- Update dependencies: Bump the all-dependencies group with 3 updates  e24fce1
+- Merge pull request [#409](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/409) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-77146f7c1a  8e82fd1
+- Update dependencies: Bump the all-dependencies group with 7 updates  6944e47
+- Merge pull request [#408](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/408) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-72179e684f  4b16bcf
+- Update dependencies: Bump the all-dependencies group with 2 updates  318e6dc
+- Update changelog for v4.0.8  462baf3
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.8...v4.0.9
+
+[Changes][v4.0.9]
+
+
 <a id="v4.0.8"></a>
 # [v4.0.8](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.0.8) - 2025-04-05
 
@@ -1765,6 +1795,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v4.0.9]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.8...v4.0.9
 [v4.0.8]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.7...v4.0.8
 [v4.0.7]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.6...v4.0.7
 [v4.0.6]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.5...v4.0.6
