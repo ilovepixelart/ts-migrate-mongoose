@@ -1,8 +1,9 @@
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
 import fs from 'node:fs'
 import mongoose, { type Connection } from 'mongoose'
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { chalk } from '../src/chalk'
-import { Migrate, getMigrator } from '../src/commander'
+import { getMigrator, Migrate } from '../src/commander'
 import { template } from '../src/template'
 import { create } from './mongo/server'
 import { clearDirectory, deleteDirectory } from './utils/filesystem'

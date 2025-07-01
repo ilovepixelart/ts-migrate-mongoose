@@ -1,7 +1,6 @@
 import fs from 'node:fs/promises'
-import mongoose from 'mongoose'
-
 import { MongoMemoryServer } from 'mongodb-memory-server'
+import mongoose from 'mongoose'
 
 export const create = async (dbName: string): Promise<{ uri: string; destroy: () => Promise<void> }> => {
   const dbPath = `./tests/mongo/${dbName}`

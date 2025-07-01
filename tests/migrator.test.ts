@@ -3,7 +3,6 @@ import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import fs from 'node:fs'
 import { checkbox } from '@inquirer/prompts'
 import mongoose, { type Connection, Types } from 'mongoose'
-
 import { getConfig } from '../src/commander'
 import { Migrator } from '../src/index'
 import { template } from '../src/template'

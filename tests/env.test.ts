@@ -1,21 +1,18 @@
-import { config } from 'dotenv'
 import { beforeEach, describe, expect, it } from 'vitest'
+
+import { config } from 'dotenv'
 import { getEnv, getEnvBoolean, toCamelCase } from '../src/commander'
 import { Env } from '../src/types'
 
 // Load environment variables from .env file
-config({ path: '.env.test' })
+config({ path: '.env.test', quiet: true })
 
 describe('Environment Variable Utilities', () => {
   beforeEach(() => {
     // Clear environment variables before each test
-    // biome-ignore lint/performance/noDelete: we need to delete the environment variables for testing
     delete process.env.MIGRATE_MODE
-    // biome-ignore lint/performance/noDelete: we need to delete the environment variables for testing
     delete process.env.migrateMode
-    // biome-ignore lint/performance/noDelete: we need to delete the environment variables for testing
     delete process.env.MIGRATE_CONFIG_PATH
-    // biome-ignore lint/performance/noDelete: we need to delete the environment variables for testing
     delete process.env.migrateConfigPath
   })
 

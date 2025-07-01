@@ -1,4 +1,4 @@
-import type { ConnectOptions, Connection } from 'mongoose'
+import type { Connection, ConnectOptions } from 'mongoose'
 
 export interface MigrationFile {
   filename: string

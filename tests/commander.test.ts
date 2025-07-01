@@ -1,12 +1,13 @@
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { Connection } from 'mongoose'
 import mongoose from 'mongoose'
 import { chalk } from '../src/chalk'
-import { Migrate, getConfig, getMigrator } from '../src/commander'
+import { getConfig, getMigrator, Migrate } from '../src/commander'
 import { Migrator } from '../src/index'
 import { create } from './mongo/server'
 import { clearDirectory, deleteDirectory } from './utils/filesystem'
+
+import type { Connection } from 'mongoose'
 
 const setProcessArgv = (...args: string[]) => {
   process.argv = ['node', 'migrate', ...args]

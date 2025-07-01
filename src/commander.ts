@@ -141,14 +141,14 @@ export const getEnvBoolean = (key: Env): boolean | undefined => {
  * Get the migrator instance
  */
 export const getMigrator = async (options: ConfigOptions): Promise<Migrator> => {
-  config({ path: '.env' })
-  config({ path: '.env.local', override: true })
+  config({ path: '.env', quiet: true })
+  config({ path: '.env.local', quiet: true, override: true })
 
   const mode = options.mode ?? getEnv(Env.MIGRATE_MODE)
 
   if (mode) {
-    config({ path: `.env.${mode}`, override: true })
-    config({ path: `.env.${mode}.local`, override: true })
+    config({ path: `.env.${mode}`, quiet: true, override: true })
+    config({ path: `.env.${mode}.local`, quiet: true, override: true })
   }
 
   const configPath = options.configPath ?? getEnv(Env.MIGRATE_CONFIG_PATH) ?? defaults.MIGRATE_CONFIG_PATH
