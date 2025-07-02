@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+
 import { Migrate } from './commander'
 
 /**

@@ -4,7 +4,6 @@ import { pathToFileURL } from 'node:url'
 import { checkbox } from '@inquirer/prompts'
 import mongoose from 'mongoose'
 import { chalk } from './chalk'
-
 import { defaults } from './defaults'
 import { loader } from './loader'
 import { getMigrationModel } from './model'
@@ -337,7 +336,7 @@ export class Migrator {
    */
   private async runMigrations(migrationsToRun: HydratedDocument<Migration>[], direction: 'down' | 'up'): Promise<HydratedDocument<Migration>[]> {
     const migrationsRan: HydratedDocument<Migration>[] = []
-    for await (const migration of migrationsToRun) {
+    for (const migration of migrationsToRun) {
       const migrationFilePath = path.resolve(path.join(this.migrationsPath, migration.filename))
       const fileUrl = pathToFileURL(migrationFilePath).href
       const migrationFunctions = (await import(fileUrl)) as MigrationFunctions | MigrationFunctionsDefault

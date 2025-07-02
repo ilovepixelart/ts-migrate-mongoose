@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+
 import { chalk } from '../src/chalk'
 
 describe('chalk', () => {
