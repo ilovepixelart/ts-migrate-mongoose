@@ -308,7 +308,7 @@ export class Migrator {
       .map((filename) => {
         const filenameWithoutExtension = filename.replace(/\.(js|ts)$/, '')
         const [time] = filename.split('-')
-        const timestamp = Number.parseInt(time ?? '')
+        const timestamp = Number.parseInt(time ?? '', 10)
         const createdAt = new Date(timestamp)
         const existsInDatabase = migrationsInDb.some((migration) => filenameWithoutExtension === migration.filename)
         return { createdAt, filename: filenameWithoutExtension, existsInDatabase }
