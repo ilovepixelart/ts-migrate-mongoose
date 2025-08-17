@@ -10,10 +10,6 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    ignore:
-      - dependency-name: "inquirer"
-      - dependency-name: "@types/inquirer"
-      - dependency-name: "chalk"
     commit-message:
       prefix: "Update dependencies"
     pull-request-branch-name:
