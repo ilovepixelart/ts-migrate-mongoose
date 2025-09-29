@@ -77,8 +77,8 @@
     "@inquirer/prompts": "7.8.6",
     "commander": "14.0.1",
     "dotenv": "17.2.2",
-    "mongoose": "8.18.1",
-    "tsx": "4.20.5"
+    "mongoose": "8.18.2",
+    "tsx": "4.20.6"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
