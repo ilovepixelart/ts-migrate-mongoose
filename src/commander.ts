@@ -118,7 +118,7 @@ export const getConfig = async (configPath: string): Promise<ConfigOptions> => {
  * Converts a string to camel case.
  */
 export const toCamelCase = (str: Env): string => {
-  return str.toLocaleLowerCase().replace(/_([a-z])/g, (g) => (g[1] ? g[1].toUpperCase() : ''))
+  return str.toLocaleLowerCase().replaceAll(/_([a-z])/g, (g) => (g[1] ? g[1].toUpperCase() : ''))
 }
 
 /**

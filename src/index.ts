@@ -195,7 +195,7 @@ export class Migrator {
 
       const { migrationsInDb, migrationsInFs } = await this.getMigrations()
 
-      let migrationsToDelete = migrationsInDb.filter((migration) => !migrationsInFs.find((file) => file.filename === migration.filename)).map((migration) => migration.name)
+      let migrationsToDelete = migrationsInDb.filter((migration) => !migrationsInFs.some((file) => file.filename === migration.filename)).map((migration) => migration.name)
 
       migrationsToDelete = await this.choseMigrations(migrationsToDelete, 'The following migrations exist in the database but not in the migrations folder.\nSelect the ones you want to remove from the database')
 
