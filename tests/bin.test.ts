@@ -5,7 +5,8 @@ import { Migrate } from '../src/commander'
 // Mock the Migrate class
 vi.mock('../src/commander', () => {
   return {
-    Migrate: vi.fn().mockImplementation(() => {
+    // biome-ignore lint/complexity/useArrowFunction: vitest requires a function (not arrow function) to work as a constructor
+    Migrate: vi.fn(function () {
       return {
         run: vi.fn(),
       }
