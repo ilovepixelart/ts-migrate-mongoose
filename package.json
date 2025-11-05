@@ -75,21 +75,21 @@
   },
   "dependencies": {
     "@inquirer/prompts": "7.9.0",
-    "commander": "14.0.1",
+    "commander": "14.0.2",
     "dotenv": "17.2.3",
     "mongoose": "8.19.2",
     "tsx": "4.20.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.7",
-    "@types/node": "24.9.1",
-    "@vitest/coverage-v8": "4.0.2",
-    "mongodb-memory-server": "10.2.3",
+    "@biomejs/biome": "2.3.2",
+    "@types/node": "24.10.0",
+    "@vitest/coverage-v8": "4.0.6",
+    "mongodb-memory-server": "10.3.0",
     "open-cli": "8.0.0",
     "pkgroll": "2.20.1",
     "simple-git-hooks": "2.13.1",
     "typescript": "5.9.3",
-    "vitest": "4.0.2"
+    "vitest": "4.0.6"
   },
   "simple-git-hooks": {
     "pre-commit": "npm run type:check",
