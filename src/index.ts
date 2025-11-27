@@ -12,6 +12,33 @@ import { template } from './template'
 import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
 import type { Migration, MigrationFile, MigrationFunctions, MigrationFunctionsDefault, MigratorOptions } from './types'
 
+const MIGRATION_FILE_EXTENSIONS = ['ts', 'js', 'mjs', 'cjs'] as const
+
+// Regex to match migration files, excluding .d.ts files
+const MIGRATION_FILE_REGEX = new RegExp(`(?<!\\.d)\\.(${MIGRATION_FILE_EXTENSIONS.join('|')})$`)
+
+/**
+ * Resolves a migration file path by trying common extensions
+ * Returns the full path with extension if found, otherwise returns the original path
+ */
+const resolveMigrationFile = (basePath: string): string => {
+  // If the path already has an extension that exists, use it
+  if (fs.existsSync(basePath)) {
+    return basePath
+  }
+
+  // Try each extension in order
+  for (const ext of MIGRATION_FILE_EXTENSIONS) {
+    const pathWithExt = `${basePath}.${ext}`
+    if (fs.existsSync(pathWithExt)) {
+      return pathWithExt
+    }
+  }
+
+  // Return original path if no extension found (will fail on import with a clear error)
+  return basePath
+}
+
 export * from './types'
 
 /**
@@ -302,11 +329,10 @@ export class Migrator {
     const files = fs.readdirSync(this.migrationsPath)
     const migrationsInDb = await this.migrationModel.find({}).exec()
 
-    const fileExtensionMatch = /(\.js|(?<!\.d)\.ts)$/ // allow .js and .ts files, but not .d.ts files
     const migrationsInFs = files
-      .filter((filename) => /^\d{13,}-/.test(filename) && fileExtensionMatch.test(filename))
+      .filter((filename) => /^\d{13,}-/.test(filename) && MIGRATION_FILE_REGEX.test(filename))
       .map((filename) => {
-        const filenameWithoutExtension = filename.replace(/\.(js|ts)$/, '')
+        const filenameWithoutExtension = filename.replace(MIGRATION_FILE_REGEX, '')
         const [time] = filename.split('-')
         const timestamp = Number.parseInt(time ?? '', 10)
         const createdAt = new Date(timestamp)
@@ -337,7 +363,8 @@ export class Migrator {
   private async runMigrations(migrationsToRun: HydratedDocument<Migration>[], direction: 'down' | 'up'): Promise<HydratedDocument<Migration>[]> {
     const migrationsRan: HydratedDocument<Migration>[] = []
     for (const migration of migrationsToRun) {
-      const migrationFilePath = path.resolve(path.join(this.migrationsPath, migration.filename))
+      const baseMigrationPath = path.resolve(path.join(this.migrationsPath, migration.filename))
+      const migrationFilePath = resolveMigrationFile(baseMigrationPath)
       const fileUrl = pathToFileURL(migrationFilePath).href
       const migrationFunctions = (await import(fileUrl)) as MigrationFunctions | MigrationFunctionsDefault
       const migrationFunction = 'default' in migrationFunctions ? migrationFunctions.default[direction] : (migrationFunctions as MigrationFunctions)[direction]

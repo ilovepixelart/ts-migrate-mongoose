@@ -642,4 +642,45 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
     await migrator.close()
     expect(migrator.connection.readyState).toBe(0)
   })
+
+  it('should resolve migration file with .js extension when .ts file is renamed', async () => {
+    const migrator = await Migrator.connect({ uri, autosync: true })
+
+    // Create a migration (creates .ts file)
+    const migration = await migrator.create('extension-test')
+    expect(migration.filename).toMatch(/^\d{13,}-extension-test/)
+
+    // Rename .ts to .js to simulate compiled JS-only environment
+    const tsPath = `migrations/${migration.filename}.ts`
+    const jsPath = `migrations/${migration.filename}.js`
+
+    // Create a simple JS migration content
+    const jsContent = `
+export async function up(connection) {
+  // JS migration up
+}
+
+export async function down(connection) {
+  // JS migration down
+}
+`
+    fs.writeFileSync(jsPath, jsContent)
+    fs.unlinkSync(tsPath)
+
+    // Run migration - should find the .js file via extension fallback
+    await migrator.run('up', 'extension-test')
+
+    const foundUp = await migrator.migrationModel.findById(migration._id)
+    expect(foundUp?.state).toBe('up')
+
+    // Run down
+    await migrator.run('down', 'extension-test')
+
+    const foundDown = await migrator.migrationModel.findById(migration._id)
+    expect(foundDown?.state).toBe('down')
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
 })
