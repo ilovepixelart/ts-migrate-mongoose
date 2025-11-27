@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url'
 import { checkbox } from '@inquirer/prompts'
 import mongoose from 'mongoose'
 import { chalk } from './chalk'
+import { MIGRATION_FILE_EXTENSIONS, MIGRATION_FILE_REGEX } from './constants'
 import { defaults } from './defaults'
 import { loader } from './loader'
 import { getMigrationModel } from './model'
@@ -11,11 +12,6 @@ import { template } from './template'
 
 import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
 import type { Migration, MigrationFile, MigrationFunctions, MigrationFunctionsDefault, MigratorOptions } from './types'
-
-const MIGRATION_FILE_EXTENSIONS = ['ts', 'js', 'mjs', 'cjs'] as const
-
-// Regex to match migration files, excluding .d.ts files
-const MIGRATION_FILE_REGEX = new RegExp(String.raw`(?<!\.d)\.(${MIGRATION_FILE_EXTENSIONS.join('|')})$`)
 
 /**
  * Resolves a migration file path by trying common extensions
