@@ -15,7 +15,7 @@ import type { Migration, MigrationFile, MigrationFunctions, MigrationFunctionsDe
 const MIGRATION_FILE_EXTENSIONS = ['ts', 'js', 'mjs', 'cjs'] as const
 
 // Regex to match migration files, excluding .d.ts files
-const MIGRATION_FILE_REGEX = new RegExp(`(?<!\\.d)\\.(${MIGRATION_FILE_EXTENSIONS.join('|')})$`)
+const MIGRATION_FILE_REGEX = new RegExp(String.raw`(?<!\.d)\.(${MIGRATION_FILE_EXTENSIONS.join('|')})$`)
 
 /**
  * Resolves a migration file path by trying common extensions
