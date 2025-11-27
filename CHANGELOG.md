@@ -1,3 +1,23 @@
+<a id="v4.2.0"></a>
+# [v4.2.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.2.0) - 2025-11-27
+
+- Merge pull request [#449](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/449) from ilovepixelart/feature/support-extensions  ab9ba82
+- Extract to constants, more tests  f9bd1a9
+- String raw  5bcf411
+- Support extensions after compilation  9333c77
+- Merge pull request [#445](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/445) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-653af0fa4c  dc67301
+- Update dependencies: Bump the all-dependencies group with 5 updates  62c795a
+- Merge pull request [#444](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/444) from ilovepixelart/dependabot-npm_and_yarn-all-dependencies-2bc3c5a2a0  9e2d58e
+- Update dependencies: Bump the all-dependencies group with 6 updates  6ce3d4c
+- Update changelog for v4.1.1  6c0e360
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.1.1...v4.2.0
+
+[Changes][v4.2.0]
+
+
 <a id="v4.1.1"></a>
 # [v4.1.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.1.1) - 2025-10-25
 
@@ -1857,6 +1877,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v4.2.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.1.1...v4.2.0
 [v4.1.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.1.0...v4.1.1
 [v4.1.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.9...v4.1.0
 [v4.0.9]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.8...v4.0.9
