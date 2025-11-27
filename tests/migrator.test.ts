@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import { checkbox } from '@inquirer/prompts'
 import mongoose, { type Connection, Types } from 'mongoose'
 import { getConfig } from '../src/commander'
+import { MIGRATION_FILE_REGEX } from '../src/constants'
 import { Migrator } from '../src/index'
 import { template } from '../src/template'
 import { create } from './mongo/server'
@@ -12,6 +13,30 @@ import { clearDirectory } from './utils/filesystem'
 vi.mock('@inquirer/prompts', () => ({
   checkbox: vi.fn().mockResolvedValue(['1']),
 }))
+
+describe('MIGRATION_FILE_REGEX', () => {
+  const base = '1234567890123-migration'
+
+  describe('matching', () => {
+    it.each(['ts', 'js', 'mjs', 'cjs'])('should match .%s extension', (ext) => {
+      expect(MIGRATION_FILE_REGEX.test(`${base}.${ext}`)).toBe(true)
+    })
+
+    it.each([`${base}.d.ts`, `${base}.txt`, base, 'migration.d.ts'])('should not match %s', (filename) => {
+      expect(MIGRATION_FILE_REGEX.test(filename)).toBe(false)
+    })
+  })
+
+  describe('replace', () => {
+    it.each(['ts', 'js', 'mjs', 'cjs'])('should strip .%s extension', (ext) => {
+      expect(`${base}.${ext}`.replace(MIGRATION_FILE_REGEX, '')).toBe(base)
+    })
+
+    it.each([`${base}.d.ts`, `${base}.txt`, base])('should leave %s unchanged', (filename) => {
+      expect(filename.replace(MIGRATION_FILE_REGEX, '')).toBe(filename)
+    })
+  })
+})
 
 describe('Tests for Migrator class - Programmatic approach', async () => {
   const { uri, destroy } = await create('migrator')
@@ -637,6 +662,47 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
       .find({ firstName: { $in: ['Jane', 'John'] } })
       .toArray()
     expect(deletedUsers).toHaveLength(0)
+
+    expect(migrator.connection.readyState).toBe(1)
+    await migrator.close()
+    expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('should resolve migration file with .js extension when .ts file is renamed', async () => {
+    const migrator = await Migrator.connect({ uri, autosync: true })
+
+    // Create a migration (creates .ts file)
+    const migration = await migrator.create('extension-test')
+    expect(migration.filename).toMatch(/^\d{13,}-extension-test/)
+
+    // Rename .ts to .js to simulate compiled JS-only environment
+    const tsPath = `migrations/${migration.filename}.ts`
+    const jsPath = `migrations/${migration.filename}.js`
+
+    // Create a simple JS migration content
+    const jsContent = `
+export async function up(connection) {
+  // JS migration up
+}
+
+export async function down(connection) {
+  // JS migration down
+}
+`
+    fs.writeFileSync(jsPath, jsContent)
+    fs.unlinkSync(tsPath)
+
+    // Run migration - should find the .js file via extension fallback
+    await migrator.run('up', 'extension-test')
+
+    const foundUp = await migrator.migrationModel.findById(migration._id)
+    expect(foundUp?.state).toBe('up')
+
+    // Run down
+    await migrator.run('down', 'extension-test')
+
+    const foundDown = await migrator.migrationModel.findById(migration._id)
+    expect(foundDown?.state).toBe('down')
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
