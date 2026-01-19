@@ -74,22 +74,22 @@
     "release": "npm install && npm run biome && npm run type:check && npm run build && np"
   },
   "dependencies": {
-    "@inquirer/prompts": "7.10.1",
+    "@inquirer/prompts": "8.2.0",
     "commander": "14.0.2",
     "dotenv": "17.2.3",
-    "mongoose": "8.20.1",
-    "tsx": "4.20.6"
+    "mongoose": "9.1.4",
+    "tsx": "4.21.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.8",
-    "@types/node": "24.10.1",
-    "@vitest/coverage-v8": "4.0.14",
-    "mongodb-memory-server": "10.3.0",
+    "@biomejs/biome": "2.3.11",
+    "@types/node": "25.0.9",
+    "@vitest/coverage-v8": "4.0.17",
+    "mongodb-memory-server": "11.0.1",
     "open-cli": "8.0.0",
-    "pkgroll": "2.21.3",
+    "pkgroll": "2.21.5",
     "simple-git-hooks": "2.13.1",
     "typescript": "5.9.3",
-    "vitest": "4.0.14"
+    "vitest": "4.0.17"
   },
   "simple-git-hooks": {
     "pre-commit": "npm run type:check",
