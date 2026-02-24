@@ -1,3 +1,20 @@
+<a id="v4.2.1"></a>
+# [v4.2.1](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.2.1) - 2026-02-24
+
+- np  5360a43
+- np  0cd3e20
+- Merge pull request [#462](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/462) from ilovepixelart/feature/dep  a1664c9
+- Dep  e4f82ef
+- Add GitHub Action workflow for npm publishing  a2ccf2d
+- Update changelog for v4.2.0  839d081
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.2.0...v4.2.1
+
+[Changes][v4.2.1]
+
+
 <a id="v4.2.0"></a>
 # [v4.2.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.2.0) - 2025-11-27
 
@@ -1877,6 +1894,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v4.2.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.2.0...v4.2.1
 [v4.2.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.1.1...v4.2.0
 [v4.1.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.1.0...v4.1.1
 [v4.1.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.0.9...v4.1.0
