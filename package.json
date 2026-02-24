@@ -71,7 +71,7 @@
     "test:open": "vitest run --coverage && open-cli coverage/lcov-report/index.html",
     "type:check": "tsc --noEmit",
     "build": "pkgroll --clean-dist",
-    "release": "npm install && npm run biome && npm run type:check && npm run build && np"
+    "release": "npm install && npm run biome && npm run type:check && npm run build && np --no-publish"
   },
   "dependencies": {
     "@inquirer/prompts": "7.10.1",
@@ -85,6 +85,7 @@
     "@types/node": "25.3.0",
     "@vitest/coverage-v8": "4.0.18",
     "mongodb-memory-server": "11.0.1",
+    "np": "11.0.2",
     "open-cli": "8.0.0",
     "pkgroll": "2.26.3",
     "simple-git-hooks": "2.13.1",
