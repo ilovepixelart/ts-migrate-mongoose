@@ -10,7 +10,7 @@ import { loader } from './loader'
 import { getMigrationModel } from './model'
 import { template } from './template'
 
-import type { Connection, FilterQuery, HydratedDocument, Model } from 'mongoose'
+import type { Connection, HydratedDocument, Model } from 'mongoose'
 import type { Migration, MigrationFile, MigrationFunctions, MigrationFunctionsDefault, MigratorOptions } from './types'
 
 /**
@@ -155,7 +155,7 @@ export class Migrator {
       return this.noPendingMigrations()
     }
 
-    const query: FilterQuery<Migration> = {
+    const query = {
       createdAt: { [key]: untilMigration.createdAt },
       state,
     }
@@ -374,10 +374,7 @@ export class Migrator {
 
         this.logMigrationStatus(direction, migration.filename)
 
-        await this.migrationModel
-          .where({ name: migration.name })
-          .updateMany({ $set: { state: direction } })
-          .exec()
+        await this.migrationModel.updateMany({ name: migration.name }, { $set: { state: direction } }).exec()
         migrationsRan.push(migration)
       } catch (error) {
         const message = `Failed to run migration with name '${migration.name}' due to an error`
