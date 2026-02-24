@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ilovepixelart/ts-migrate-mongoose.git"
+    "url": "git+https://github.com/ilovepixelart/ts-migrate-mongoose.git"
   },
   "bugs": {
     "url": "https://github.com/ilovepixelart/ts-migrate-mongoose/issues"
@@ -94,6 +94,9 @@
   "simple-git-hooks": {
     "pre-commit": "npm run type:check",
     "pre-push": "npm run biome:fix"
+  },
+  "np": {
+    "publish": false
   },
   "overrides": {
     "esbuild": "0.25.0"
