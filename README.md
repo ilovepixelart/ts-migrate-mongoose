@@ -34,22 +34,24 @@ How to use it with:
 
 ## Installation
 
+`mongoose` is a peer dependency — you need to install it alongside `ts-migrate-mongoose`.
+
 - Locally inside your project
 
 ```bash
-npm install ts-migrate-mongoose
-pnpm add ts-migrate-mongoose
-yarn add ts-migrate-mongoose
-bun add ts-migrate-mongoose
+npm install ts-migrate-mongoose mongoose
+pnpm add ts-migrate-mongoose mongoose
+yarn add ts-migrate-mongoose mongoose
+bun add ts-migrate-mongoose mongoose
 ```
 
 - Install it globally
 
 ```bash
-npm install -g ts-migrate-mongoose
-pnpm add -g ts-migrate-mongoose
-yarn global add ts-migrate-mongoose
-bun add -g ts-migrate-mongoose
+npm install -g ts-migrate-mongoose mongoose
+pnpm add -g ts-migrate-mongoose mongoose
+yarn global add ts-migrate-mongoose mongoose
+bun add -g ts-migrate-mongoose mongoose
 ```
 
 ## Migrations and alias imports
