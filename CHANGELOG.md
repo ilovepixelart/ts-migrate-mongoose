@@ -1,3 +1,20 @@
+<a id="v5.1.0"></a>
+# [v5.1.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v5.1.0) - 2026-03-14
+
+- Merge pull request [#466](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/466) from ilovepixelart/feature/nest  d3159c4
+- Biome  0f3734a
+- Coverage  48dac69
+- Nest  85a4453
+- Doc  7442781
+- Update changelog for v5.0.0  af45101
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v5.0.0...v5.1.0
+
+[Changes][v5.1.0]
+
+
 <a id="v5.0.0"></a>
 # [v5.0.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v5.0.0) - 2026-03-14
 
@@ -1924,6 +1941,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v5.1.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v5.0.0...v5.1.0
 [v5.0.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.2.2...v5.0.0
 [v4.2.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.2.1...v4.2.2
 [v4.2.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.2.0...v4.2.1
