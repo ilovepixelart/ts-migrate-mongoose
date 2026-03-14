@@ -48,9 +48,7 @@ describe('MigrationModule', () => {
 
     it('should provide MIGRATION_OPTIONS with useValue', () => {
       const result = MigrationModule.forRoot(defaultOptions)
-      const optionsProvider = (result.providers as { provide: symbol; useValue: unknown }[]).find(
-        (p) => p.provide === MIGRATION_OPTIONS,
-      )
+      const optionsProvider = (result.providers as { provide: symbol; useValue: unknown }[]).find((p) => p.provide === MIGRATION_OPTIONS)
       expect(optionsProvider).toBeDefined()
       expect(optionsProvider?.useValue).toEqual(defaultOptions)
     })
@@ -90,9 +88,7 @@ describe('MigrationModule', () => {
     it('should return empty providers when no factory method', () => {
       const result = MigrationModule.forRootAsync({})
       const providers = result.providers as unknown[]
-      const serviceProvider = providers.find(
-        (p) => typeof p === 'object' && p !== null && 'provide' in p && (p as { provide: unknown }).provide === MigrationService,
-      )
+      const serviceProvider = providers.find((p) => typeof p === 'object' && p !== null && 'provide' in p && (p as { provide: unknown }).provide === MigrationService)
       expect(serviceProvider).toBeDefined()
     })
 
