@@ -35,8 +35,8 @@ const resolveMigrationFile = (basePath: string): string => {
   return basePath
 }
 
-export * from './types'
 export { chalk } from './chalk'
+export * from './types'
 
 /**
  * This class is responsible for running migrations in the CLI and Programmatic mode
