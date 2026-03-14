@@ -55,6 +55,38 @@ describe('commander', async () => {
     mockExit.mockRestore()
   })
 
+  it('should display version', async () => {
+    const consoleSpy = vi.spyOn(console, 'log')
+    setProcessArgv('--version')
+    await migrate.run(false)
+    const pkg = JSON.parse((await import('node:fs')).readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
+    expect(consoleSpy).toHaveBeenCalledWith(pkg.version)
+  })
+
+  it('should display help when no command is provided', async () => {
+    const consoleSpy = vi.spyOn(console, 'log')
+    setProcessArgv()
+    await migrate.run(false)
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Usage: migrate'))
+  })
+
+  it('should display help with --help flag', async () => {
+    const consoleSpy = vi.spyOn(console, 'log')
+    setProcessArgv('--help')
+    await migrate.run(false)
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Usage: migrate'))
+  })
+
+  it('should reject --single on non up/down commands', async () => {
+    setProcessArgv('list', '--single', ...commandLineOptions)
+    await expect(migrate.run(false)).rejects.toThrow("Option --single is only valid for 'up' and 'down' commands")
+  })
+
+  it('should reject unknown commands', async () => {
+    setProcessArgv('unknown', ...commandLineOptions)
+    await expect(migrate.run(false)).rejects.toThrow('Unknown command: unknown')
+  })
+
   it('should run list command', async () => {
     const consoleSpy = vi.spyOn(console, 'log')
     setProcessArgv('list', ...commandLineOptions)
