@@ -34,8 +34,6 @@ const resolveConfigPath = async (configPath: string): Promise<string> => {
     const configFilePath = path.resolve(configPath + ext)
     const exists = await fileExists(configFilePath)
     if (exists) {
-      console.log(`Found config file: ${configFilePath}`)
-
       return configFilePath
     }
   }
@@ -67,11 +65,11 @@ const extractOptions = (module: { default?: ConfigOptionsDefault | ConfigOptions
 
 const logError = (error: unknown): void => {
   if (error instanceof Error) {
-    console.log(chalk.red(error.message))
+    console.error(chalk.red(error.message))
   }
 }
 
-export const getConfig = async (configPath: string): Promise<ConfigOptions> => {
+export const getConfig = async (configPath: string, quiet = false): Promise<ConfigOptions> => {
   let configOptions: ConfigOptions = {}
   if (configPath) {
     try {
@@ -83,7 +81,7 @@ export const getConfig = async (configPath: string): Promise<ConfigOptions> => {
         configOptions = fileOptions
       }
     } catch (error) {
-      logError(error)
+      if (!quiet) logError(error)
       configOptions = {}
     }
   }
@@ -116,8 +114,9 @@ export const getMigrator = async (options: ConfigOptions): Promise<Migrator> => 
   }
 
   const configPath = options.configPath ?? getEnv(Env.MIGRATE_CONFIG_PATH) ?? defaults.MIGRATE_CONFIG_PATH
+  const isDefaultConfig = configPath === defaults.MIGRATE_CONFIG_PATH
 
-  const fileOptions = await getConfig(configPath)
+  const fileOptions = await getConfig(configPath, isDefaultConfig)
   const uri = options.uri ?? getEnv(Env.MIGRATE_MONGO_URI) ?? fileOptions.uri
   const connectOptions = fileOptions.connectOptions
   const collection = options.collection ?? getEnv(Env.MIGRATE_MONGO_COLLECTION) ?? fileOptions.collection ?? defaults.MIGRATE_MONGO_COLLECTION
@@ -126,8 +125,7 @@ export const getMigrator = async (options: ConfigOptions): Promise<Migrator> => 
   const autosync = Boolean(options.autosync ?? getEnvBoolean(Env.MIGRATE_AUTOSYNC) ?? fileOptions.autosync ?? defaults.MIGRATE_AUTOSYNC)
 
   if (!uri) {
-    const message = chalk.red('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.')
-    throw new Error(message)
+    throw new Error('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.')
   }
 
   const migratorOptions: MigratorOptions = {
@@ -167,7 +165,7 @@ const commands = [
 
 const optionDefs = {
   'config-path': { type: 'string' as const, short: 'f', arg: '<path>', description: 'path to the config file' },
-  uri: { type: 'string' as const, short: 'd', arg: '<string>', description: chalk.yellow('mongo connection string') },
+  uri: { type: 'string' as const, short: 'd', arg: '<string>', description: 'mongo connection string' },
   collection: { type: 'string' as const, short: 'c', arg: '<string>', description: 'collection name to use for the migrations' },
   autosync: { type: 'string' as const, short: 'a', arg: '<boolean>', description: 'automatically sync new migrations without prompt' },
   'migrations-path': { type: 'string' as const, short: 'm', arg: '<path>', description: 'path to the migration files' },
@@ -272,7 +270,7 @@ export class Migrate {
         break
       }
       default: {
-        console.log(formatHelp())
+        console.error(formatHelp())
         throw new Error(`Unknown command: ${command}`)
       }
     }

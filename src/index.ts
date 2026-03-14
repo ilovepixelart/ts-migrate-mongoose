@@ -36,6 +36,7 @@ const resolveMigrationFile = (basePath: string): string => {
 }
 
 export * from './types'
+export { chalk } from './chalk'
 
 /**
  * This class is responsible for running migrations in the CLI and Programmatic mode
@@ -67,8 +68,7 @@ export class Migrator {
       this.uri = options.uri
       this.connection = mongoose.createConnection(this.uri, options.connectOptions)
     } else {
-      const message = chalk.red('No mongoose connection or mongo uri provided to migrator')
-      throw new Error(message)
+      throw new Error('No mongoose connection or mongo uri provided to migrator')
     }
 
     this.migrationModel = getMigrationModel(this.connection, this.collection)
@@ -111,8 +111,7 @@ export class Migrator {
   async create(migrationName: string): Promise<HydratedDocument<Migration>> {
     const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     if (existingMigration) {
-      const message = chalk.red(`There is already a migration with name '${migrationName}' in the database`)
-      throw new Error(message)
+      throw new Error(`There is already a migration with name '${migrationName}' in the database`)
     }
 
     await this.sync()
@@ -123,7 +122,7 @@ export class Migrator {
       name: migrationName,
       createdAt: now,
     })
-    this.log(`Created migration ${migrationName} in ${this.migrationsPath}`)
+    this.log(`${chalk.green('Created')} migration ${chalk.cyan(migrationName)} in ${this.migrationsPath}`)
     return migrationCreated
   }
 
@@ -149,8 +148,7 @@ export class Migrator {
 
     if (!untilMigration) {
       if (migrationName) {
-        const message = chalk.red(`Could not find migration with name '${migrationName}' in the database`)
-        throw new ReferenceError(message)
+        throw new Error(`Could not find migration with name '${migrationName}' in the database`)
       }
       return this.noPendingMigrations()
     }
@@ -224,7 +222,7 @@ export class Migrator {
 
       if (migrationsToDelete.length) {
         migrationsDeleted = await this.migrationModel.find({ name: { $in: migrationsToDelete } }).exec()
-        this.log(`Removing migration(s) from database: \n${chalk.cyan(migrationsToDelete.join('\n'))} `)
+        this.log(`${chalk.red('Removing')} migration(s) from database:\n${chalk.cyan(migrationsToDelete.join('\n'))}`)
         await this.migrationModel.deleteMany({ name: { $in: migrationsToDelete } }).exec()
       }
 
@@ -245,7 +243,7 @@ export class Migrator {
   private async noPendingMigrations(): Promise<HydratedDocument<Migration>[]> {
     this.log(chalk.yellow('There are no pending migrations'))
     if (this.cli) {
-      this.log('Current migrations status: ')
+      this.log(chalk.cyan('Current migrations status:'))
       await this.list()
     }
     return []
@@ -266,7 +264,7 @@ export class Migrator {
   private logMigrationStatus(direction: 'down' | 'up', filename: string): void {
     const color = direction === 'up' ? 'green' : 'red'
     const directionWithColor = chalk[color](`${direction}:`)
-    this.log(`${directionWithColor} ${filename} `)
+    this.log(`${directionWithColor} ${filename}`)
   }
 
   /**
@@ -305,7 +303,7 @@ export class Migrator {
       const timestamp = filename.slice(0, timestampSeparatorIndex)
       const migrationName = filename.slice(timestampSeparatorIndex + 1)
 
-      this.log(`Adding migration ${filePath} into database from file system. State is ${chalk.red('down')}`)
+      this.log(`${chalk.green('Adding')} migration ${chalk.cyan(filePath)} into database. State is ${chalk.red('down')}`)
       return this.migrationModel.create({
         name: migrationName,
         createdAt: timestamp,
@@ -365,8 +363,7 @@ export class Migrator {
       const migrationFunctions = (await import(fileUrl)) as MigrationFunctions | MigrationFunctionsDefault
       const migrationFunction = 'default' in migrationFunctions ? migrationFunctions.default[direction] : (migrationFunctions as MigrationFunctions)[direction]
       if (!migrationFunction) {
-        const message = chalk.red(`The '${direction}' export is not defined in ${migration.filename}.`)
-        throw new Error(message)
+        throw new Error(`The '${direction}' export is not defined in ${migration.filename}.`)
       }
 
       try {
