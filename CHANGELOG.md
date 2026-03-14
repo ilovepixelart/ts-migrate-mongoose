@@ -1,3 +1,21 @@
+<a id="v5.0.0"></a>
+# [v5.0.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v5.0.0) - 2026-03-14
+
+- Merge pull request [#465](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/465) from ilovepixelart/feature/drop-dependencies  96532bc
+- Biome  08cf920
+- Cleanup and docs  a4c6c3b
+- Sonar  d6c8cd4
+- Dep and coverage  2906a42
+- Remove commander, dotenv, @inquirer/prompts — use Node built-ins  55ac497
+- Update changelog for v4.2.2  0fd4f18
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.2.2...v5.0.0
+
+[Changes][v5.0.0]
+
+
 <a id="v4.2.2"></a>
 # [v4.2.2](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v4.2.2) - 2026-02-25
 
@@ -1906,6 +1924,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v5.0.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.2.2...v5.0.0
 [v4.2.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.2.1...v4.2.2
 [v4.2.1]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.2.0...v4.2.1
 [v4.2.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.1.1...v4.2.0
