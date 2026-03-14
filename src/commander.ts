@@ -253,7 +253,8 @@ export class Migrate {
         const migrationName = positionals[1]
         if (!migrationName) throw new Error('Migration name is required for create command')
         await this.migrator.create(migrationName)
-        console.log(`Migration created. Run ${chalk.cyan(`migrate up ${migrationName}`)} to apply the migration`)
+        const migrateUp = chalk.cyan(`migrate up ${migrationName}`)
+        console.log(`Migration created. Run ${migrateUp} to apply the migration`)
         break
       }
       case 'up': {
