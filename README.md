@@ -279,6 +279,80 @@ export async function down(connection: Connection) {
 }
 ```
 
+## Programmatic mode
+
+Works with any Node.js framework — Express, Fastify, Koa, Hono, etc:
+
+```typescript
+import { Migrator } from 'ts-migrate-mongoose'
+
+const migrator = await Migrator.connect({
+  uri: 'mongodb://localhost:27017/my-db',
+  autosync: true,
+})
+
+await migrator.run('up')        // Run all pending migrations
+await migrator.run('down', 'x') // Roll back a specific migration
+await migrator.list()           // List all migrations and their status
+await migrator.create('name')   // Create a new migration file
+await migrator.prune()          // Remove orphaned migrations from DB
+await migrator.close()          // Close the connection
+```
+
+### Express / Fastify / Koa / Hono
+
+```typescript
+import { Migrator } from 'ts-migrate-mongoose'
+
+// Run before starting your server
+const migrator = await Migrator.connect({
+  uri: process.env.MONGO_URI ?? 'mongodb://localhost:27017/my-db',
+  autosync: true,
+})
+await migrator.run('up')
+await migrator.close()
+
+// Start your server
+app.listen(3000)
+```
+
+### NestJS (because it's special)
+
+Import `MigrationModule` from `ts-migrate-mongoose/nest`:
+
+```typescript
+import { MigrationModule } from 'ts-migrate-mongoose/nest'
+
+@Module({
+  imports: [
+    MongooseModule.forRoot(process.env.MONGO_URI),
+    MigrationModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        uri: config.get<string>('MONGO_URI'),
+        autosync: true,
+      }),
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+Runs all pending up migrations on application bootstrap. For custom control:
+
+```typescript
+MigrationModule.forRoot({
+  uri: process.env.MONGO_URI,
+  onBootstrap: async (migrator) => {
+    await migrator.run('down', 'test')
+    await migrator.prune()
+    await migrator.run('up')
+  },
+})
+```
+
+See [programmatic usage examples](/examples/programmatic-usage) for the full API and more examples.
+
 ## Contributing
 
 We welcome contributions from the community. Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
