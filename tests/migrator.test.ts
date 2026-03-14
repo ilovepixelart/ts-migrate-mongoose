@@ -1,16 +1,16 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import fs from 'node:fs'
-import { checkbox } from '@inquirer/prompts'
 import mongoose, { type Connection, Types } from 'mongoose'
 import { getConfig } from '../src/commander'
 import { MIGRATION_FILE_REGEX } from '../src/constants'
 import { Migrator } from '../src/index'
+import { checkbox } from '../src/prompts'
 import { template } from '../src/template'
 import { create } from './mongo/server'
 import { clearDirectory } from './utils/filesystem'
 
-vi.mock('@inquirer/prompts', () => ({
+vi.mock('../src/prompts', () => ({
   checkbox: vi.fn().mockResolvedValue(['1']),
 }))
 

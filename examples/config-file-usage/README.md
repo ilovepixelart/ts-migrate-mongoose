@@ -16,7 +16,7 @@ You can simply run:
 npx migrate create add-users
 ```
 
-You can change the name of the config file to expect by providing the `--config` option, e.g., `--config custom-config-file-name.json`.
+You can change the config file path by providing the `--config-path` (or `-f`) option, e.g., `--config-path custom-config-file-name.json`.
 Note that this file has to be a valid `JSON` or `TypeScript` file with a default export.
 
 ## Options override order

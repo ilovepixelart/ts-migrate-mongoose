@@ -26,4 +26,16 @@ describe('chalk', () => {
     const result = chalk.cyan(text)
     expect(result).toBe(`\x1b[36m${text}\x1b[0m`)
   })
+
+  it('should wrap text with dim style', () => {
+    const text = 'Hello, World!'
+    const result = chalk.dim(text)
+    expect(result).toBe(`\x1b[2m${text}\x1b[0m`)
+  })
+
+  it('should wrap text with bold style', () => {
+    const text = 'Hello, World!'
+    const result = chalk.bold(text)
+    expect(result).toBe(`\x1b[1m${text}\x1b[0m`)
+  })
 })

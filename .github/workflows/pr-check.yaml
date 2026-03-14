@@ -2,11 +2,10 @@ name: PR check
 
 on:
   workflow_dispatch:
-  # Trigger analysis when pushing in master or pull requests,
-  # and when creating a pull request.
+  # Trigger on push to main or pull requests
   push:
     branches:
-      - master
+      - main
       - feature*
 
   pull_request:
@@ -19,6 +18,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20.x, 22.x]
+        mongoose-version: [6.12.2, 7.6.4, 8.23.0, latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,6 +34,9 @@ jobs:
 
       - name: Installing dependencies
         run: npm ci
+
+      - name: Install mongoose ${{ matrix.mongoose-version }}
+        run: npm install mongoose@${{ matrix.mongoose-version }}
 
       - name: Coverage
         run: npm run test

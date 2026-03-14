@@ -83,6 +83,9 @@ export default {
   migrationsPath: "./migrations",
   templatePath: "./migrations/template.ts",
   autosync: false,
+  connectOptions: {
+    autoIndex: true,
+  },
 };
 ```
 
@@ -126,6 +129,7 @@ MIGRATE_AUTOSYNC=false
 | migrationsPath       | MIGRATE_MIGRATIONS_PATH  | ./migrations | No       | path to the migration files                      |
 | templatePath         | MIGRATE_TEMPLATE_PATH    | -            | No       | template file to use when creating a migration   |
 | autosync             | MIGRATE_AUTOSYNC         | false        | No       | automatically sync new migrations without prompt |
+| connectOptions       | -                        | -            | No       | mongoose connection options (config file only)   |
 
 ## Getting started with the CLI
 
@@ -141,23 +145,26 @@ bun migrate -h
 ```text
 CLI migration tool for mongoose
 
-Options:
-  -f, --config-path <path>         path to the config file
-  -d, --uri <string>               mongo connection string
-  -c, --collection <string>        collection name to use for the migrations
-  -a, --autosync <boolean>         automatically sync new migrations without prompt
-  -m, --migrations-path <path>     path to the migration files
-  -t, --template-path <path>       template file to use when creating a migration
-  --mode <string>                  environment mode to use .env.[mode] file
-  -h, --help                       display help for command
+Usage: migrate <command> [options]
 
 Commands:
-  list                             list all migrations
-  create <migration-name>          create a new migration file
-  up [options] [migration-name]    run all migrations or a specific migration if name is provided
-  down [options] <migration-name>  roll back migrations down to given name
-  prune                            delete extraneous migrations from migration folder or database
-  help [command]                   display help for command
+  list                       list all migrations
+  create <migration-name>    create a new migration file
+  up [migration-name]        run all migrations or a specific migration if name provided
+  down <migration-name>      roll back migrations down to given name
+  prune                      delete extraneous migrations from migration folder or database
+
+Options:
+  -f, --config-path <path>        path to the config file
+  -d, --uri <string>              mongo connection string
+  -c, --collection <string>       collection name to use for the migrations
+  -a, --autosync <boolean>        automatically sync new migrations without prompt
+  -m, --migrations-path <path>    path to the migration files
+  -t, --template-path <path>      template file to use when creating a migration
+      --mode <string>             environment mode to use .env.[mode] file
+  -s, --single                    run single migration (up/down only)
+  -h, --help                      display help
+  -v, --version                   display version
 ```
 
 Before you start make sure you setup .env file or migrate.ts/json file so you don't need to provide -d on each command

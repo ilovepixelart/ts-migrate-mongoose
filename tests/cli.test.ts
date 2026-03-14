@@ -72,7 +72,7 @@ describe('cli', async () => {
       const consoleSpy = vi.spyOn(console, 'log')
       const opts = await exec('create', 'migration-name-test', ...commandLineOptions)
       expect(opts?.uri).toBe(uri)
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(/^Created migration migration-name-test in/))
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(/Created.*migration.*migration-name-test/))
     })
 
     it('should run up command', async () => {
@@ -99,7 +99,7 @@ describe('cli', async () => {
   })
 
   it('should throw "You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI."', async () => {
-    await expect(exec('up', 'invalid-migration-name')).rejects.toThrow(chalk.red('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.'))
+    await expect(exec('up', 'invalid-migration-name')).rejects.toThrow('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.')
   })
 
   it('should prune command', async () => {
@@ -110,9 +110,9 @@ describe('cli', async () => {
 
     const consoleSpy = vi.spyOn(console, 'log')
     const opts = await exec('prune', '-a', 'true', ...commandLineOptions)
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(/Removing migration\(s\) from database/))
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(/Removing.*migration\(s\) from database/))
     expect(opts?.uri).toBe(uri)
-    expect(opts?.autosync).toBe('true')
+    expect(opts?.autosync).toBe(true)
   })
 
   it('should exit with code 1', async () => {

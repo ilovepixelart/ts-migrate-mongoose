@@ -27,3 +27,7 @@ npm-debug.log
 
 # In memory mongo config
 /globalConfig.json
+
+# Claude Code
+.claude/
+CLAUDE.md
