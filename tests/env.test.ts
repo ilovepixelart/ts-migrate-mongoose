@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { config } from 'dotenv'
 import { getEnv, getEnvBoolean, toCamelCase } from '../src/commander'
+import { config } from '../src/env'
 import { Env } from '../src/types'
 
 // Load environment variables from .env file

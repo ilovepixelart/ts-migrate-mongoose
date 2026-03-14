@@ -112,7 +112,7 @@ describe('cli', async () => {
     const opts = await exec('prune', '-a', 'true', ...commandLineOptions)
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringMatching(/Removing migration\(s\) from database/))
     expect(opts?.uri).toBe(uri)
-    expect(opts?.autosync).toBe('true')
+    expect(opts?.autosync).toBe(true)
   })
 
   it('should exit with code 1', async () => {

@@ -3,10 +3,6 @@ import { Schema } from 'mongoose'
 import type { Connection, Model } from 'mongoose'
 import type { Migration } from './types'
 
-/**
- * This function returns a mongoose model for the migration collection.
- * The model is used to query the database for the migrations.
- */
 export const getMigrationModel = (connection: Connection, collection: string): Model<Migration> => {
   const MigrationSchema = new Schema<Migration>(
     {
