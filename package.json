@@ -49,13 +49,32 @@
     "migrate": "./dist/cli.js"
   },
   "exports": {
-    "require": {
-      "types": "./dist/index.d.cts",
-      "default": "./dist/index.cjs"
+    ".": {
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      }
     },
-    "import": {
-      "types": "./dist/index.d.mts",
-      "default": "./dist/index.mjs"
+    "./nest": {
+      "require": {
+        "types": "./dist/nest/index.d.cts",
+        "default": "./dist/nest/index.cjs"
+      },
+      "import": {
+        "types": "./dist/nest/index.d.mts",
+        "default": "./dist/nest/index.mjs"
+      }
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "nest": [
+        "./dist/nest/index.d.cts"
+      ]
     }
   },
   "main": "./dist/index.cjs",
@@ -77,10 +96,17 @@
     "tsx": "4.21.0"
   },
   "peerDependencies": {
+    "@nestjs/common": ">=9.0.0",
     "mongoose": ">=6.6.0"
+  },
+  "peerDependenciesMeta": {
+    "@nestjs/common": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.7",
+    "@nestjs/common": "11.1.16",
     "@types/node": "25.5.0",
     "@vitest/coverage-v8": "4.1.0",
     "mongodb-memory-server": "11.0.1",
