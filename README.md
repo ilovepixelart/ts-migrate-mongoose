@@ -13,6 +13,21 @@ A migration framework for Mongoose, built with TypeScript.
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ilovepixelart_ts-migrate-mongoose&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=ilovepixelart_ts-migrate-mongoose)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ilovepixelart_ts-migrate-mongoose&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=ilovepixelart_ts-migrate-mongoose)
 
+## Motivation
+
+ts-migrate-mongoose is a migration framework for mongoose
+\
+I need a way to manage database migrations for mongoose models, run them from the CLI or programmatically, and keep track of which migrations have been applied. It should support both ESM and CommonJS, work with all major Node.js frameworks, and be flexible enough to handle complex migration scenarios.
+
+## Supports and tested with
+
+```json
+{
+  "node": "18.x || 20.x || 22.x || 24.x",
+  "mongoose": ">=6.6.x || 7.x || 8.x || 9.x",
+}
+```
+
 ## Features
 
 - Stores migration state in MongoDB
@@ -27,6 +42,8 @@ A migration framework for Mongoose, built with TypeScript.
 
 ## Example
 
+Works with any Node.js framework — Express, Fastify, Koa, Hono, Nest, etc.
+\
 How to use it with:
 
 - Express: [ts-express-tsx](https://github.com/ilovepixelart/ts-express-tsx), [ts-express-esbuild](https://github.com/ilovepixelart/ts-express-esbuild)
@@ -355,11 +372,11 @@ See [programmatic usage examples](/examples/programmatic-usage) for the full API
 
 ## Contributing
 
-We welcome contributions from the community. Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
+Check [CONTRIBUTING.md](CONTRIBUTING.md)
 
-## Code of Conduct
+## License
 
-Please read our [Code of Conduct](CODE_OF_CONDUCT.md) to understand the expectations we have for everyone who participates in our community.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## Notes
 

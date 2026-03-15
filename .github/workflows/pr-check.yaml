@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.x, 22.x]
+        node-version: [18.x, 20.x, 22.x]
         mongoose-version: [6.12.2, 7.6.4, 8.23.0, latest]
     steps:
       - name: Checkout
