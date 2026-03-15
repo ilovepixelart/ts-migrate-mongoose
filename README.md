@@ -40,20 +40,9 @@ I need a way to manage database migrations for mongoose models, run them from th
 - Run individual migration up/down using -s, --single
 - Supports ESM and CommonJS
 
-## Example
-
-Works with any Node.js framework — Express, Fastify, Koa, Hono, Nest, etc.
-\
-How to use it with:
-
-- Express: [ts-express-tsx](https://github.com/ilovepixelart/ts-express-tsx), [ts-express-esbuild](https://github.com/ilovepixelart/ts-express-esbuild)
-- Nest: [ts-express-nest](https://github.com/ilovepixelart/ts-express-nest)
-
 ## Installation
 
-`mongoose` is a peer dependency — you need to install it alongside `ts-migrate-mongoose`.
-
-- Locally inside your project
+`mongoose` is a peer dependency — install it alongside `ts-migrate-mongoose`.
 
 ```bash
 npm install ts-migrate-mongoose mongoose
@@ -62,7 +51,7 @@ yarn add ts-migrate-mongoose mongoose
 bun add ts-migrate-mongoose mongoose
 ```
 
-- Install it globally
+Or globally:
 
 ```bash
 npm install -g ts-migrate-mongoose mongoose
@@ -70,6 +59,15 @@ pnpm add -g ts-migrate-mongoose mongoose
 yarn global add ts-migrate-mongoose mongoose
 bun add -g ts-migrate-mongoose mongoose
 ```
+
+## Example
+
+Works with any Node.js framework — Express, Fastify, Koa, Hono, Nest, etc.
+\
+How to use it with:
+
+- Express: [ts-express-tsx](https://github.com/ilovepixelart/ts-express-tsx), [ts-express-esbuild](https://github.com/ilovepixelart/ts-express-esbuild)
+- Nest: [ts-express-nest](https://github.com/ilovepixelart/ts-express-nest)
 
 ## Migrations and alias imports
 
