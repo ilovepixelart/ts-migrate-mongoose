@@ -23,7 +23,7 @@ I need a way to manage database migrations for mongoose models, run them from th
 
 ```json
 {
-  "node": "18.x || 20.x || 22.x || 24.x",
+  "node": "20.x || 22.x || 24.x",
   "mongoose": ">=6.6.x || 7.x || 8.x || 9.x",
 }
 ```
