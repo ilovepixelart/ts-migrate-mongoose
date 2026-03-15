@@ -1,3 +1,21 @@
+<a id="v5.2.0"></a>
+# [v5.2.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v5.2.0) - 2026-03-15
+
+- Lock  f1e5628
+- Merge pull request [#468](https://github.com/ilovepixelart/ts-migrate-mongoose/issues/468) from ilovepixelart/feature/refactor  51a5ed8
+- Remove Node 18 from supports section (tested on 20+)  07b8c60
+- Simplify installation section, reorder Example after Installation  2eb4314
+- Remove Node 18.x from CI matrix (vitest coverage requires Node 20+)  347bf03
+- Bump to Node &gt;=18, ES2022, update README and CI matrix  76459f0
+- Update changelog for v5.1.0  5836ffc
+
+---
+
+https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v5.1.0...v5.2.0
+
+[Changes][v5.2.0]
+
+
 <a id="v5.1.0"></a>
 # [v5.1.0](https://github.com/ilovepixelart/ts-migrate-mongoose/releases/tag/v5.1.0) - 2026-03-14
 
@@ -1941,6 +1959,7 @@ https://github.com/ilovepixelart/ts-migrate-mongoose/compare/a7209f1dae57c3f5db9
 [Changes][v1.0.3]
 
 
+[v5.2.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v5.1.0...v5.2.0
 [v5.1.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v5.0.0...v5.1.0
 [v5.0.0]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.2.2...v5.0.0
 [v4.2.2]: https://github.com/ilovepixelart/ts-migrate-mongoose/compare/v4.2.1...v4.2.2
