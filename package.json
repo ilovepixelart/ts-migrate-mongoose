@@ -105,17 +105,17 @@
     }
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.7",
-    "@nestjs/common": "11.1.16",
+    "@biomejs/biome": "2.4.9",
+    "@nestjs/common": "11.1.17",
     "@types/node": "25.5.0",
-    "@vitest/coverage-v8": "4.1.0",
+    "@vitest/coverage-v8": "4.1.2",
     "mongodb-memory-server": "11.0.1",
     "np": "11.0.2",
-    "open-cli": "8.0.0",
+    "open-cli": "9.0.0",
     "pkgroll": "2.27.0",
     "simple-git-hooks": "2.13.1",
-    "typescript": "5.9.3",
-    "vitest": "4.1.0"
+    "typescript": "6.0.2",
+    "vitest": "4.1.2"
   },
   "simple-git-hooks": {
     "pre-commit": "npm run type:check",
