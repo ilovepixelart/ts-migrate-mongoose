@@ -68,14 +68,37 @@ jobs:
         with:
           subject-path: ${{ steps.pack.outputs.tarball-name }}
 
-      - name: Attach attestation bundle to release
-        # SLSA v1.0 recommends publishing provenance in more than one channel.
-        # actions/attest already uploaded the bundle to GitHub's native attestation
-        # store and npm will ship an npm-registry provenance attestation via
-        # publishConfig.provenance: true. This third channel puts the same Sigstore
-        # bundle on the GitHub Release as a sidecar asset (<tarball>.sigstore.json)
-        # so consumers who rely on the classic "signed release assets" pattern —
-        # including OpenSSF Scorecard's Signed-Releases check — can find it too.
+      - name: Attach attestation bundles to release
+        # SLSA v1.2 recommends publishing provenance in more than one channel.
+        # actions/attest already uploaded the Sigstore bundle to GitHub's native
+        # attestation store and npm ships an npm-registry provenance attestation
+        # via publishConfig.provenance: true. This step adds two more channels —
+        # both sidecar files on the GitHub Release carrying the same DSSE
+        # envelope at the innermost layer but in different outer containers
+        # for different verification flows:
+        #
+        # 1. <tarball>.sigstore.json — the full Sigstore bundle produced by
+        #    actions/attest (application/vnd.dev.sigstore.bundle.v0.3+json).
+        #    Includes the Fulcio certificate and the Rekor inclusion proof,
+        #    so consumers can verify offline without querying Rekor. Parsed
+        #    by `gh attestation verify --bundle` and other Sigstore-native
+        #    tooling.
+        #
+        # 2. <tarball>.intoto.jsonl — a spec-compliant in-toto attestation v1
+        #    bundle (https://github.com/in-toto/attestation/blob/main/spec/v1/bundle.md):
+        #    JSON Lines of DSSE envelopes, one envelope per line. Extracted
+        #    from the Sigstore bundle via `jq -c .dsseEnvelope` — NOT a
+        #    renamed Sigstore bundle. Verified by `slsa-verifier
+        #    verify-artifact`, which queries Rekor for the cert and
+        #    inclusion proof via the signature hash.
+        #
+        # Both files carry the same signature over the same SLSA v1 payload
+        # (predicateType https://slsa.dev/provenance/v1). The split is about
+        # serving two different consumer verification flows, not duplicating
+        # trust material. The `.intoto.jsonl` shape is also what OpenSSF
+        # Scorecard's `releasesHaveProvenance` probe looks for on the
+        # release-asset channel — recognition of this format is a side
+        # effect, not the motivation.
         env:
           GH_TOKEN: ${{ github.token }}
           BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
@@ -83,9 +106,22 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           set -euo pipefail
-          asset="${TARBALL}.sigstore.json"
-          cp "$BUNDLE_PATH" "$asset"
-          gh release upload "$RELEASE_TAG" "$asset" --repo "$GITHUB_REPOSITORY" --clobber
+
+          # 1. Full Sigstore bundle — straight copy of actions/attest output.
+          sigstore="${TARBALL}.sigstore.json"
+          cp "$BUNDLE_PATH" "$sigstore"
+
+          # 2. In-toto attestation bundle — JSON Lines of DSSE envelopes.
+          #    `jq -c` emits a single-line JSON object, which by definition
+          #    is also a valid one-line JSONL document. The Sigstore bundle's
+          #    dsseEnvelope field is already a standard DSSE envelope
+          #    (payload, payloadType, signatures) so no shape transformation
+          #    is needed beyond the projection.
+          intoto="${TARBALL}.intoto.jsonl"
+          jq -c '.dsseEnvelope' "$BUNDLE_PATH" > "$intoto"
+
+          gh release upload "$RELEASE_TAG" "$sigstore" "$intoto" \
+            --repo "$GITHUB_REPOSITORY" --clobber
 
       - name: Upload tarball artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
