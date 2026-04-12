@@ -188,7 +188,7 @@ const formatHelp = (): string => {
 
   const optEntries = (Object.entries(optionDefs) as [string, OptionDef][]).map(([name, opt]) => {
     const short = opt.short ? `-${opt.short}, ` : '    '
-    const arg = opt.arg ? ' ' + opt.arg : ''
+    const arg = opt.arg ? ` ${opt.arg}` : ''
     const long = `--${name}${arg}`
     return { flag: `  ${short}${long}`, description: opt.description }
   })
