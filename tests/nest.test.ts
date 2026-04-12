@@ -3,6 +3,14 @@ import { describe, expect, it, vi } from 'vitest'
 import { MigrationModule } from '../src/nest/migration.module'
 import { MIGRATION_OPTIONS, MigrationService } from '../src/nest/migration.service'
 
+import type { FactoryProvider, Provider } from '@nestjs/common'
+
+const findFactoryProvider = (providers: Provider[], token: unknown): FactoryProvider => {
+  const hit = (providers as FactoryProvider[]).find((p) => typeof p === 'object' && p !== null && 'provide' in p && p.provide === token && 'useFactory' in p)
+  if (!hit) throw new Error(`factory provider for ${String(token)} not found`)
+  return hit
+}
+
 vi.mock('@nestjs/common', () => {
   const LoggerMock = class {
     log = vi.fn()
@@ -51,6 +59,14 @@ describe('MigrationModule', () => {
       const optionsProvider = (result.providers as { provide: symbol; useValue: unknown }[]).find((p) => p.provide === MIGRATION_OPTIONS)
       expect(optionsProvider).toBeDefined()
       expect(optionsProvider?.useValue).toEqual(defaultOptions)
+    })
+
+    it('MigrationService factory constructs a MigrationService from MIGRATION_OPTIONS', () => {
+      const result = MigrationModule.forRoot(defaultOptions)
+      const svcProvider = findFactoryProvider(result.providers as Provider[], MigrationService)
+      expect(svcProvider.inject).toEqual([MIGRATION_OPTIONS])
+      const svc = (svcProvider.useFactory as (opts: typeof defaultOptions) => MigrationService)(defaultOptions)
+      expect(svc).toBeInstanceOf(MigrationService)
     })
   })
 
@@ -106,6 +122,46 @@ describe('MigrationModule', () => {
         useFactory: () => defaultOptions,
       })
       expect(result.global).toBe(true)
+    })
+
+    it('MigrationService factory constructs a MigrationService from MIGRATION_OPTIONS', () => {
+      const result = MigrationModule.forRootAsync({ useFactory: () => defaultOptions })
+      const svcProvider = findFactoryProvider(result.providers as Provider[], MigrationService)
+      expect(svcProvider.inject).toEqual([MIGRATION_OPTIONS])
+      const svc = (svcProvider.useFactory as (opts: typeof defaultOptions) => MigrationService)(defaultOptions)
+      expect(svc).toBeInstanceOf(MigrationService)
+    })
+
+    it('useClass provider factory calls createMigrationOptions on the injected factory instance', () => {
+      class TestFactory {
+        createMigrationOptions() {
+          return defaultOptions
+        }
+      }
+      const result = MigrationModule.forRootAsync({ useClass: TestFactory })
+      const optionsProvider = findFactoryProvider(result.providers as Provider[], MIGRATION_OPTIONS)
+      expect(optionsProvider.inject).toEqual([TestFactory])
+      const factory = new TestFactory()
+      const createSpy = vi.spyOn(factory, 'createMigrationOptions')
+      const opts = (optionsProvider.useFactory as (f: TestFactory) => unknown)(factory)
+      expect(createSpy).toHaveBeenCalledTimes(1)
+      expect(opts).toEqual(defaultOptions)
+    })
+
+    it('useExisting provider factory calls createMigrationOptions on the injected factory instance', () => {
+      class TestFactory {
+        createMigrationOptions() {
+          return defaultOptions
+        }
+      }
+      const result = MigrationModule.forRootAsync({ useExisting: TestFactory })
+      const optionsProvider = findFactoryProvider(result.providers as Provider[], MIGRATION_OPTIONS)
+      expect(optionsProvider.inject).toEqual([TestFactory])
+      const factory = new TestFactory()
+      const createSpy = vi.spyOn(factory, 'createMigrationOptions')
+      const opts = (optionsProvider.useFactory as (f: TestFactory) => unknown)(factory)
+      expect(createSpy).toHaveBeenCalledTimes(1)
+      expect(opts).toEqual(defaultOptions)
     })
   })
 })

@@ -94,3 +94,15 @@ chase:
   The project targets the "passing" tier; "silver" and "gold" require
   multiple reviewers and documented security-review processes that are
   out of reach for a single-maintainer project.
+
+- **`Branch-Protection`** — `main` is protected by a repository ruleset
+  (force-push blocked, deletion blocked, PR required, squash-only merge,
+  required status checks for the full matrix, strict up-to-date policy,
+  code-quality gate, thread resolution required). Scorecard's Tier 2
+  requires at least one approving reviewer per PR, which is unreachable
+  for a single-maintainer project without fake approvals — the repository
+  owner is also the only contributor. The ruleset includes an Admin
+  bypass actor so the maintainer can recover from emergencies (e.g. a
+  broken `main` that can't merge through normal checks). Expected
+  Scorecard score: 4/10 — the ceiling for a single-maintainer repo
+  without self-review workflows.
