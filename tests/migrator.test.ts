@@ -84,6 +84,51 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
     expect(migrator.connection.readyState).toBe(0)
   })
 
+  it.each([
+    ['../evil', 'parent directory traversal'],
+    ['foo/bar', 'forward slash path separator'],
+    ['foo\\bar', 'backslash path separator'],
+    ['with space', 'whitespace'],
+    ['', 'empty string'],
+    ['..', 'just two dots'],
+    ['foo..bar', 'consecutive dots'],
+    ['émigré', 'non-ASCII letters'],
+  ])('should reject create(%j) — %s', async (badName) => {
+    const migrator = await Migrator.connect({ uri })
+    try {
+      await expect(migrator.create(badName)).rejects.toThrow(/Invalid migration name/)
+      // The bad name must not be persisted as a DB record.
+      const existing = await migrator.migrationModel.findOne({ name: badName }).exec()
+      expect(existing).toBeNull()
+    } finally {
+      await migrator.close()
+    }
+  })
+
+  it('should refuse to import a migration whose resolved path escapes the migrations directory', async () => {
+    const migrator = await Migrator.connect({ uri })
+    try {
+      // Plant a poisoned DB record directly, bypassing create()'s validation
+      // to simulate an older unpatched version that allowed traversal names.
+      // The `${createdAt.getTime()}-` prefix means the first `..` segment is
+      // consumed by the timestamp portion (`1234-..` is a literal filename,
+      // not a parent reference), so we need enough `..` segments to pop out
+      // of migrations/ AND out of the project root before landing on a real
+      // path. This matches the realistic exploit: `path.resolve` does reduce
+      // standalone `..` segments once they follow a literal-filename segment.
+      const poisoned = await migrator.migrationModel.create({
+        name: '../../../../../../../../tmp/pwned',
+        createdAt: new Date(),
+      })
+      expect(poisoned.filename).toContain('tmp/pwned')
+
+      // @ts-expect-error - private method
+      await expect(migrator.runMigrations([poisoned], 'up')).rejects.toThrow(/escapes the migrations directory/)
+    } finally {
+      await migrator.close()
+    }
+  })
+
   it('should throw "Could not find migration with name \'create-unicorns\' in the database"', async () => {
     const migrationName = 'create-unicorns'
     const migrator = await Migrator.connect({ uri, cli: true })
