@@ -69,13 +69,21 @@ jobs:
           subject-path: ${{ steps.pack.outputs.tarball-name }}
 
       - name: Attach attestation bundle to release
-        # SLSA v1.0 recommends publishing provenance in more than one channel.
+        # SLSA v1.2 recommends publishing provenance in more than one channel.
         # actions/attest already uploaded the bundle to GitHub's native attestation
-        # store and npm will ship an npm-registry provenance attestation via
+        # store and npm ships an npm-registry provenance attestation via
         # publishConfig.provenance: true. This third channel puts the same Sigstore
-        # bundle on the GitHub Release as a sidecar asset (<tarball>.sigstore.json)
-        # so consumers who rely on the classic "signed release assets" pattern —
-        # including OpenSSF Scorecard's Signed-Releases check — can find it too.
+        # bundle on the GitHub Release as a sidecar asset so consumers who rely on
+        # the classic "signed release assets" pattern can find it.
+        #
+        # File extension is `.intoto.jsonl` even though the content is a Sigstore
+        # bundle (application/vnd.dev.sigstore.bundle.v0.3+json). This matches the
+        # established convention used by slsa-github-generator and documented by
+        # OpenSSF Scorecard's Signed-Releases check: Scorecard treats `.intoto.jsonl`
+        # as the SLSA provenance file (max score 10/10) and the other recognised
+        # extensions (`.sig`, `.sigstore.json`, etc.) as generic signatures (8/10).
+        # The bundle format is the same either way; `gh attestation verify --bundle`
+        # parses the content regardless of filename.
         env:
           GH_TOKEN: ${{ github.token }}
           BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
@@ -83,7 +91,7 @@ jobs:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           set -euo pipefail
-          asset="${TARBALL}.sigstore.json"
+          asset="${TARBALL}.intoto.jsonl"
           cp "$BUNDLE_PATH" "$asset"
           gh release upload "$RELEASE_TAG" "$asset" --repo "$GITHUB_REPOSITORY" --clobber
 

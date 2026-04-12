@@ -146,29 +146,43 @@ release:
    and verifiable through `gh attestation verify` — no extra tooling
    install required by consumers who already have the `gh` CLI.
 3. **GitHub Release asset** — the same Sigstore bundle is copied to
-   a sidecar file named `<tarball>.sigstore.json` and attached to
+   a sidecar file named `<tarball>.intoto.jsonl` and attached to
    the GitHub Release via `gh release upload` in a follow-up step of
    the same job. This is the "classic" distribution channel used by
    tools that inspect release assets directly (including
-   OpenSSF Scorecard's `Signed-Releases` check).
+   OpenSSF Scorecard's `Signed-Releases` check, which recognises
+   `.intoto.jsonl` as the SLSA provenance indicator). The file
+   extension is a legacy convention; the content is a Sigstore
+   bundle (`application/vnd.dev.sigstore.bundle.v0.3+json`) — the
+   same format `slsa-github-generator` has shipped under that name
+   for years, and `gh attestation verify --bundle` parses it
+   regardless of filename.
 
 **Status:** the hardened pipeline was introduced in the 5.2.x
 maintenance series but the three-channel attestation story (above)
-is complete only **from `5.3.1` onward**:
+reaches its final shape only **from `5.3.2` onward**:
 
 - `5.2.0` predates the new `publish.yaml` entirely — no provenance
   in any channel.
 - `5.3.0` was released under `actions/attest@v4` but before the
   release-asset sidecar step was added, so it has channels 1 and 2
-  (npm registry + GitHub attestation store) but no
-  `.sigstore.json` asset on the release.
-- `5.3.1+` has all three channels.
+  (npm registry + GitHub attestation store) but no release-asset
+  sidecar.
+- `5.3.1` was the first release with all three channels. The
+  sidecar was initially shipped under the `.sigstore.json`
+  extension, which OpenSSF Scorecard recognises as a generic
+  signature (score 8/10) rather than a SLSA provenance file.
+- `5.3.2+` ships the same Sigstore bundle under the
+  `.intoto.jsonl` extension so Scorecard's `Signed-Releases` check
+  can detect it as SLSA provenance (score 10/10). The content is
+  unchanged.
 
 Consumers auditing a specific version can confirm which pipeline
-it was built under by looking at the release: a `.sigstore.json`
-asset means `5.3.1+` shape; presence in
+it was built under by looking at the release: a `.intoto.jsonl`
+asset means `5.3.2+`; a `.sigstore.json` asset means `5.3.1` as
+originally shipped; presence in
 [the attestation store](https://github.com/ilovepixelart/ts-migrate-mongoose/attestations)
-without the sidecar asset means `5.3.0`; absence from both means
+without any sidecar asset means `5.3.0`; absence from both means
 `5.2.0` or earlier.
 
 ### Dev-environment isolation
@@ -244,16 +258,17 @@ store is accessible without authentication.
 **Offline check (classic release-asset path):**
 
 For `5.3.1+` releases, the same Sigstore bundle is also attached to
-the GitHub Release as a sidecar file named
-`ts-migrate-mongoose-X.Y.Z.tgz.sigstore.json`. Consumers who cannot
-reach GitHub's attestation API (air-gapped environments, mirrored
-infrastructure, etc.) can download both the tarball and the sidecar
-from the GitHub Release page and pass the bundle to
+the GitHub Release as a sidecar file — named
+`ts-migrate-mongoose-X.Y.Z.tgz.intoto.jsonl` from `5.3.2` onward,
+or `…tgz.sigstore.json` on the initial `5.3.1` release. Consumers
+who cannot reach GitHub's attestation API (air-gapped environments,
+mirrored infrastructure, etc.) can download both the tarball and
+the sidecar from the GitHub Release page and pass the bundle to
 `gh attestation verify` via the `--bundle` flag:
 
 ```bash
 gh attestation verify ts-migrate-mongoose-X.Y.Z.tgz \
-  --bundle ts-migrate-mongoose-X.Y.Z.tgz.sigstore.json \
+  --bundle ts-migrate-mongoose-X.Y.Z.tgz.intoto.jsonl \
   --repo ilovepixelart/ts-migrate-mongoose \
   --signer-workflow ilovepixelart/ts-migrate-mongoose/.github/workflows/publish.yaml
 ```
