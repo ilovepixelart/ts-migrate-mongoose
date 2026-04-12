@@ -1,8 +1,8 @@
 import 'reflect-metadata'
 
-import { Test } from '@nestjs/testing'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { Test } from '@nestjs/testing'
 import { MigrationModule } from '../src/nest/migration.module'
 import { MigrationService } from '../src/nest/migration.service'
 
