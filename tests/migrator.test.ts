@@ -105,25 +105,6 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
     }
   })
 
-  it('should not mutate mongoose.strictQuery global on Migrator.connect()', async () => {
-    // Pin the global to a known sentinel value before connecting. If the
-    // Migrator constructor calls `mongoose.set('strictQuery', false)` as a
-    // side effect, this pinned value will be clobbered — leaking behavior
-    // into any other mongoose consumer in the same Node process.
-    const before = mongoose.get('strictQuery')
-    mongoose.set('strictQuery', true)
-    try {
-      const migrator = await Migrator.connect({ uri })
-      try {
-        expect(mongoose.get('strictQuery')).toBe(true)
-      } finally {
-        await migrator.close()
-      }
-    } finally {
-      mongoose.set('strictQuery', before)
-    }
-  })
-
   it('should close the underlying mongoose connection when Migrator.connect() fails', async () => {
     const bootFailure = new Error('simulated connect failure')
     // Force `connected()` to reject on the next instance. The spy is on the

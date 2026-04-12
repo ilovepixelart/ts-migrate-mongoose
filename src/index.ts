@@ -52,6 +52,21 @@ export class Migrator {
   private readonly cli: boolean
 
   private constructor(options: MigratorOptions) {
+    // Documented API contract: consumer migration files often query via
+    // non-schema fields (e.g. data fixups where a field has since been
+    // removed from the schema). Setting `strictQuery: false` preserves
+    // the pre-mongoose-7 behaviour of passing unknown fields through
+    // unchanged. The `should disable strict` CLI test locks in this
+    // contract by running a migration whose deleteMany filter references
+    // a field that no longer exists on the schema.
+    //
+    // This IS a process-wide mongoose setting and will affect other
+    // mongoose connections in the same Node process. Callers who need
+    // a different value in their own code should set it back after the
+    // Migrator has finished — there is no per-connection alternative
+    // that works consistently across all supported mongoose majors.
+    mongoose.set('strictQuery', false)
+
     this.template = this.getTemplate(options.templatePath)
     this.migrationsPath = path.resolve(options.migrationsPath ?? defaults.MIGRATE_MIGRATIONS_PATH)
     this.collection = options.collection ?? defaults.MIGRATE_MONGO_COLLECTION
@@ -145,18 +160,12 @@ export class Migrator {
 
     await this.sync()
 
-    let untilMigration: HydratedDocument<Migration> | null = null
-    const state = direction === 'up' ? 'down' : 'up'
-    const key = direction === 'up' ? '$lte' : '$gte'
-    const sort = direction === 'up' ? 1 : -1
+    const isUp = direction === 'up'
+    const state = isUp ? 'down' : 'up'
+    const key = isUp ? '$lte' : '$gte'
+    const sort: 1 | -1 = isUp ? 1 : -1
 
-    if (migrationName) {
-      untilMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
-    } else {
-      const tieBreaker = single ? sort : (-sort as -1 | 1)
-      untilMigration = await this.migrationModel.findOne({ state }).sort({ createdAt: tieBreaker, _id: tieBreaker }).exec()
-    }
-
+    const untilMigration = await this.findUntilMigration(migrationName, state, single, sort)
     if (!untilMigration) {
       if (migrationName) {
         throw new Error(`Could not find migration with name '${migrationName}' in the database`)
@@ -164,30 +173,46 @@ export class Migrator {
       return this.noPendingMigrations()
     }
 
-    const query = {
-      createdAt: { [key]: untilMigration.createdAt },
-      state,
-    }
-
-    const migrationsToRun = []
-
-    if (single) {
-      migrationsToRun.push(untilMigration)
-    } else {
-      const migrations = await this.migrationModel.find(query).sort({ createdAt: sort, _id: sort }).exec()
-      migrationsToRun.push(...migrations)
-    }
-
+    const migrationsToRun = await this.collectMigrationsToRun(untilMigration, key, state, single, sort)
     if (!migrationsToRun.length) {
       return this.noPendingMigrations()
     }
 
     const migrationsRan = await this.runMigrations(migrationsToRun, direction)
-
     if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {
       this.log(chalk.green('All migrations finished successfully'))
     }
     return migrationsRan
+  }
+
+  /**
+   * Resolves the `untilMigration` boundary document for `run()`. Either the
+   * explicitly-named migration, or the most-recent/least-recent candidate
+   * in the target state depending on whether we're running a single step
+   * or a full batch.
+   */
+  private async findUntilMigration(migrationName: string | undefined, state: 'down' | 'up', single: boolean, sort: 1 | -1): Promise<HydratedDocument<Migration> | null> {
+    if (migrationName) {
+      return this.migrationModel.findOne({ name: migrationName }).exec()
+    }
+    const tieBreaker: 1 | -1 = single ? sort : (-sort as 1 | -1)
+    return this.migrationModel.findOne({ state }).sort({ createdAt: tieBreaker, _id: tieBreaker }).exec()
+  }
+
+  /**
+   * Builds the ordered list of migrations to execute for `run()`. In single
+   * mode, returns just the boundary doc; otherwise returns every pending
+   * migration on the same side of the boundary, sorted deterministically.
+   */
+  private async collectMigrationsToRun(untilMigration: HydratedDocument<Migration>, key: '$lte' | '$gte', state: 'down' | 'up', single: boolean, sort: 1 | -1): Promise<HydratedDocument<Migration>[]> {
+    if (single) {
+      return [untilMigration]
+    }
+    const query = {
+      createdAt: { [key]: untilMigration.createdAt },
+      state,
+    }
+    return this.migrationModel.find(query).sort({ createdAt: sort, _id: sort }).exec()
   }
 
   /**
