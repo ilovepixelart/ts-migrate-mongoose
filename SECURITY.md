@@ -120,31 +120,53 @@ step in that attack chain.
 
 ### Release verifiability
 
-**Status:** the hardened pipeline described above was introduced in
-the 5.2.x maintenance series but no release has yet been cut under
-it — `5.2.0` predates the new `publish.yaml`. Starting with **the
-next release**, every published tarball will ship with both an npm
-provenance attestation and a SLSA `.intoto.jsonl` on the GitHub
-Release. Consumers auditing a specific version can confirm which
-pipeline it was built under by looking for the attestation; its
-absence means the release pre-dates the hardened pipeline.
+SLSA v1.0's
+[distributing provenance guidance](https://slsa.dev/spec/v1.0/distributing-provenance)
+states that producers **MUST** publish attestations in at least one
+place and **SHOULD** publish in more than one — the rationale being
+that independent channels give consumers more than one way to
+verify and remove any single point of failure. This project
+publishes the same SLSA v1 build provenance in **three** channels on
+every release:
 
-Once the first post-hardening release is published:
+1. **npm registry provenance** — emitted automatically by
+   `npm publish` because `publishConfig.provenance: true` is set in
+   `package.json`. Verifiable with
+   [`npm audit signatures`](https://docs.npmjs.com/generating-provenance-statements).
+   The sonar job of `pr-check.yaml` runs that command on every PR so
+   we notice if any of our dev-dependencies lose their provenance
+   upstream.
+2. **GitHub native attestation store** — produced by
+   [`actions/attest@v4`](https://github.com/actions/attest) in the
+   `build` job. Stored at
+   [github.com/ilovepixelart/ts-migrate-mongoose/attestations](https://github.com/ilovepixelart/ts-migrate-mongoose/attestations)
+   and verifiable through `gh attestation verify` — no extra tooling
+   install required by consumers who already have the `gh` CLI.
+3. **GitHub Release asset** — the same Sigstore bundle is copied to
+   a sidecar file named `<tarball>.sigstore.json` and attached to
+   the GitHub Release via `gh release upload` in a follow-up step of
+   the same job. This is the "classic" distribution channel used by
+   tools that inspect release assets directly (including
+   OpenSSF Scorecard's `Signed-Releases` check).
 
-- Every tarball will ship with an
-  [npm provenance attestation](https://docs.npmjs.com/generating-provenance-statements)
-  linking it to the exact GitHub Actions run that built it. Consumers
-  can verify with `npm audit signatures`. The sonar job of
-  `pr-check.yaml` already runs this step on every PR so we notice if
-  any of our dev-dependencies lose their provenance upstream.
-- Every build additionally produces a **GitHub-native artifact
-  attestation** via `actions/attest-build-provenance`. The attestation
-  lives in GitHub's attestation store (not in Release assets) and is
-  verifiable through the `gh` CLI — no extra tooling install required
-  by consumers who already have `gh`. This runs independently of the
-  npm publish flow so users pinning to a git ref, downloading the
-  tarball from the Release page directly, or auditing the provenance
-  chain without trusting the npm registry can still verify the build.
+**Status:** the hardened pipeline was introduced in the 5.2.x
+maintenance series but the three-channel attestation story (above)
+is complete only **from `5.3.1` onward**:
+
+- `5.2.0` predates the new `publish.yaml` entirely — no provenance
+  in any channel.
+- `5.3.0` was released under `actions/attest@v4` but before the
+  release-asset sidecar step was added, so it has channels 1 and 2
+  (npm registry + GitHub attestation store) but no
+  `.sigstore.json` asset on the release.
+- `5.3.1+` has all three channels.
+
+Consumers auditing a specific version can confirm which pipeline
+it was built under by looking at the release: a `.sigstore.json`
+asset means `5.3.1+` shape; presence in
+[the attestation store](https://github.com/ilovepixelart/ts-migrate-mongoose/attestations)
+without the sidecar asset means `5.3.0`; absence from both means
+`5.2.0` or earlier.
 
 ### Dev-environment isolation
 
@@ -215,6 +237,28 @@ predicate type (which is what `actions/attest@v4` emits), queries
 GitHub's public Sigstore instance, and requires no additional tooling
 install beyond `gh` itself. For public repositories the attestation
 store is accessible without authentication.
+
+**Offline check (classic release-asset path):**
+
+For `5.3.1+` releases, the same Sigstore bundle is also attached to
+the GitHub Release as a sidecar file named
+`ts-migrate-mongoose-X.Y.Z.tgz.sigstore.json`. Consumers who cannot
+reach GitHub's attestation API (air-gapped environments, mirrored
+infrastructure, etc.) can download both the tarball and the sidecar
+from the GitHub Release page and pass the bundle to
+`gh attestation verify` via the `--bundle` flag:
+
+```bash
+gh attestation verify ts-migrate-mongoose-X.Y.Z.tgz \
+  --bundle ts-migrate-mongoose-X.Y.Z.tgz.sigstore.json \
+  --repo ilovepixelart/ts-migrate-mongoose \
+  --signer-workflow ilovepixelart/ts-migrate-mongoose/.github/workflows/publish.yaml
+```
+
+With `--bundle` set, `gh attestation verify` does not query the
+GitHub attestation store at all — it verifies the local file against
+the public Sigstore instance. The trust model is identical to the
+online check; only the attestation-retrieval step differs.
 
 Independent supply-chain trust signals for this project (Scorecard,
 OpenSSF Best Practices, Socket.dev, SonarCloud) are published via

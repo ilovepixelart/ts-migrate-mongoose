@@ -14,7 +14,7 @@ jobs:
     name: Build, attest, and pack
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write             # upload the attestation bundle to the triggering release
       id-token: write             # OIDC token for Sigstore keyless signing
       attestations: write         # persist the build provenance attestation
       artifact-metadata: write    # create the artifact storage record that backs the attestation
@@ -63,9 +63,29 @@ jobs:
         # actions/attest is the canonical action per the docs; actions/attest-build-provenance
         # is now a thin wrapper around it. Default predicate type is SLSA v1 build provenance,
         # which is what we want for npm tarballs — no extra inputs needed.
+        id: attest
         uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
         with:
           subject-path: ${{ steps.pack.outputs.tarball-name }}
+
+      - name: Attach attestation bundle to release
+        # SLSA v1.0 recommends publishing provenance in more than one channel.
+        # actions/attest already uploaded the bundle to GitHub's native attestation
+        # store and npm will ship an npm-registry provenance attestation via
+        # publishConfig.provenance: true. This third channel puts the same Sigstore
+        # bundle on the GitHub Release as a sidecar asset (<tarball>.sigstore.json)
+        # so consumers who rely on the classic "signed release assets" pattern —
+        # including OpenSSF Scorecard's Signed-Releases check — can find it too.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
+          TARBALL: ${{ steps.pack.outputs.tarball-name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          asset="${TARBALL}.sigstore.json"
+          cp "$BUNDLE_PATH" "$asset"
+          gh release upload "$RELEASE_TAG" "$asset" --repo "$GITHUB_REPOSITORY" --clobber
 
       - name: Upload tarball artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
