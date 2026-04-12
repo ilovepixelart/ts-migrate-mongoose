@@ -6,24 +6,34 @@ We welcome contributions from the community. Please follow these guidelines to e
 
 ```bash
 npm install
+npx simple-git-hooks  # one-time: install the git hooks defined in package.json
 ```
 
 ### Commands
 
 ```bash
-npm run build          # Build with pkgroll
-npm test               # Run tests with vitest + coverage
-npm run type:check     # TypeScript type checking
-npm run biome          # Lint check
-npm run biome:fix      # Lint + auto-fix
+npm run build              # Build with pkgroll
+npm test                   # Run tests with vitest + coverage
+npm run type:check         # TypeScript type checking (src)
+npm run type:check:tests   # TypeScript type checking (tests)
+npm run biome              # Lint check
+npm run biome:fix          # Lint + auto-fix
 ```
 
 ### Git Hooks
 
-The project uses `simple-git-hooks`:
+The project uses `simple-git-hooks`. Contributors run `npx simple-git-hooks`
+once after `npm install` to register the hooks locally:
 
 - **pre-commit**: runs `npm run type:check`
 - **pre-push**: runs `npm run biome:fix`
+
+## Before Submitting a PR
+
+1. Run the full check: `npm run type:check && npm run type:check:tests && npm run biome && npm test && npm run build`
+2. Ensure no test regressions
+3. Follow the existing code style (Biome handles formatting)
+4. Keep changes focused — one feature or fix per PR
 
 ## How to Contribute
 

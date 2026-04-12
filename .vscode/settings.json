@@ -1,9 +1,9 @@
 {
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.patterns": {
-    "tsconfig.json": "tsconfig.*.json, env.d.ts",
+    "tsconfig.json": "tsconfig.*.json",
     "package.json": "package-lock.json, .gitignore",
-    "README.md": "CHANGELOG.md, CODE_OF_CONDUCT.md, CONTRIBUTING.md"
+    "README.md": "CODE_OF_CONDUCT.md, CONTRIBUTING.md, SECURITY.md"
   },
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
@@ -18,15 +18,20 @@
     "dbaeumer",
     "Dsonar",
     "ilovepixelart",
+    "intoto",
     "lcov",
     "linebreak",
     "nargs",
     "nodenext",
     "nosql",
     "npmignore",
+    "ossf",
     "parens",
     "pkgroll",
+    "sarif",
+    "Sigstore",
     "singleline",
+    "SLSA",
     "sonarcloud",
     "sonarqube",
     "sonarsource",
