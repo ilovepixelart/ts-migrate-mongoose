@@ -120,14 +120,17 @@ step in that attack chain.
 
 ### Release verifiability
 
-SLSA v1.0's
-[distributing provenance guidance](https://slsa.dev/spec/v1.0/distributing-provenance)
+[SLSA v1.2's distributing-provenance guidance](https://slsa.dev/spec/v1.2/distributing-provenance)
 states that producers **MUST** publish attestations in at least one
 place and **SHOULD** publish in more than one — the rationale being
 that independent channels give consumers more than one way to
-verify and remove any single point of failure. This project
-publishes the same SLSA v1 build provenance in **three** channels on
-every release:
+verify and remove any single point of failure. (The same normative
+requirements appeared in v1.0; v1.2's notable addition is the
+[Source Track](https://slsa.dev/spec/v1.2/whats-new), which applies
+to source code development processes and is orthogonal to the
+build-provenance pipeline described here.) This project publishes
+the same SLSA v1 build provenance in **three** channels on every
+release:
 
 1. **npm registry provenance** — emitted automatically by
    `npm publish` because `publishConfig.provenance: true` is set in
