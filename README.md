@@ -15,6 +15,7 @@ A migration framework for Mongoose, built with TypeScript.
 \
 [![Socket Badge](https://badge.socket.dev/npm/package/ts-migrate-mongoose)](https://socket.dev/npm/package/ts-migrate-mongoose)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/ilovepixelart/ts-migrate-mongoose/badge)](https://securityscorecards.dev/viewer/?uri=github.com/ilovepixelart/ts-migrate-mongoose)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/12477/badge)](https://www.bestpractices.dev/en/projects/12477)
 
 ## Motivation
 

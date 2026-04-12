@@ -88,3 +88,16 @@ chase:
   organizations in the last 30 commits. As a personal project this is
   structurally unattainable; the score will move organically if external
   contributors join.
+
+- **`Fuzzing`** — `ts-migrate-mongoose` has no parser or untrusted
+  input surface. Configuration comes from trusted files (`migrate.json`,
+  `migrate.ts`, `.env`) and CLI flags; migration bodies are executed as
+  trusted code authored by the project's own maintainers. A continuous
+  fuzzer (CIFuzz, OSS-Fuzz) would have no meaningful input corpus to
+  mutate.
+
+- **`CII-Best-Practices`** — tracked at
+  [bestpractices.dev/projects/12477](https://www.bestpractices.dev/en/projects/12477).
+  The project targets the "passing" tier; "silver" and "gold" require
+  multiple reviewers and documented security-review processes that are
+  out of reach for a single-maintainer project.
