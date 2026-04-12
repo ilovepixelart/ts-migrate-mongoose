@@ -13,6 +13,14 @@ on:
     - cron: '32 7 * * 1'
   push:
     branches: [ "main" ]
+  # Re-score after every successful Publish run so the Signed-Releases check
+  # sees the freshly attached release-asset sidecars. Without this, the
+  # Scorecard scan from the pre-release push to main races the publish.yaml
+  # workflow and captures a stale state where release assets aren't yet
+  # uploaded. See the accepted-findings rationale in SECURITY.md.
+  workflow_run:
+    workflows: ["Publish"]
+    types: [completed]
 
 # Declare default permissions as read only.
 permissions: read-all
@@ -21,6 +29,11 @@ jobs:
   analysis:
     name: Scorecard analysis
     runs-on: ubuntu-latest
+    # When triggered by workflow_run (after Publish), only proceed if the
+    # Publish run actually succeeded. No point scoring a failed release.
+    # For all other triggers (push, schedule, branch_protection_rule) the
+    # condition evaluates true and the job runs normally.
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     permissions:
       # Needed to upload the results to code-scanning dashboard.
       security-events: write
