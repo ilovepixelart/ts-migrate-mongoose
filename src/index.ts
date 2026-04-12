@@ -35,7 +35,6 @@ const resolveMigrationFile = (basePath: string): string => {
   return basePath
 }
 
-export { chalk } from './chalk'
 export * from './types'
 
 /**
@@ -195,11 +194,7 @@ export class Migrator {
 
       return this.syncMigrations(migrationsToImport)
     } catch (error) {
-      const message = 'Could not synchronize migrations in the migrations folder up to the database'
-      if (error instanceof Error) {
-        error.message = `${message}\n${error.message}`
-      }
-      throw error
+      throw new Error('Could not synchronize migrations in the migrations folder up to the database', { cause: error })
     }
   }
 
@@ -228,11 +223,7 @@ export class Migrator {
 
       return migrationsDeleted
     } catch (error) {
-      const message = 'Could not prune extraneous migrations from database'
-      if (error instanceof Error) {
-        error.message = `${message}\n${error.message}`
-      }
-      throw error
+      throw new Error('Could not prune extraneous migrations from database', { cause: error })
     }
   }
 
@@ -361,7 +352,7 @@ export class Migrator {
       const migrationFilePath = resolveMigrationFile(baseMigrationPath)
       const fileUrl = pathToFileURL(migrationFilePath).href
       const migrationFunctions = (await import(fileUrl)) as MigrationFunctions | MigrationFunctionsDefault
-      const migrationFunction = 'default' in migrationFunctions ? migrationFunctions.default[direction] : (migrationFunctions as MigrationFunctions)[direction]
+      const migrationFunction = (migrationFunctions as MigrationFunctionsDefault).default?.[direction] ?? (migrationFunctions as MigrationFunctions)[direction]
       if (!migrationFunction) {
         throw new Error(`The '${direction}' export is not defined in ${migration.filename}.`)
       }
@@ -374,11 +365,7 @@ export class Migrator {
         await this.migrationModel.updateMany({ name: migration.name }, { $set: { state: direction } }).exec()
         migrationsRan.push(migration)
       } catch (error) {
-        const message = `Failed to run migration with name '${migration.name}' due to an error`
-        if (error instanceof Error) {
-          error.message = `${message}\n${error.message}`
-        }
-        throw error
+        throw new Error(`Failed to run migration with name '${migration.name}' due to an error`, { cause: error })
       }
     }
 

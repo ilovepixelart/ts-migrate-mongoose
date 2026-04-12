@@ -304,7 +304,7 @@ export class Migrate {
 
       return await this.finish(exit)
     } catch (error: unknown) {
-      return await this.finish(exit, error instanceof Error ? error : new Error('An unknown error occurred'))
+      return await this.finish(exit, error instanceof Error ? error : new Error('An unknown error occurred', { cause: error }))
     }
   }
 }

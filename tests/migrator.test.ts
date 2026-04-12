@@ -259,7 +259,10 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
     vi.spyOn(migrator, 'getMigrations').mockImplementation(() => {
       throw new Error('Sync error')
     })
-    await expect(migrator.sync()).rejects.toThrow('Sync error')
+    await expect(migrator.sync()).rejects.toMatchObject({
+      message: expect.stringContaining('Could not synchronize migrations'),
+      cause: expect.objectContaining({ message: 'Sync error' }),
+    })
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
@@ -332,7 +335,10 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
     vi.spyOn(migrator, 'getMigrations').mockImplementation(() => {
       throw new Error('Sync error')
     })
-    await expect(migrator.prune()).rejects.toThrow('Sync error')
+    await expect(migrator.prune()).rejects.toMatchObject({
+      message: expect.stringContaining('Could not prune extraneous migrations'),
+      cause: expect.objectContaining({ message: 'Sync error' }),
+    })
 
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
