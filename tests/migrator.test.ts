@@ -105,6 +105,66 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
     }
   })
 
+  it('should close the underlying mongoose connection when Migrator.connect() fails', async () => {
+    const bootFailure = new Error('simulated connect failure')
+    // Force `connected()` to reject on the next instance. The spy is on the
+    // prototype so it triggers for the migrator constructed inside
+    // `Migrator.connect()`, which we never get a handle to directly.
+    // biome-ignore lint/suspicious/noExplicitAny: spying on a private method for leak detection
+    const connectedSpy = vi.spyOn(Migrator.prototype as any, 'connected').mockRejectedValueOnce(bootFailure)
+    const closeSpy = vi.spyOn(Migrator.prototype, 'close')
+
+    try {
+      await expect(Migrator.connect({ uri })).rejects.toThrow('simulated connect failure')
+      expect(closeSpy).toHaveBeenCalledTimes(1)
+    } finally {
+      connectedSpy.mockRestore()
+      closeSpy.mockRestore()
+    }
+  })
+
+  it.each([
+    [{ $ne: null }, 'operator object'],
+    [{ $gt: '' }, 'comparison operator'],
+    [[], 'array'],
+    [123, 'number'],
+    [true, 'boolean'],
+    [{}, 'empty object'],
+  ])('should reject run(direction, %j) — %s (NoSQL injection guard)', async (badName, _label) => {
+    const migrator = await Migrator.connect({ uri })
+    try {
+      await expect(
+        // @ts-expect-error - deliberately passing a non-string to exercise the runtime guard
+        migrator.run('up', badName),
+      ).rejects.toThrow(/migrationName must be a string/)
+    } finally {
+      await migrator.close()
+    }
+  })
+
+  it('should order migrations deterministically by (createdAt, _id) on timestamp collision', async () => {
+    const migrator = await Migrator.connect({ uri, autosync: true })
+    try {
+      // Plant three migrations with the exact same createdAt. Without a
+      // secondary sort key, MongoDB's result order for tied createdAt is
+      // undefined. With the _id tiebreaker, the three migrations come
+      // back in insertion (_id ascending) order.
+      const sameTime = new Date('2026-04-12T12:00:00.000Z')
+      const ids = [new Types.ObjectId(), new Types.ObjectId(), new Types.ObjectId()]
+      await migrator.migrationModel.create([
+        { _id: ids[0], name: 'alpha', createdAt: sameTime },
+        { _id: ids[1], name: 'beta', createdAt: sameTime },
+        { _id: ids[2], name: 'gamma', createdAt: sameTime },
+      ])
+
+      const listed = await migrator.list()
+      expect(listed.map((m) => m.name)).toEqual(['alpha', 'beta', 'gamma'])
+      expect(listed.map((m) => m._id.toString())).toEqual(ids.map((i) => i.toString()))
+    } finally {
+      await migrator.close()
+    }
+  })
+
   it('should refuse to import a migration whose resolved path escapes the migrations directory', async () => {
     const migrator = await Migrator.connect({ uri })
     try {

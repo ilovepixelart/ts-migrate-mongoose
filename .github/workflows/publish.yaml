@@ -11,12 +11,14 @@ permissions:
 
 jobs:
   build:
-    name: Build and hash
+    name: Build, attest, and pack
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write             # OIDC token for Sigstore keyless signing
+      attestations: write         # persist the build provenance attestation
+      artifact-metadata: write    # create the artifact storage record that backs the attestation
     outputs:
-      hashes: ${{ steps.hash.outputs.hashes }}
       tarball-name: ${{ steps.pack.outputs.tarball-name }}
     steps:
       - name: Checkout
@@ -57,14 +59,13 @@ jobs:
           tarball=$(ls -1 ts-migrate-mongoose-*.tgz | head -n1)
           echo "tarball-name=$tarball" >> "$GITHUB_OUTPUT"
 
-      - name: Compute subject hashes for SLSA provenance
-        id: hash
-        run: |
-          set -euo pipefail
-          # generator_generic_slsa3 expects a base64-encoded sha256sum manifest:
-          # base64("<hash>  <filename>\n...")
-          hashes=$(sha256sum "${{ steps.pack.outputs.tarball-name }}" | base64 -w0)
-          echo "hashes=$hashes" >> "$GITHUB_OUTPUT"
+      - name: Attest build provenance
+        # actions/attest is the canonical action per the docs; actions/attest-build-provenance
+        # is now a thin wrapper around it. Default predicate type is SLSA v1 build provenance,
+        # which is what we want for npm tarballs — no extra inputs needed.
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        with:
+          subject-path: ${{ steps.pack.outputs.tarball-name }}
 
       - name: Upload tarball artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -74,29 +75,9 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  provenance:
-    # SLSA generic generator — produces an *.intoto.jsonl attestation naming
-    # the tarball hash as subject and uploads it to the triggering Release as
-    # an asset. Scorecard's Signed-Releases check looks for exactly this file
-    # next to the release assets.
-    needs: [build]
-    permissions:
-      actions: read       # reusable workflow introspects run metadata
-      id-token: write     # OIDC token for Sigstore keyless signing
-      contents: write     # upload .intoto.jsonl to the triggering release
-    # NOTE: intentionally tag-pinned, not SHA-pinned. The SLSA generator's
-    # generate-builder.sh rejects commit-SHA refs ("Invalid ref … Expected
-    # refs/tags/vX.Y.Z") because it downloads its prebuilt binary from the
-    # GitHub release assets attached to the tag. Every other action in this
-    # repo is SHA-pinned for Scorecard's Pinned-Dependencies check.
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0
-    with:
-      base64-subjects: ${{ needs.build.outputs.hashes }}
-      upload-assets: true
-
   publish:
     name: Publish to npm
-    needs: [build, provenance]
+    needs: [build]
     runs-on: ubuntu-latest
     permissions:
       contents: read
