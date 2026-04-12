@@ -1,11 +1,12 @@
 {
-  "include": ["src", "env.d.ts"],
+  "include": ["src"],
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022"],
     "types": ["node"],
     "module": "Preserve",
     "moduleResolution": "bundler",
+    "rootDir": "src",
     "outDir": "dist",
     "strict": true,
     "allowSyntheticDefaultImports": true,

@@ -19,7 +19,7 @@ export const clearDirectory = async (dir: string) => {
         await fs.unlink(filePath)
       }
     } catch (err) {
-      console.warn(`Skipping file: ${filePath} - ${err.message}`)
+      console.warn(`Skipping file: ${filePath} - ${(err as Error).message}`)
     }
   })
 
@@ -28,8 +28,8 @@ export const clearDirectory = async (dir: string) => {
 
 export const deleteDirectory = async (dir: string) => {
   try {
-    await fs.rmdir(dir, { recursive: true })
+    await fs.rm(dir, { recursive: true, force: true })
   } catch (err) {
-    console.warn(`Failed to delete directory: ${dir} - ${err.message}`)
+    console.warn(`Failed to delete directory: ${dir} - ${(err as Error).message}`)
   }
 }

@@ -5,33 +5,113 @@ on:
     types:
       - published
 
+# Read by default; jobs upgrade to the minimal scopes they need.
 permissions:
-  id-token: write
   contents: read
 
 jobs:
-  publish:
-    name: Publish to npm
+  build:
+    name: Build and hash
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      hashes: ${{ steps.hash.outputs.hashes }}
+      tarball-name: ${{ steps.pack.outputs.tarball-name }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: 22.x
+          node-version: 24.x
           registry-url: https://registry.npmjs.org
           cache: npm
-
-      - name: Update npm
-        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Type check
+        run: npm run type:check
+
+      - name: Type check tests
+        run: npm run type:check:tests
+
+      - name: Biome
+        run: npm run biome
+
+      - name: Test
+        run: npm run test
+
       - name: Build
         run: npm run build
 
-      - name: Publish
-        run: npm publish --access public
+      - name: Pack tarball
+        id: pack
+        run: |
+          set -euo pipefail
+          npm pack
+          tarball=$(ls -1 ts-migrate-mongoose-*.tgz | head -n1)
+          echo "tarball-name=$tarball" >> "$GITHUB_OUTPUT"
+
+      - name: Compute subject hashes for SLSA provenance
+        id: hash
+        run: |
+          set -euo pipefail
+          # generator_generic_slsa3 expects a base64-encoded sha256sum manifest:
+          # base64("<hash>  <filename>\n...")
+          hashes=$(sha256sum "${{ steps.pack.outputs.tarball-name }}" | base64 -w0)
+          echo "hashes=$hashes" >> "$GITHUB_OUTPUT"
+
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: npm-tarball
+          path: ${{ steps.pack.outputs.tarball-name }}
+          if-no-files-found: error
+          retention-days: 1
+
+  provenance:
+    # SLSA generic generator — produces an *.intoto.jsonl attestation naming
+    # the tarball hash as subject and uploads it to the triggering Release as
+    # an asset. Scorecard's Signed-Releases check looks for exactly this file
+    # next to the release assets.
+    needs: [build]
+    permissions:
+      actions: read       # reusable workflow introspects run metadata
+      id-token: write     # OIDC token for Sigstore keyless signing
+      contents: write     # upload .intoto.jsonl to the triggering release
+    # NOTE: intentionally tag-pinned, not SHA-pinned. The SLSA generator's
+    # generate-builder.sh rejects commit-SHA refs ("Invalid ref … Expected
+    # refs/tags/vX.Y.Z") because it downloads its prebuilt binary from the
+    # GitHub release assets attached to the tag. Every other action in this
+    # repo is SHA-pinned for Scorecard's Pinned-Dependencies check.
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0
+    with:
+      base64-subjects: ${{ needs.build.outputs.hashes }}
+      upload-assets: true
+
+  publish:
+    name: Publish to npm
+    needs: [build, provenance]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write     # npm provenance attestation via OIDC trusted publisher
+    steps:
+      - name: Use Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24.x
+          registry-url: https://registry.npmjs.org
+
+      - name: Download tarball artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: npm-tarball
+
+      - name: Publish to npm
+        run: npm publish "${{ needs.build.outputs.tarball-name }}"
