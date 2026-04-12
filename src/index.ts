@@ -3,7 +3,7 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import mongoose from 'mongoose'
 import { chalk } from './chalk'
-import { MIGRATION_FILE_EXTENSIONS, MIGRATION_FILE_REGEX } from './constants'
+import { MIGRATION_FILE_EXTENSIONS, MIGRATION_FILE_REGEX, MIGRATION_NAME_REGEX } from './constants'
 import { defaults } from './defaults'
 import { loader } from './loader'
 import { getMigrationModel } from './model'
@@ -35,7 +35,6 @@ const resolveMigrationFile = (basePath: string): string => {
   return basePath
 }
 
-export { chalk } from './chalk'
 export * from './types'
 
 /**
@@ -109,6 +108,10 @@ export class Migrator {
    * Create a new migration file
    */
   async create(migrationName: string): Promise<HydratedDocument<Migration>> {
+    if (!MIGRATION_NAME_REGEX.test(migrationName)) {
+      throw new Error(`Invalid migration name '${migrationName}'. Allowed characters: letters, digits, underscore, hyphen, and non-consecutive dots.`)
+    }
+
     const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     if (existingMigration) {
       throw new Error(`There is already a migration with name '${migrationName}' in the database`)
@@ -195,11 +198,7 @@ export class Migrator {
 
       return this.syncMigrations(migrationsToImport)
     } catch (error) {
-      const message = 'Could not synchronize migrations in the migrations folder up to the database'
-      if (error instanceof Error) {
-        error.message = `${message}\n${error.message}`
-      }
-      throw error
+      throw new Error('Could not synchronize migrations in the migrations folder up to the database', { cause: error })
     }
   }
 
@@ -228,11 +227,7 @@ export class Migrator {
 
       return migrationsDeleted
     } catch (error) {
-      const message = 'Could not prune extraneous migrations from database'
-      if (error instanceof Error) {
-        error.message = `${message}\n${error.message}`
-      }
-      throw error
+      throw new Error('Could not prune extraneous migrations from database', { cause: error })
     }
   }
 
@@ -356,12 +351,16 @@ export class Migrator {
    */
   private async runMigrations(migrationsToRun: HydratedDocument<Migration>[], direction: 'down' | 'up'): Promise<HydratedDocument<Migration>[]> {
     const migrationsRan: HydratedDocument<Migration>[] = []
+    const migrationsRoot = path.resolve(this.migrationsPath) + path.sep
     for (const migration of migrationsToRun) {
       const baseMigrationPath = path.resolve(path.join(this.migrationsPath, migration.filename))
+      if (!baseMigrationPath.startsWith(migrationsRoot)) {
+        throw new Error(`Refusing to import migration '${migration.filename}' — resolved path escapes the migrations directory.`)
+      }
       const migrationFilePath = resolveMigrationFile(baseMigrationPath)
       const fileUrl = pathToFileURL(migrationFilePath).href
       const migrationFunctions = (await import(fileUrl)) as MigrationFunctions | MigrationFunctionsDefault
-      const migrationFunction = 'default' in migrationFunctions ? migrationFunctions.default[direction] : (migrationFunctions as MigrationFunctions)[direction]
+      const migrationFunction = (migrationFunctions as MigrationFunctionsDefault).default?.[direction] ?? (migrationFunctions as MigrationFunctions)[direction]
       if (!migrationFunction) {
         throw new Error(`The '${direction}' export is not defined in ${migration.filename}.`)
       }
@@ -374,11 +373,7 @@ export class Migrator {
         await this.migrationModel.updateMany({ name: migration.name }, { $set: { state: direction } }).exec()
         migrationsRan.push(migration)
       } catch (error) {
-        const message = `Failed to run migration with name '${migration.name}' due to an error`
-        if (error instanceof Error) {
-          error.message = `${message}\n${error.message}`
-        }
-        throw error
+        throw new Error(`Failed to run migration with name '${migration.name}' due to an error`, { cause: error })
       }
     }
 
