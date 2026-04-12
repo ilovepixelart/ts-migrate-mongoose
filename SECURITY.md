@@ -111,7 +111,8 @@ step in that attack chain.
   that gets attested is the exact same one that gets published:
   `build` runs full CI, `npm pack`s the tarball, signs it via
   [`actions/attest@v4`](https://github.com/actions/attest) (Sigstore
-  keyless OIDC → SLSA v1.0 build provenance attestation uploaded to
+  keyless OIDC → SLSA v1 build provenance attestation
+  [predicate type `https://slsa.dev/provenance/v1`] uploaded to
   GitHub's native attestation store), then uploads the tarball as a
   workflow artifact; `publish` downloads that artifact and runs
   `npm publish` — npm-registry provenance is emitted automatically
@@ -129,8 +130,10 @@ requirements appeared in v1.0; v1.2's notable addition is the
 [Source Track](https://slsa.dev/spec/v1.2/whats-new), which applies
 to source code development processes and is orthogonal to the
 build-provenance pipeline described here.) This project publishes
-the same SLSA v1 build provenance in **three** channels on every
-release:
+the same SLSA v1 build provenance in **three independent channels**
+on every release (with the third channel carrying two separate
+artifacts that target different verification tools, giving four
+attestation files in total across the three channels):
 
 1. **npm registry provenance** — emitted automatically by
    `npm publish` because `publishConfig.provenance: true` is set in
@@ -145,31 +148,68 @@ release:
    [github.com/ilovepixelart/ts-migrate-mongoose/attestations](https://github.com/ilovepixelart/ts-migrate-mongoose/attestations)
    and verifiable through `gh attestation verify` — no extra tooling
    install required by consumers who already have the `gh` CLI.
-3. **GitHub Release asset** — the same Sigstore bundle is copied to
-   a sidecar file named `<tarball>.sigstore.json` and attached to
-   the GitHub Release via `gh release upload` in a follow-up step of
-   the same job. This is the "classic" distribution channel used by
-   tools that inspect release assets directly (including
-   OpenSSF Scorecard's `Signed-Releases` check).
+3. **GitHub Release assets** — two sidecar files attached to the
+   GitHub Release, carrying the same DSSE envelope at the innermost
+   layer but in different outer containers for different verification
+   flows:
+   - **`<tarball>.sigstore.json`** — a straight copy of
+     `actions/attest`'s output, a full Sigstore bundle
+     ([`application/vnd.dev.sigstore.bundle.v0.3+json`](https://github.com/sigstore/protobuf-specs/blob/main/protos/sigstore_bundle.proto),
+     matches the Sigstore project's own file-format convention).
+     Carries the Fulcio certificate and the Rekor inclusion proof
+     inline, so consumers can verify offline without querying Rekor.
+     Parsed by `gh attestation verify --bundle` and other
+     Sigstore-native tooling.
+   - **`<tarball>.intoto.jsonl`** — a spec-compliant
+     [in-toto attestation v1 bundle](https://github.com/in-toto/attestation/blob/main/spec/v1/bundle.md):
+     JSON Lines of DSSE envelopes, one envelope per line. Extracted
+     from the Sigstore bundle via `jq -c '.dsseEnvelope'` — this is
+     a genuine in-toto bundle, not a renamed Sigstore bundle.
+     Parsed by `slsa-verifier verify-artifact`, which queries Rekor
+     for the certificate and inclusion proof via the signature hash.
+     Also the format OpenSSF Scorecard's
+     [`releasesHaveProvenance` probe](https://github.com/ossf/scorecard/blob/main/probes/releasesHaveProvenance/impl.go)
+     looks for.
+
+   The two files are **not** duplicate signing material — they are
+   the same cryptographic signature presented in two different
+   container formats that different verification tools understand.
+   The `.sigstore.json` container embeds everything needed for
+   offline verification; the `.intoto.jsonl` container is smaller
+   and requires a Rekor lookup at verify time. Neither file names
+   itself as something it isn't.
 
 **Status:** the hardened pipeline was introduced in the 5.2.x
-maintenance series but the three-channel attestation story (above)
-is complete only **from `5.3.1` onward**:
+maintenance series but the dual-sidecar release-asset channel
+reaches its final shape only **from `5.3.2` onward**:
 
 - `5.2.0` predates the new `publish.yaml` entirely — no provenance
   in any channel.
 - `5.3.0` was released under `actions/attest@v4` but before the
-  release-asset sidecar step was added, so it has channels 1 and 2
-  (npm registry + GitHub attestation store) but no
-  `.sigstore.json` asset on the release.
-- `5.3.1+` has all three channels.
+  release-asset sidecar step was added, so it has only npm
+  registry provenance and the GitHub attestation store.
+- `5.3.1` was the first release to attach a sidecar to the GitHub
+  Release itself, shipping only the `.sigstore.json` Sigstore
+  bundle. That is a valid Sigstore artifact and verifiable via
+  `gh attestation verify --bundle`, but it is not an in-toto
+  attestation bundle, so tools that inspect `.intoto.jsonl`
+  specifically (`slsa-verifier`, OpenSSF Scorecard's
+  `releasesHaveProvenance` probe) did not find it.
+- **`5.3.2+`** ships both sidecars: the `.sigstore.json` Sigstore
+  bundle (unchanged) plus a `.intoto.jsonl` in-toto attestation
+  bundle generated by extracting the DSSE envelope from the
+  Sigstore bundle via `jq -c '.dsseEnvelope'`. The extracted file
+  is a genuine in-toto v1 bundle matching the spec's normative
+  requirements (JSON Lines of DSSE envelopes, one envelope per
+  line), not a Sigstore bundle under a different extension.
 
 Consumers auditing a specific version can confirm which pipeline
-it was built under by looking at the release: a `.sigstore.json`
-asset means `5.3.1+` shape; presence in
+it was built under by looking at the release page: both
+`.sigstore.json` and `.intoto.jsonl` sidecars means `5.3.2+`;
+only `.sigstore.json` means `5.3.1`; neither sidecar but
+attestation visible in
 [the attestation store](https://github.com/ilovepixelart/ts-migrate-mongoose/attestations)
-without the sidecar asset means `5.3.0`; absence from both means
-`5.2.0` or earlier.
+means `5.3.0`; absence from all of these means `5.2.0` or earlier.
 
 ### Dev-environment isolation
 
@@ -195,10 +235,14 @@ without the sidecar asset means `5.3.0`; absence from both means
 ### Consumer verification steps
 
 Anyone integrating `ts-migrate-mongoose` into a production pipeline
-can verify the supply-chain posture at install time. The two checks
-below apply to releases published under the hardened pipeline — for
-earlier versions `npm audit signatures` will only verify registry
-signatures, not provenance.
+has four verification paths available, each exercising one of the
+distribution channels documented above. Pick the one that matches
+the tooling you already trust and the environment you're deploying
+to — the trust model is identical (all four resolve to the same
+Fulcio-issued certificate binding the signature to the exact
+GitHub Actions workflow run). For releases earlier than the
+hardened pipeline, `npm audit signatures` only verifies npm
+registry signatures without provenance.
 
 **Primary check (no extra tooling):**
 
@@ -241,15 +285,14 @@ GitHub's public Sigstore instance, and requires no additional tooling
 install beyond `gh` itself. For public repositories the attestation
 store is accessible without authentication.
 
-**Offline check (classic release-asset path):**
+**Offline check via Sigstore bundle:**
 
-For `5.3.1+` releases, the same Sigstore bundle is also attached to
-the GitHub Release as a sidecar file named
-`ts-migrate-mongoose-X.Y.Z.tgz.sigstore.json`. Consumers who cannot
-reach GitHub's attestation API (air-gapped environments, mirrored
-infrastructure, etc.) can download both the tarball and the sidecar
-from the GitHub Release page and pass the bundle to
-`gh attestation verify` via the `--bundle` flag:
+For `5.3.1+` releases, a Sigstore bundle sidecar
+(`ts-migrate-mongoose-X.Y.Z.tgz.sigstore.json`) is attached to the
+GitHub Release. Consumers who cannot reach GitHub's attestation API
+(air-gapped environments, mirrored infrastructure, etc.) can
+download both the tarball and the sidecar from the Release page and
+pass the bundle to `gh attestation verify` via the `--bundle` flag:
 
 ```bash
 gh attestation verify ts-migrate-mongoose-X.Y.Z.tgz \
@@ -259,13 +302,44 @@ gh attestation verify ts-migrate-mongoose-X.Y.Z.tgz \
 ```
 
 With `--bundle` set, `gh attestation verify` does not query the
-GitHub attestation store at all — it verifies the local file against
-the public Sigstore instance. The trust model is identical to the
-online check; only the attestation-retrieval step differs.
+GitHub attestation store at all — it verifies the local file
+against the public Sigstore instance. The Fulcio certificate and
+the Rekor inclusion proof are embedded inside the Sigstore bundle,
+so no transparency-log lookup happens at verify time either. The
+trust model is identical to the online check.
 
-Independent supply-chain trust signals for this project (Scorecard,
-OpenSSF Best Practices, Socket.dev, SonarCloud) are published via
-the README badges and kept fresh on their own schedules.
+**Third-party check via in-toto attestation bundle:**
+
+For `5.3.2+` releases, a second sidecar
+(`ts-migrate-mongoose-X.Y.Z.tgz.intoto.jsonl`) ships alongside the
+Sigstore bundle. It is a spec-compliant in-toto attestation v1
+bundle — JSON Lines of DSSE envelopes, one envelope per line —
+verifiable by
+[`slsa-verifier`](https://github.com/slsa-framework/slsa-verifier)
+(a Go CLI maintained by the SLSA project) without depending on
+GitHub's CLI or attestation API:
+
+```bash
+# Install once (needs Go toolchain):
+go install github.com/slsa-framework/slsa-verifier/v2/cmd/slsa-verifier@latest
+
+# Verify:
+slsa-verifier verify-artifact ts-migrate-mongoose-X.Y.Z.tgz \
+  --provenance-path ts-migrate-mongoose-X.Y.Z.tgz.intoto.jsonl \
+  --source-uri github.com/ilovepixelart/ts-migrate-mongoose \
+  --source-tag vX.Y.Z
+```
+
+`slsa-verifier` queries Rekor for the signing certificate and
+inclusion proof using the signature hash in the DSSE envelope, so
+it requires network access to the public transparency log — unlike
+`gh attestation verify --bundle` which is self-contained.
+
+All four verification paths end up at the same Fulcio-issued
+certificate binding the signature to the exact GitHub Actions
+workflow file that produced it. The split is about which tool you
+trust and which dependencies you have installed, not about which
+path is more secure.
 
 ## OpenSSF Scorecard — Accepted Findings
 
@@ -308,9 +382,9 @@ chase:
   emergencies (e.g. a broken `main` that can't merge through normal
   checks). Scorecard's Tier 2 requires at least one approving reviewer
   per PR, which is unreachable for a single-maintainer project without
-  self-approvals from a second account. Expected Scorecard score: 4/10
-  — the ceiling for a single-maintainer repo without self-review
-  workflows.
+  self-approvals from a second account. Scorecard ceiling: **4/10**
+  (confirmed by the [live scan](https://securityscorecards.dev/viewer/?uri=github.com/ilovepixelart/ts-migrate-mongoose)) —
+  the maximum for a single-maintainer repo without self-review workflows.
 
 - **`Pinned-Dependencies`** — caps at ~8/10 due to a single structural
   exception: the `npm i ${{ matrix.mongoose-version }}` step in
