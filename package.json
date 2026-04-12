@@ -122,7 +122,6 @@
     "publish": false
   },
   "overrides": {
-    "tmp": "0.2.5",
-    "file-type": "21.3.2"
+    "tmp": "0.2.5"
   }
 }
