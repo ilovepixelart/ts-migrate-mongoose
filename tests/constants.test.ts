@@ -29,22 +29,7 @@ describe('MIGRATION_FILE_REGEX', () => {
 
 describe('MIGRATION_NAME_REGEX', () => {
   describe('accepts', () => {
-    const valid = [
-      'add-users',
-      'test-migration',
-      'test-migration1',
-      'extension-test',
-      'single',
-      'A',
-      '1',
-      'my.migration',
-      'v1.2.3-release',
-      'snake_case_name',
-      'kebab-case-name',
-      'Mixed-Case_Name.1',
-      '__private',
-      'a'.repeat(100),
-    ]
+    const valid = ['add-users', 'test-migration', 'test-migration1', 'extension-test', 'single', 'A', '1', 'my.migration', 'v1.2.3-release', 'snake_case_name', 'kebab-case-name', 'Mixed-Case_Name.1', '__private', 'a'.repeat(100)]
 
     for (const name of valid) {
       it(`allows '${name}'`, () => {
