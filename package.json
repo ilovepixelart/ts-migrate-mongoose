@@ -92,8 +92,8 @@
     "tsx": "4.21.0"
   },
   "peerDependencies": {
-    "@nestjs/common": ">=9.0.0",
-    "mongoose": ">=6.6.0"
+    "@nestjs/common": ">=9.0.0 < 12",
+    "mongoose": ">=6.6.0 < 10"
   },
   "peerDependenciesMeta": {
     "@nestjs/common": {
@@ -103,6 +103,8 @@
   "devDependencies": {
     "@biomejs/biome": "2.4.11",
     "@nestjs/common": "11.1.18",
+    "@nestjs/core": "11.1.18",
+    "@nestjs/testing": "11.1.18",
     "@types/node": "25.6.0",
     "@vitest/coverage-v8": "4.1.4",
     "fast-check": "4.6.0",
@@ -122,7 +124,6 @@
     "publish": false
   },
   "overrides": {
-    "tmp": "0.2.5",
-    "file-type": "21.3.2"
+    "tmp": "0.2.5"
   }
 }
