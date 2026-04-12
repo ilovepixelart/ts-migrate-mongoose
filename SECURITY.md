@@ -111,7 +111,8 @@ step in that attack chain.
   that gets attested is the exact same one that gets published:
   `build` runs full CI, `npm pack`s the tarball, signs it via
   [`actions/attest@v4`](https://github.com/actions/attest) (Sigstore
-  keyless OIDC → SLSA v1.0 build provenance attestation uploaded to
+  keyless OIDC → SLSA v1 build provenance attestation
+  [predicate type `https://slsa.dev/provenance/v1`] uploaded to
   GitHub's native attestation store), then uploads the tarball as a
   workflow artifact; `publish` downloads that artifact and runs
   `npm publish` — npm-registry provenance is emitted automatically
@@ -129,8 +130,10 @@ requirements appeared in v1.0; v1.2's notable addition is the
 [Source Track](https://slsa.dev/spec/v1.2/whats-new), which applies
 to source code development processes and is orthogonal to the
 build-provenance pipeline described here.) This project publishes
-the same SLSA v1 build provenance in **three** channels on every
-release:
+the same SLSA v1 build provenance in **three independent channels**
+on every release (with the third channel carrying two separate
+artifacts that target different verification tools, giving four
+attestation files in total across the three channels):
 
 1. **npm registry provenance** — emitted automatically by
    `npm publish` because `publishConfig.provenance: true` is set in
@@ -232,10 +235,14 @@ means `5.3.0`; absence from all of these means `5.2.0` or earlier.
 ### Consumer verification steps
 
 Anyone integrating `ts-migrate-mongoose` into a production pipeline
-can verify the supply-chain posture at install time. The two checks
-below apply to releases published under the hardened pipeline — for
-earlier versions `npm audit signatures` will only verify registry
-signatures, not provenance.
+has four verification paths available, each exercising one of the
+distribution channels documented above. Pick the one that matches
+the tooling you already trust and the environment you're deploying
+to — the trust model is identical (all four resolve to the same
+Fulcio-issued certificate binding the signature to the exact
+GitHub Actions workflow run). For releases earlier than the
+hardened pipeline, `npm audit signatures` only verifies npm
+registry signatures without provenance.
 
 **Primary check (no extra tooling):**
 
@@ -301,7 +308,7 @@ the Rekor inclusion proof are embedded inside the Sigstore bundle,
 so no transparency-log lookup happens at verify time either. The
 trust model is identical to the online check.
 
-**Third-party verification via in-toto attestation bundle:**
+**Third-party check via in-toto attestation bundle:**
 
 For `5.3.2+` releases, a second sidecar
 (`ts-migrate-mongoose-X.Y.Z.tgz.intoto.jsonl`) ships alongside the
@@ -328,15 +335,11 @@ inclusion proof using the signature hash in the DSSE envelope, so
 it requires network access to the public transparency log — unlike
 `gh attestation verify --bundle` which is self-contained.
 
-Both verification paths end up at the same Fulcio-issued
+All four verification paths end up at the same Fulcio-issued
 certificate binding the signature to the exact GitHub Actions
 workflow file that produced it. The split is about which tool you
 trust and which dependencies you have installed, not about which
 path is more secure.
-
-Independent supply-chain trust signals for this project (Scorecard,
-OpenSSF Best Practices, Socket.dev, SonarCloud) are published via
-the README badges and kept fresh on their own schedules.
 
 ## OpenSSF Scorecard — Accepted Findings
 
@@ -379,9 +382,9 @@ chase:
   emergencies (e.g. a broken `main` that can't merge through normal
   checks). Scorecard's Tier 2 requires at least one approving reviewer
   per PR, which is unreachable for a single-maintainer project without
-  self-approvals from a second account. Expected Scorecard score: 4/10
-  — the ceiling for a single-maintainer repo without self-review
-  workflows.
+  self-approvals from a second account. Scorecard ceiling: **4/10**
+  (confirmed by the [live scan](https://securityscorecards.dev/viewer/?uri=github.com/ilovepixelart/ts-migrate-mongoose)) —
+  the maximum for a single-maintainer repo without self-review workflows.
 
 - **`Pinned-Dependencies`** — caps at ~8/10 due to a single structural
   exception: the `npm i ${{ matrix.mongoose-version }}` step in
