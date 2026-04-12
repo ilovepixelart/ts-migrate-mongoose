@@ -105,6 +105,7 @@
     "@nestjs/common": "11.1.18",
     "@types/node": "25.6.0",
     "@vitest/coverage-v8": "4.1.4",
+    "fast-check": "4.6.0",
     "mongodb-memory-server": "11.0.1",
     "np": "11.0.3",
     "open-cli": "9.0.0",
