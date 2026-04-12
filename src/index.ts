@@ -52,9 +52,6 @@ export class Migrator {
   private readonly cli: boolean
 
   private constructor(options: MigratorOptions) {
-    // https://mongoosejs.com/docs/guide.html
-    mongoose.set('strictQuery', false)
-
     this.template = this.getTemplate(options.templatePath)
     this.migrationsPath = path.resolve(options.migrationsPath ?? defaults.MIGRATE_MIGRATIONS_PATH)
     this.collection = options.collection ?? defaults.MIGRATE_MONGO_COLLECTION
@@ -80,8 +77,17 @@ export class Migrator {
     await loader()
 
     const migrator = new Migrator(options)
-    await migrator.connected()
-    return migrator
+    try {
+      await migrator.connected()
+      return migrator
+    } catch (error) {
+      // The constructor already opened a mongoose connection; if connecting
+      // fails the caller never gets a handle and would otherwise leak the
+      // socket. Best-effort close — swallow cleanup errors so they don't
+      // mask the original failure.
+      await migrator.close().catch(() => undefined)
+      throw error
+    }
   }
 
   /**
@@ -96,7 +102,7 @@ export class Migrator {
    */
   async list(): Promise<HydratedDocument<Migration>[]> {
     await this.sync()
-    const migrations = await this.migrationModel.find().sort({ createdAt: 1 }).exec()
+    const migrations = await this.migrationModel.find().sort({ createdAt: 1, _id: 1 }).exec()
     if (!migrations.length) this.log(chalk.yellow('There are no migrations to list'))
     return migrations.map((migration: HydratedDocument<Migration>) => {
       this.logMigrationStatus(migration.state, migration.filename)
@@ -133,6 +139,10 @@ export class Migrator {
    * Runs migrations up to or down to a given migration name
    */
   async run(direction: 'up' | 'down', migrationName?: string, single = false): Promise<HydratedDocument<Migration>[]> {
+    if (migrationName !== undefined && typeof migrationName !== 'string') {
+      throw new Error(`migrationName must be a string, received ${typeof migrationName}`)
+    }
+
     await this.sync()
 
     let untilMigration: HydratedDocument<Migration> | null = null
@@ -143,10 +153,8 @@ export class Migrator {
     if (migrationName) {
       untilMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     } else {
-      untilMigration = await this.migrationModel
-        .findOne({ state })
-        .sort({ createdAt: single ? sort : (-sort as -1 | 1) })
-        .exec()
+      const tieBreaker = single ? sort : (-sort as -1 | 1)
+      untilMigration = await this.migrationModel.findOne({ state }).sort({ createdAt: tieBreaker, _id: tieBreaker }).exec()
     }
 
     if (!untilMigration) {
@@ -166,7 +174,7 @@ export class Migrator {
     if (single) {
       migrationsToRun.push(untilMigration)
     } else {
-      const migrations = await this.migrationModel.find(query).sort({ createdAt: sort }).exec()
+      const migrations = await this.migrationModel.find(query).sort({ createdAt: sort, _id: sort }).exec()
       migrationsToRun.push(...migrations)
     }
 
