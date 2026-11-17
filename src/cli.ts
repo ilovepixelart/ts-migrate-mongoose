@@ -3,4 +3,4 @@
 import { Migrate } from './commander'
 
 const migrate = new Migrate()
-migrate.run()
+void migrate.run()

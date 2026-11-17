@@ -1,8 +1,8 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-// NOSONAR — regex from dotenv, intentionally complex for .env format parsing
-const LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/gm
+// Regex from dotenv; it only parses the user's own .env file, so backtracking cost is not attacker-controlled
+const LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/gm // NOSONAR
 
 interface ConfigOutput {
   parsed: Record<string, string>
