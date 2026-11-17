@@ -59,10 +59,14 @@ jobs:
             exit 1
           fi
 
-      # No dependency install scripts: none is needed, and the MongoDB binary the tests use
-      # (mongodb-memory-server) downloads on first use.
+      # No dependency install scripts; the one the tests need runs explicitly next.
       - name: Install dependencies
         run: npm ci --ignore-scripts
+
+      # Fetch the MongoDB binary once, before the parallel test workers race to
+      # download it on first use.
+      - name: Download the MongoDB binary
+        run: node node_modules/mongodb-memory-server/postinstall.js
 
       - name: Type check
         run: npm run type:check
