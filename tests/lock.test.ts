@@ -245,6 +245,18 @@ describe('migration lock', async () => {
       expect(indexes.find((index) => index.key.expiresAt === 1)?.expireAfterSeconds).toBe(0)
     })
 
+    it('still locks when the TTL index cannot be created', async () => {
+      const s = scenario()
+      await admin.collection(`${s.collection}_lock`).createIndex({ expiresAt: 1 }) // same key without TTL makes createIndex fail
+      const podA = await connect(s)
+      const podB = await connect(s)
+      await podA.list()
+      await Promise.all([podA.run('up'), podB.run('up')])
+      expect(await count(s)).toBe(1)
+      const indexes = await admin.collection(`${s.collection}_lock`).indexes()
+      expect(indexes.find((index) => index.key.expiresAt === 1)?.expireAfterSeconds).toBeUndefined()
+    })
+
     it('a lock left by a crashed holder is taken over once it expires and the migration runs once', async () => {
       const s = scenario()
       await holdLock(s, 1500)
