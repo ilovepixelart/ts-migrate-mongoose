@@ -8,6 +8,11 @@ updates:
     # Version updates wait 7 days; security updates are never delayed.
     cooldown:
       default-days: 7
+    # @types/node follows the lowest supported Node (engines); a newer major would let code
+    # compile against APIs that runtime lacks, so majors move only with the engines floor.
+    ignore:
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     groups:
       # A dependency joins the first group it matches, so specific groups come first.
       # These packages pin each other with peer ranges and fail npm ci when one
