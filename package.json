@@ -90,7 +90,7 @@
     "release": "npm install && npm run biome && npm run type:check && npm run type:check:tests && npm run build && np --no-publish"
   },
   "dependencies": {
-    "tsx": "4.21.0"
+    "tsx": "4.23.15"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.8",
