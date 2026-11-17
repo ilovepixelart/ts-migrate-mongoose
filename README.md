@@ -32,7 +32,7 @@ I need a way to manage database migrations for mongoose models, run them from th
 }
 ```
 
-CI tests on Node.js `22.x`, `24.x`, and `26.x`, against mongoose `6.12.2`, `7.6.4`, `8.23.0`, and `9.4.1`.
+CI tests on Node.js `22.x` and `24.x` against mongoose `6.12.2`, `7.6.4`, `8.23.0`, and `9.4.1`, and on `26.x` with the mongoose version the lockfile pins.
 
 ## Features
 
