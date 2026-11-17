@@ -18,6 +18,24 @@ describe('Migrator.close()', async () => {
     await destroy()
   })
 
+  const cycles = async (close: (m: Migrator) => Promise<void>) => {
+    const before = mongoose.connections.length
+    for (let i = 0; i < 20; i++) {
+      const migrator = await connect()
+      await migrator.run('up')
+      await close(migrator)
+    }
+    return mongoose.connections.length - before
+  }
+
+  it('20 connect/run/close cycles leave mongoose.connections as they were', async () => {
+    expect(await cycles((m) => m.close())).toBe(0)
+  })
+
+  it('CONTROL: 20 connect/run/destroy cycles leave mongoose.connections as they were', async () => {
+    expect(await cycles((m) => m.connection.destroy())).toBe(0)
+  })
+
   it('close() disconnects the connection, and a second close() resolves', async () => {
     const migrator = await connect()
     expect(migrator.connection.readyState).toBe(1)
