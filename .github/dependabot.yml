@@ -9,6 +9,13 @@ updates:
     cooldown:
       semver-major-days: 7
     groups:
+      # A dependency joins the first group it matches, so specific groups come first.
+      # These packages pin each other with peer ranges and fail npm ci when one
+      # moves alone, so every update, majors included, moves as one set.
+      nestjs:
+        patterns: ["@nestjs/*"]
+      vitest:
+        patterns: ["vitest", "@vitest/*"]
       minor-and-patch:
         update-types: ["minor", "patch"]
       security:
