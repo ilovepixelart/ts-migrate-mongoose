@@ -243,7 +243,26 @@ export class Migrator {
       createdAt: { [key]: untilMigration.createdAt },
       state,
     }
-    return this.migrationModel.find(query).sort({ createdAt: sort, _id: sort }).exec()
+    const migrations = await this.migrationModel.find(query).sort({ createdAt: sort, _id: sort }).exec()
+    return this.oncePerFile(migrations)
+  }
+
+  /**
+   * Keeps the first state document of each file. Concurrent syncs before the
+   * lock existed could store a file twice; running it once per document would
+   * apply it twice. Every copy is still updated, as state is set by name.
+   */
+  private oncePerFile(migrations: HydratedDocument<Migration>[]): HydratedDocument<Migration>[] {
+    const copies = new Map<string, number>()
+    const unique = migrations.filter((migration) => {
+      const seen = (copies.get(migration.filename) ?? 0) + 1
+      copies.set(migration.filename, seen)
+      return seen === 1
+    })
+    for (const [filename, count] of copies) {
+      if (count > 1) this.log(chalk.yellow(`Found ${count} state documents for ${filename}; running it once`))
+    }
+    return unique
   }
 
   /**

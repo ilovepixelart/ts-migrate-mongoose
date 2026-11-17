@@ -7,6 +7,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { promisify } from 'node:util'
 import mongoose from 'mongoose'
+import { chalk } from '../src/chalk'
 import { Migrate } from '../src/commander'
 import { Migrator } from '../src/index'
 import { MigrationService } from '../src/nest/migration.service'
@@ -180,6 +181,51 @@ describe('migration lock', async () => {
       const podB = await connect(s)
       const [a, b] = await Promise.all([podA.sync(), podB.sync()])
       expect([a.length + b.length, (await stateDocs(s)).length]).toEqual([1, 1])
+    })
+  })
+
+  describe('duplicate state documents already in the database', () => {
+    const duplicate = async (s: Scenario) => {
+      const doc = { name: 'backfill', state: 'down', createdAt: new Date(1700000000000), updatedAt: new Date(), __v: 0 }
+      await admin.collection(s.collection).insertMany([{ ...doc }, { ...doc }])
+    }
+
+    it('run("up") executes a file with two state documents once, returns it once and marks both up', async () => {
+      const s = scenario()
+      await duplicate(s)
+      const migrator = await connect(s)
+      expect((await migrator.run('up')).map((doc) => doc.filename)).toEqual([BACKFILL])
+      expect(await count(s)).toBe(1)
+      expect((await stateDocs(s)).map((doc) => doc.state)).toEqual(['up', 'up'])
+    })
+
+    it('CONTROL: two files sharing a name but not a timestamp both run', async () => {
+      const s = scenario()
+      fs.writeFileSync(path.join(s.dir, '1710000000000-backfill.ts'), migrationSource('backfill', s.ledger))
+      const migrator = await connect(s)
+      expect((await migrator.run('up')).map((doc) => doc.filename)).toEqual([BACKFILL, '1710000000000-backfill'])
+      expect(await count(s)).toBe(2)
+    })
+
+    it('run("down") executes a file with two state documents once', async () => {
+      const s = scenario()
+      await duplicate(s)
+      const migrator = await connect(s)
+      await migrator.run('up')
+      expect((await migrator.run('down', 'backfill')).map((doc) => doc.filename)).toEqual([BACKFILL])
+      expect(await count(s, 'down')).toBe(1)
+    })
+
+    it('the CLI reports the duplicate and keeps both documents', async () => {
+      const s = scenario()
+      await duplicate(s)
+      const lines: string[] = []
+      vi.spyOn(console, 'log').mockImplementation((line: string) => {
+        lines.push(line)
+      })
+      await cli('up', ...cliOptions(s))
+      expect(lines).toEqual([chalk.yellow(`Found 2 state documents for ${BACKFILL}; running it once`), `${chalk.green('up:')} ${BACKFILL}`, chalk.green('All migrations finished successfully')])
+      expect((await stateDocs(s)).length).toBe(2)
     })
   })
 
