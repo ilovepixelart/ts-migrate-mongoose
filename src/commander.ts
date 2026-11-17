@@ -102,6 +102,20 @@ export const getEnvBoolean = (key: Env): boolean | undefined => {
   return value === 'true' ? true : undefined
 }
 
+const parseMilliseconds = (value: string): number => (value.trim() === '' ? Number.NaN : Number(value))
+
+const getEnvFlag = (key: Env): boolean | undefined => {
+  const value = getEnv(key)
+  if (value === 'true') return true
+  if (value === 'false') return false
+  return undefined
+}
+
+const getEnvMilliseconds = (key: Env): number | undefined => {
+  const value = getEnv(key)
+  return value === undefined ? undefined : parseMilliseconds(value)
+}
+
 export const getMigrator = async (options: ConfigOptions): Promise<Migrator> => {
   config({ path: '.env', quiet: true })
   config({ path: '.env.local', quiet: true, override: true })
@@ -123,6 +137,9 @@ export const getMigrator = async (options: ConfigOptions): Promise<Migrator> => 
   const migrationsPath = options.migrationsPath ?? getEnv(Env.MIGRATE_MIGRATIONS_PATH) ?? fileOptions.migrationsPath ?? defaults.MIGRATE_MIGRATIONS_PATH
   const templatePath = options.templatePath ?? getEnv(Env.MIGRATE_TEMPLATE_PATH) ?? fileOptions.templatePath
   const autosync = Boolean(options.autosync ?? getEnvBoolean(Env.MIGRATE_AUTOSYNC) ?? fileOptions.autosync ?? defaults.MIGRATE_AUTOSYNC)
+  const lock = options.lock ?? getEnvFlag(Env.MIGRATE_LOCK) ?? fileOptions.lock
+  const lockTimeout = options.lockTimeout ?? getEnvMilliseconds(Env.MIGRATE_LOCK_TIMEOUT) ?? fileOptions.lockTimeout
+  const lockCollection = options.lockCollection ?? getEnv(Env.MIGRATE_LOCK_COLLECTION) ?? fileOptions.lockCollection
 
   if (!uri) {
     throw new Error('You need to provide the MongoDB Connection URI to persist migration status.\nUse option --uri / -d to provide the URI.')
@@ -142,6 +159,18 @@ export const getMigrator = async (options: ConfigOptions): Promise<Migrator> => 
 
   if (connectOptions) {
     migratorOptions.connectOptions = connectOptions
+  }
+
+  if (lock !== undefined) {
+    migratorOptions.lock = lock
+  }
+
+  if (lockTimeout !== undefined) {
+    migratorOptions.lockTimeout = lockTimeout
+  }
+
+  if (lockCollection) {
+    migratorOptions.lockCollection = lockCollection
   }
 
   return Migrator.connect(migratorOptions)
@@ -171,6 +200,9 @@ const optionDefs = {
   'migrations-path': { type: 'string' as const, short: 'm', arg: '<path>', description: 'path to the migration files' },
   'template-path': { type: 'string' as const, short: 't', arg: '<path>', description: 'template file to use when creating a migration' },
   mode: { type: 'string' as const, arg: '<string>', description: 'environment mode to use .env.[mode] file' },
+  lock: { type: 'string' as const, arg: '<boolean>', description: 'take the migration lock before changing migration state (default true)' },
+  'lock-timeout': { type: 'string' as const, arg: '<ms>', description: 'how long to wait for another process to release the lock (default 300000)' },
+  'lock-collection': { type: 'string' as const, arg: '<name>', description: 'collection that holds the lock (default <collection>_lock)' },
   single: { type: 'boolean' as const, short: 's', description: 'run single migration (up/down only)', default: false },
   help: { type: 'boolean' as const, short: 'h', description: 'display help' },
   version: { type: 'boolean' as const, short: 'v', description: 'display version' },
@@ -237,6 +269,9 @@ export class Migrate {
     if (values['migrations-path']) options.migrationsPath = values['migrations-path'] as string
     if (values['template-path']) options.templatePath = values['template-path'] as string
     if (values.mode) options.mode = values.mode as string
+    if (values.lock !== undefined) options.lock = values.lock !== 'false'
+    if (values['lock-timeout'] !== undefined) options.lockTimeout = parseMilliseconds(values['lock-timeout'] as string)
+    if (values['lock-collection']) options.lockCollection = values['lock-collection'] as string
     return options
   }
 

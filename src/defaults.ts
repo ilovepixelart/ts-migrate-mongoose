@@ -7,4 +7,6 @@ export const defaults = {
   MIGRATE_MIGRATIONS_PATH: './migrations',
   MIGRATE_AUTOSYNC: false,
   MIGRATE_CLI: false,
+  MIGRATE_LOCK: true,
+  MIGRATE_LOCK_TIMEOUT: 300_000,
 } as const
