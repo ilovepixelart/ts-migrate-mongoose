@@ -98,14 +98,14 @@
     "@nestjs/core": "11.2.10",
     "@nestjs/testing": "11.2.10",
     "@types/node": "25.9.9",
-    "@vitest/coverage-v8": "4.1.12",
+    "@vitest/coverage-v8": "5.1.0",
     "fast-check": "4.10.2",
     "mongodb-memory-server": "11.3.0",
     "open-cli": "9.0.0",
     "pkgroll": "2.29.1",
     "simple-git-hooks": "2.14.0",
     "typescript": "5.9.3",
-    "vitest": "4.1.12"
+    "vitest": "5.1.0"
   },
   "peerDependencies": {
     "@nestjs/common": ">=9.0.0 < 12",
