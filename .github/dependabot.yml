@@ -5,9 +5,9 @@ updates:
     schedule:
       interval: weekly
       day: monday
-    # Version updates only; security updates are never delayed.
+    # Version updates wait 7 days; security updates are never delayed.
     cooldown:
-      semver-major-days: 7
+      default-days: 7
     groups:
       # A dependency joins the first group it matches, so specific groups come first.
       # These packages pin each other with peer ranges and fail npm ci when one
@@ -26,6 +26,9 @@ updates:
     schedule:
       interval: weekly
       day: monday
+    # Version updates wait 7 days; security updates are never delayed.
+    cooldown:
+      default-days: 7
     groups:
       actions:
         patterns: ["*"]
