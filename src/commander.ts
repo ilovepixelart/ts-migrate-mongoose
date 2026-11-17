@@ -104,11 +104,15 @@ export const getEnvBoolean = (key: Env): boolean | undefined => {
 
 const parseMilliseconds = (value: string): number => (value.trim() === '' ? Number.NaN : Number(value))
 
-const getEnvFlag = (key: Env): boolean | undefined => {
-  const value = getEnv(key)
+const parseFlag = (name: string, value: string): boolean => {
   if (value === 'true') return true
   if (value === 'false') return false
-  return undefined
+  throw new Error(`${name} must be true or false, received '${value}'`)
+}
+
+const getEnvFlag = (key: Env): boolean | undefined => {
+  const value = getEnv(key)
+  return value === undefined ? undefined : parseFlag(key, value)
 }
 
 const getEnvMilliseconds = (key: Env): number | undefined => {
@@ -269,7 +273,7 @@ export class Migrate {
     if (values['migrations-path']) options.migrationsPath = values['migrations-path'] as string
     if (values['template-path']) options.templatePath = values['template-path'] as string
     if (values.mode) options.mode = values.mode as string
-    if (values.lock !== undefined) options.lock = values.lock !== 'false'
+    if (values.lock !== undefined) options.lock = parseFlag('--lock', values.lock as string)
     if (values['lock-timeout'] !== undefined) options.lockTimeout = parseMilliseconds(values['lock-timeout'] as string)
     if (values['lock-collection']) options.lockCollection = values['lock-collection'] as string
     return options

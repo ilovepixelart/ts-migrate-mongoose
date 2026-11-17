@@ -61,7 +61,6 @@ describe('migration lock lease', async () => {
       '1700000000000-first.ts': `export async function up(connection) {
   await connection.collection('LEDGER').insertOne({ id: 'first' })
   await connection.collection('LOCK').updateMany({}, { $set: { holder: 'someone-else' } })
-  await new Promise((resolve) => setTimeout(resolve, 400))
 }`,
       '1710000000000-second.ts': `export async function up(connection) {
   await connection.collection('LEDGER').insertOne({ id: 'second' })

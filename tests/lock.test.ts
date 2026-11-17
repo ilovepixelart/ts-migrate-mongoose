@@ -81,7 +81,7 @@ describe('migration lock', async () => {
     await destroy()
   })
 
-  describe('F1race two Migrators running up at the same time', () => {
+  describe('two Migrators running up at the same time', () => {
     const setup = async () => {
       const s = scenario(200)
       const podA = await connect(s)
@@ -112,7 +112,7 @@ describe('migration lock', async () => {
     })
   })
 
-  describe('F1nest replicas bootstrapping MigrationService at the same time', () => {
+  describe('NestJS replicas bootstrapping MigrationService at the same time', () => {
     const setup = () => {
       const s = scenario(200)
       const options = { uri, migrationsPath: s.dir, collection: s.collection, autosync: true }
@@ -155,7 +155,7 @@ describe('migration lock', async () => {
     })
   })
 
-  describe('F2syncdup concurrent sync must not duplicate state', () => {
+  describe('concurrent syncs must not duplicate state', () => {
     it('concurrent list() then one run("up"): one state doc and the migration ran once', async () => {
       const s = scenario()
       const podA = await connect(s)
@@ -313,6 +313,32 @@ describe('migration lock', async () => {
       expect((await migrator.list()).map((doc) => doc.filename)).toEqual([BACKFILL])
     })
 
+    it('an up-to-date run neither waits for nor writes the lock', async () => {
+      const s = scenario()
+      await (await connect(s, { lock: false })).run('up')
+      await holdLock(s, 60_000)
+      const migrator = await connect(s, { lockTimeout: 0 })
+      expect(await migrator.run('up')).toEqual([])
+      await expect(migrator.run('up', 'missing')).rejects.toThrow(new Error("Could not find migration with name 'missing' in the database"))
+      expect((await lockDocs(`${s.collection}_lock`)).map((doc) => doc.holder)).toEqual(['crashed-host:4242:dead'])
+    })
+
+    it('an up-to-date run and list work when the lock collection cannot be written', async () => {
+      const s = scenario()
+      await (await connect(s, { lock: false })).run('up')
+      await admin.createCollection(`${s.collection}_lock`, { validator: { holder: { $type: 'int' } } })
+      const migrator = await connect(s)
+      expect(await migrator.run('up')).toEqual([])
+      expect((await migrator.list()).map((doc) => doc.state)).toEqual(['up'])
+      expect(await count(s)).toBe(1)
+    })
+
+    it('rejects a lockCollection equal to the migrations collection before connecting', async () => {
+      const before = mongoose.connections.length
+      await expect(Migrator.connect({ uri, collection: 'same', lockCollection: 'same' })).rejects.toThrow("lockCollection must differ from the migrations collection 'same'")
+      expect(mongoose.connections.length).toBe(before)
+    })
+
     it('lock: false neither creates the lock collection nor waits for a held lock', async () => {
       const s = scenario()
       const migrator = await connect(s, { lock: false })
@@ -389,6 +415,29 @@ describe('migration lock', async () => {
       vi.spyOn(console, 'error').mockImplementation(() => undefined)
       await expect(cli('up', ...cliOptions(s), '--lock-timeout', '0', '--lock-collection', 'cli_custom_lock')).rejects.toThrow(/^Timed out after 0 ms .*db.getCollection\("cli_custom_lock"\)/s)
       expect(await count(s)).toBe(0)
+    })
+
+    it.each(['no', '0', 'False'])('rejects %s for --lock and MIGRATE_LOCK', async (value) => {
+      const s = scenario()
+      vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      await expect(cli('up', ...cliOptions(s), '--lock', value)).rejects.toThrow(`--lock must be true or false, received '${value}'`)
+      process.env.MIGRATE_LOCK = value
+      await expect(cli('up', ...cliOptions(s))).rejects.toThrow(`MIGRATE_LOCK must be true or false, received '${value}'`)
+      expect(await count(s)).toBe(0)
+    })
+
+    it('prints one line naming the holder while it waits, then the usual output', async () => {
+      const s = scenario()
+      await holdLock(s, 1500)
+      const lines: string[] = []
+      vi.spyOn(console, 'log').mockImplementation((line: string) => {
+        lines.push(line)
+      })
+      await cli('up', ...cliOptions(s))
+      const waiting = lines[0] ?? ''
+      expect(waiting).toBe(chalk.yellow(waiting.slice(5, -4)))
+      expect(waiting.slice(5, -4)).toMatch(/^Waiting up to 300000 ms for the migration lock held by 'crashed-host:4242:dead' since \S+ \(lease expires \S+ unless renewed\)$/)
+      expect(lines.slice(1)).toEqual([`${chalk.green('Adding')} migration ${chalk.cyan(path.join(s.dir, BACKFILL))} into database. State is ${chalk.red('down')}`, `${chalk.green('up:')} ${BACKFILL}`, chalk.green('All migrations finished successfully')])
     })
 
     it('rejects a --lock-timeout that is not a number', async () => {

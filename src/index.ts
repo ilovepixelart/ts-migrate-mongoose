@@ -81,6 +81,10 @@ export class Migrator {
     if (!Number.isFinite(lockTimeout) || lockTimeout < 0) {
       throw new Error(`lockTimeout must be a non-negative number of milliseconds, received ${lockTimeout}`)
     }
+    const lockCollection = options.lockCollection ?? `${this.collection}_lock`
+    if (lockCollection === this.collection) {
+      throw new Error(`lockCollection must differ from the migrations collection '${this.collection}'`)
+    }
 
     this.ensureMigrationsPath()
 
@@ -92,7 +96,7 @@ export class Migrator {
     }
 
     this.migrationModel = getMigrationModel(this.connection, this.collection)
-    this.lock = (options.lock ?? defaults.MIGRATE_LOCK) ? new MigrationLock(this.connection, options.lockCollection ?? `${this.collection}_lock`, this.collection, lockTimeout, LOCK_LEASE_MS) : undefined
+    this.lock = (options.lock ?? defaults.MIGRATE_LOCK) ? new MigrationLock(this.connection, lockCollection, this.collection, lockTimeout, LOCK_LEASE_MS, (message) => this.log(chalk.yellow(message))) : undefined
   }
 
   /**
@@ -185,12 +189,34 @@ export class Migrator {
       throw new Error(`migrationName must be a string, received ${typeof migrationName}`)
     }
 
+    // With no files to import and nothing pending, run only reads, so an
+    // up-to-date process neither waits for nor writes the lock.
+    if (this.lock && !(await this.hasMigrationsToImport()) && !(await this.findPending(direction, migrationName, single)).length) {
+      return this.noPendingMigrations(false)
+    }
+
     return this.withLock(() => this.runUntil(direction, migrationName, single))
   }
 
   private async runUntil(direction: 'up' | 'down', migrationName: string | undefined, single: boolean): Promise<HydratedDocument<Migration>[]> {
     await this.syncFromFs()
 
+    const migrationsToRun = this.oncePerFile(await this.findPending(direction, migrationName, single))
+    if (!migrationsToRun.length) {
+      return this.noPendingMigrations()
+    }
+
+    const migrationsRan = await this.runMigrations(migrationsToRun, direction)
+    if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {
+      this.log(chalk.green('All migrations finished successfully'))
+    }
+    return migrationsRan
+  }
+
+  /**
+   * The migrations `run()` would execute, in order.
+   */
+  private async findPending(direction: 'up' | 'down', migrationName: string | undefined, single: boolean): Promise<HydratedDocument<Migration>[]> {
     const isUp = direction === 'up'
     const state = isUp ? 'down' : 'up'
     const key = isUp ? '$lte' : '$gte'
@@ -201,19 +227,9 @@ export class Migrator {
       if (migrationName) {
         throw new Error(`Could not find migration with name '${migrationName}' in the database`)
       }
-      return this.noPendingMigrations()
+      return []
     }
-
-    const migrationsToRun = await this.collectMigrationsToRun(untilMigration, key, state, single, sort)
-    if (!migrationsToRun.length) {
-      return this.noPendingMigrations()
-    }
-
-    const migrationsRan = await this.runMigrations(migrationsToRun, direction)
-    if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {
-      this.log(chalk.green('All migrations finished successfully'))
-    }
-    return migrationsRan
+    return this.collectMigrationsToRun(untilMigration, key, state, single, sort)
   }
 
   /**
@@ -243,8 +259,7 @@ export class Migrator {
       createdAt: { [key]: untilMigration.createdAt },
       state,
     }
-    const migrations = await this.migrationModel.find(query).sort({ createdAt: sort, _id: sort }).exec()
-    return this.oncePerFile(migrations)
+    return this.migrationModel.find(query).sort({ createdAt: sort, _id: sort }).exec()
   }
 
   /**
@@ -354,11 +369,11 @@ export class Migrator {
    * Logs a message to the console if there are no pending migrations
    * In cli mode, it also lists all migrations and their status
    */
-  private async noPendingMigrations(): Promise<HydratedDocument<Migration>[]> {
+  private async noPendingMigrations(sync = true): Promise<HydratedDocument<Migration>[]> {
     this.log(chalk.yellow('There are no pending migrations'))
     if (this.cli) {
       this.log(chalk.cyan('Current migrations status:'))
-      await this.syncAndList()
+      await (sync ? this.syncAndList() : this.logMigrations())
     }
     return []
   }
@@ -472,7 +487,7 @@ export class Migrator {
     const migrationsRan: HydratedDocument<Migration>[] = []
     const migrationsRoot = path.resolve(this.migrationsPath) + path.sep
     for (const migration of migrationsToRun) {
-      if (this.lease?.lost) {
+      if (this.lease && !(await this.lease.confirm())) {
         throw new Error(`Stopped before migration '${migration.name}': the migration lock was lost because its lease expired, so another process may be running migrations. Run the command again to continue.`)
       }
       const baseMigrationPath = path.resolve(path.join(this.migrationsPath, migration.filename))

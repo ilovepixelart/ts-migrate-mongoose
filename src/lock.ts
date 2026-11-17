@@ -13,11 +13,11 @@ interface LockDocument {
 }
 
 /**
- * A held lock. `lost` turns true when a renewal finds the document no longer
- * belongs to this holder, which only happens after the lease expired.
+ * A held lock. `confirm()` renews the lease and resolves false once the
+ * document belongs to another holder, which only happens after it expired.
  */
 export interface Lease {
-  readonly lost: boolean
+  confirm(): Promise<boolean>
   release(): Promise<void>
 }
 
@@ -34,14 +34,16 @@ export class MigrationLock {
   private readonly key: string
   private readonly timeout: number
   private readonly leaseMs: number
+  private readonly onWait: (message: string) => void
   private indexReady: Promise<void> | undefined
 
-  constructor(connection: Connection, collectionName: string, key: string, timeout: number, leaseMs: number) {
+  constructor(connection: Connection, collectionName: string, key: string, timeout: number, leaseMs: number, onWait: (message: string) => void) {
     this.connection = connection
     this.collectionName = collectionName
     this.key = key
     this.timeout = timeout
     this.leaseMs = leaseMs
+    this.onWait = onWait
   }
 
   /**
@@ -55,12 +57,13 @@ export class MigrationLock {
     return this.startLease(holder)
   }
 
-  private async waitFor(holder: string, deadline: number): Promise<void> {
+  private async waitFor(holder: string, deadline: number, waiting = false): Promise<void> {
     if (await this.tryAcquire(holder)) return
     const remaining = deadline - Date.now()
     if (remaining <= 0) throw await this.timeoutError()
+    if (!waiting) this.onWait(`Waiting up to ${this.timeout} ms for the migration lock${await this.describeHolder()}`)
     await sleep(Math.min(LOCK_POLL_INTERVAL_MS, remaining))
-    return this.waitFor(holder, deadline)
+    return this.waitFor(holder, deadline, true)
   }
 
   private collection() {
@@ -97,22 +100,20 @@ export class MigrationLock {
   private startLease(holder: string): Lease {
     const collection = this.collection()
     const filter = { _id: this.key, holder } as object
-    let lost = false
-    const renew = async (): Promise<void> => {
+    const renew = async (): Promise<boolean> => {
       const result = await collection.updateOne(filter, { $set: { expiresAt: new Date(Date.now() + this.leaseMs) } })
-      if (result.matchedCount === 0) lost = true
+      return result.matchedCount === 1
     }
-    // A failed renewal is retried on the next tick; if the lease runs out
-    // meanwhile, the next successful one reports it as lost.
+    // A failed renewal is retried on the next tick. Whether the lease is still
+    // held is only trusted from confirm(): a timer renewal can be delayed past
+    // the lease by a blocked event loop.
     const timer = setInterval(() => {
       renew().catch(() => undefined)
     }, this.leaseMs / 3)
     timer.unref()
 
     return {
-      get lost() {
-        return lost
-      },
+      confirm: renew,
       release: async () => {
         clearInterval(timer)
         // A document that cannot be removed expires with its lease; failing
@@ -122,9 +123,13 @@ export class MigrationLock {
     }
   }
 
-  private async timeoutError(): Promise<Error> {
+  private async describeHolder(): Promise<string> {
     const current = (await this.collection().findOne({ _id: this.key } as object)) as LockDocument | null
-    const held = current ? ` held by '${current.holder}' since ${current.acquiredAt.toISOString()} (lease expires ${current.expiresAt.toISOString()} unless renewed)` : ''
+    return current ? ` held by '${current.holder}' since ${current.acquiredAt.toISOString()} (lease expires ${current.expiresAt.toISOString()} unless renewed)` : ''
+  }
+
+  private async timeoutError(): Promise<Error> {
+    const held = await this.describeHolder()
     const remove = `db.getCollection(${JSON.stringify(this.collectionName)}).deleteOne({ _id: ${JSON.stringify(this.key)} })`
     return new Error(`Timed out after ${this.timeout} ms waiting for the migration lock${held}. If no other process is running migrations, wait for the lease to expire or remove the lock with ${remove}. To run without the lock, set lock: false (CLI --lock false, env MIGRATE_LOCK=false).`)
   }
