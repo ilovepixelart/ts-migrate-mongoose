@@ -159,7 +159,7 @@ jobs:
           enable-cache: false
 
       - name: Audit workflows
-        run: uvx zizmor@1.32.0 --format=plain --config .github/zizmor.yml .github/workflows
+        run: uvx zizmor@1.32.0 --format=plain --config .github/zizmor.yml .github
 
   # The one check branch rules require: it fails unless every job above succeeded.
   ci:
