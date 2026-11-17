@@ -8,8 +8,9 @@ updates:
     # Version updates wait 7 days; security updates are never delayed.
     cooldown:
       default-days: 7
-    # @types/node follows the lowest supported Node (engines); a newer major would let code
-    # compile against APIs that runtime lacks, so majors move only with the engines floor.
+    # @types/node stays on the oldest Node line the toolchain accepts (vitest 5 needs 22), the
+    # closest to engines (>=20); a newer major would let code compile against APIs older
+    # supported runtimes lack, so majors move only deliberately.
     ignore:
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
