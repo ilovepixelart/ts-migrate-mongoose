@@ -488,7 +488,8 @@ export class Migrator {
     const migrationsRoot = path.resolve(this.migrationsPath) + path.sep
     for (const migration of migrationsToRun) {
       // Migrations run one after another, so the lease is confirmed once per step
-      if (this.lease && !(await this.lease.confirm())) { // NOSONAR
+      const held = this.lease ? await this.lease.confirm() : true // NOSONAR
+      if (!held) {
         throw new Error(`Stopped before migration '${migration.name}': the migration lock was lost because its lease expired, so another process may be running migrations. Run the command again to continue.`)
       }
       const baseMigrationPath = path.resolve(path.join(this.migrationsPath, migration.filename))
