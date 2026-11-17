@@ -1,0 +1,6 @@
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        # Every action, first-party included, is pinned to a full commit SHA.
+        "*": hash-pin
