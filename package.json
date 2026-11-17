@@ -90,20 +90,20 @@
     "release": "npm install && npm run biome && npm run type:check && npm run type:check:tests && npm run build && np --no-publish"
   },
   "dependencies": {
-    "tsx": "4.21.0"
+    "tsx": "4.23.15"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.14",
+    "@biomejs/biome": "2.6.8",
     "@nestjs/common": "11.1.18",
     "@nestjs/core": "11.1.18",
     "@nestjs/testing": "11.1.18",
     "@types/node": "25.6.1",
     "@vitest/coverage-v8": "4.1.5",
-    "fast-check": "4.7.0",
-    "mongodb-memory-server": "11.0.1",
+    "fast-check": "4.10.2",
+    "mongodb-memory-server": "11.3.0",
     "open-cli": "9.0.0",
-    "pkgroll": "2.27.0",
-    "simple-git-hooks": "2.13.1",
+    "pkgroll": "2.29.1",
+    "simple-git-hooks": "2.14.0",
     "typescript": "5.9.3",
     "vitest": "4.1.5"
   },
