@@ -97,7 +97,7 @@
     "@nestjs/common": "11.2.10",
     "@nestjs/core": "11.2.10",
     "@nestjs/testing": "11.2.10",
-    "@types/node": "25.9.9",
+    "@types/node": "26.6.6",
     "@vitest/coverage-v8": "4.1.12",
     "fast-check": "4.10.2",
     "mongodb-memory-server": "11.3.0",
