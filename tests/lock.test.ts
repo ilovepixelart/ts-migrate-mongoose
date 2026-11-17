@@ -334,6 +334,28 @@ describe('migration lock', async () => {
       expect(await collectionExists(`${s.collection}_lock`)).toBe(false)
     })
 
+    it('reports a lock collection it cannot write to and how to opt out', async () => {
+      const s = scenario()
+      await admin.createCollection(`${s.collection}_lock`, { validator: { holder: { $type: 'int' } } })
+      const migrator = await connect(s)
+      await expect(migrator.run('up')).rejects.toMatchObject({
+        message: `Could not take the migration lock in collection '${s.collection}_lock'. To run without it, set lock: false (CLI --lock false, env MIGRATE_LOCK=false).`,
+        cause: expect.objectContaining({ code: 121 }),
+      })
+      expect(await count(s)).toBe(0)
+    })
+
+    it('list() keeps the sync error message when reading migrations fails', async () => {
+      const s = scenario()
+      const migrator = await connect(s)
+      // biome-ignore lint/suspicious/noExplicitAny: spying on a private method
+      vi.spyOn(migrator as any, 'getMigrations').mockRejectedValue(new Error('disk gone'))
+      await expect(migrator.list()).rejects.toMatchObject({
+        message: 'Could not synchronize migrations in the migrations folder up to the database',
+        cause: expect.objectContaining({ message: 'disk gone' }),
+      })
+    })
+
     it.each([-1, Number.NaN, Number.POSITIVE_INFINITY])('rejects lockTimeout %s before connecting', async (lockTimeout) => {
       const before = mongoose.connections.length
       await expect(Migrator.connect({ uri, lockTimeout })).rejects.toThrow(`lockTimeout must be a non-negative number of milliseconds, received ${lockTimeout}`)
