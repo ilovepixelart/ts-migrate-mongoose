@@ -94,9 +94,9 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.8",
-    "@nestjs/common": "11.2.10",
-    "@nestjs/core": "11.2.10",
-    "@nestjs/testing": "11.2.10",
+    "@nestjs/common": "12.5.1",
+    "@nestjs/core": "12.5.1",
+    "@nestjs/testing": "12.5.1",
     "@types/node": "25.9.9",
     "@vitest/coverage-v8": "5.1.0",
     "fast-check": "4.10.2",
@@ -108,7 +108,7 @@
     "vitest": "5.1.0"
   },
   "peerDependencies": {
-    "@nestjs/common": ">=9.0.0 < 12",
+    "@nestjs/common": ">=9.0.0 < 13",
     "mongoose": ">=6.6.0 < 10"
   },
   "peerDependenciesMeta": {
