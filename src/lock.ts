@@ -51,13 +51,16 @@ export class MigrationLock {
   async acquire(): Promise<Lease> {
     await this.ensureIndex()
     const holder = `${os.hostname()}:${process.pid}:${randomUUID()}`
-    const deadline = Date.now() + this.timeout
-    while (!(await this.tryAcquire(holder))) {
-      const remaining = deadline - Date.now()
-      if (remaining <= 0) throw await this.timeoutError()
-      await sleep(Math.min(LOCK_POLL_INTERVAL_MS, remaining))
-    }
+    await this.waitFor(holder, Date.now() + this.timeout)
     return this.startLease(holder)
+  }
+
+  private async waitFor(holder: string, deadline: number): Promise<void> {
+    if (await this.tryAcquire(holder)) return
+    const remaining = deadline - Date.now()
+    if (remaining <= 0) throw await this.timeoutError()
+    await sleep(Math.min(LOCK_POLL_INTERVAL_MS, remaining))
+    return this.waitFor(holder, deadline)
   }
 
   private collection() {
@@ -68,7 +71,7 @@ export class MigrationLock {
     // The TTL index only clears documents left by crashed holders; acquisition
     // checks expiry itself, so a role that cannot create indexes still works.
     this.indexReady ??= this.collection()
-      .createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+      .createIndexes([{ key: { expiresAt: 1 }, expireAfterSeconds: 0 }])
       .then(
         () => undefined,
         () => undefined,
