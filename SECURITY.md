@@ -73,8 +73,8 @@ step in that attack chain.
   parser), and `src/prompts.ts` (readline-based interactive prompts).
   Consumers audit a dependency surface of two: `tsx` and `mongoose`.
 - **Pinned peer ranges.** `mongoose >=6.6.0 <10` and
-  `@nestjs/common >=9.0.0 <12` cap the upper bound at the first
-  untested major so a hypothetical mongoose 10 or Nest 12 cannot
+  `@nestjs/common >=9.0.0 <13` cap the upper bound at the first
+  untested major so a hypothetical mongoose 10 or Nest 13 cannot
   auto-pull into consumer installs.
 - **Exact production dep version.** `tsx` is pinned to an exact
   version in `dependencies`, not a range.
