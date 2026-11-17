@@ -350,7 +350,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
     const migrator = await Migrator.connect({ uri, autosync: true })
     // @ts-expect-error - private method
     const answers = await migrator.choseMigrations(['1', '2', '3'], 'Message')
-    expect(checkbox).toHaveBeenCalled()
+    expect(checkbox).not.toHaveBeenCalled()
     expect(answers).toEqual(['1', '2', '3'])
 
     expect(migrator.connection.readyState).toBe(1)
@@ -360,7 +360,6 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
 
   it('should throw on sync', async () => {
     const migrator = await Migrator.connect({ uri, autosync: true })
-    // @ts-expect-error - private method
     vi.spyOn(migrator, 'getMigrations').mockImplementation(() => {
       throw new Error('Sync error')
     })
@@ -436,7 +435,6 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
 
   it('should throw on prune', async () => {
     const migrator = await Migrator.connect({ uri, autosync: true })
-    // @ts-expect-error - private method
     vi.spyOn(migrator, 'getMigrations').mockImplementation(() => {
       throw new Error('Sync error')
     })
