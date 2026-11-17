@@ -78,12 +78,6 @@ step in that attack chain.
   auto-pull into consumer installs.
 - **Exact production dep version.** `tsx` is pinned to an exact
   version in `dependencies`, not a range.
-- **Safety override.** The only `package.json` `overrides` entry is
-  `tmp: "0.2.5"` — the `np` → `listr-input` → `inquirer` →
-  `external-editor` dev-dep chain transitively declares `tmp ^0.0.33`,
-  a major with a known symlink-race CVE
-  ([CVE-2024-7345](https://nvd.nist.gov/vuln/detail/CVE-2024-7345));
-  the override forces the patched release.
 
 ### Zero install-time lifecycle scripts
 
