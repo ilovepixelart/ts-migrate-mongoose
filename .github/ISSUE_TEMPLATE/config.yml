@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/ilovepixelart/ts-migrate-mongoose/security/advisories/new
+    about: Report security issues privately, never as a public issue. See SECURITY.md.

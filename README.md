@@ -27,12 +27,12 @@ I need a way to manage database migrations for mongoose models, run them from th
 
 ```json
 {
-  "node": "20.x || 22.x || 24.x",
+  "node": ">=20",
   "mongoose": ">=6.6.0 <10"
 }
 ```
 
-CI tests against mongoose `6.12.2`, `7.6.4`, `8.23.0`, and `9.4.1`.
+CI tests on Node.js `22.x`, `24.x`, and `26.x`, against mongoose `6.12.2`, `7.6.4`, `8.23.0`, and `9.4.1`.
 
 ## Features
 
@@ -48,7 +48,7 @@ CI tests against mongoose `6.12.2`, `7.6.4`, `8.23.0`, and `9.4.1`.
 
 ## Installation
 
-`mongoose` is a peer dependency — install it alongside `ts-migrate-mongoose`.
+`mongoose` is a peer dependency: install it alongside `ts-migrate-mongoose`.
 
 ```bash
 npm install ts-migrate-mongoose mongoose
@@ -68,7 +68,7 @@ bun add -g ts-migrate-mongoose mongoose
 
 ## Example
 
-Works with any Node.js framework — Express, Fastify, Koa, Hono, Nest, etc.
+Works with any Node.js framework: Express, Fastify, Koa, Hono, Nest, etc.
 \
 How to use it with:
 
@@ -302,7 +302,7 @@ export async function down(connection: Connection) {
 
 ## Programmatic mode
 
-Works with any Node.js framework — Express, Fastify, Koa, Hono, etc:
+Works with any Node.js framework: Express, Fastify, Koa, Hono, etc:
 
 ```typescript
 import { Migrator } from 'ts-migrate-mongoose'

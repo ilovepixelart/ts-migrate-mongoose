@@ -3,7 +3,7 @@
 ## Supported Versions
 
 Security fixes are issued only for the latest `5.x` release line. Older
-major versions (`1.x` through `4.x`) are no longer maintained — upgrade
+major versions (`1.x` through `4.x`) are no longer maintained; upgrade
 to `5.x` if you need a security fix.
 
 | Version | Supported          |
@@ -50,10 +50,10 @@ In scope:
 
 Out of scope:
 
-- Vulnerabilities in `mongoose` itself — report those to the
+- Vulnerabilities in `mongoose` itself: report those to the
   [mongoose project](https://github.com/Automattic/mongoose/security).
 - Vulnerabilities in development-only dependencies listed under
-  `devDependencies` — those do not ship in the published package.
+  `devDependencies`, which do not ship in the published package.
 
 ## Supply Chain
 
@@ -68,7 +68,7 @@ step in that attack chain.
 ### Minimal dependency surface
 
 - **One runtime dependency: `tsx`.** Everything else the library
-  needs at runtime is implemented on top of Node built-ins —
+  needs at runtime is implemented on top of Node built-ins:
   `src/chalk.ts` (ANSI color), `src/env.ts` (dotenv-compatible
   parser), and `src/prompts.ts` (readline-based interactive prompts).
   Consumers audit a dependency surface of two: `tsx` and `mongoose`.
@@ -89,7 +89,7 @@ step in that attack chain.
   in a malicious transitive dep still cannot run `postinstall` code
   from *this* package.
 - **`files: ["dist"]`** ships only the `dist/` directory. No `src`,
-  no `tests`, no `tsconfig.json`, no `vite.config.mts` — the
+  no `tests`, no `tsconfig.json`, no `vite.config.mts`. The
   attack surface inside the tarball is strictly the pre-built JS
   bundle, not arbitrary TypeScript that could be re-executed.
 
@@ -109,15 +109,15 @@ step in that attack chain.
   [predicate type `https://slsa.dev/provenance/v1`] uploaded to
   GitHub's native attestation store), then uploads the tarball as a
   workflow artifact; `publish` downloads that artifact and runs
-  `npm publish` — npm-registry provenance is emitted automatically
+  `npm publish`; npm-registry provenance is emitted automatically
   via `publishConfig.provenance: true`. **Every action in every
-  workflow is SHA-pinned** — there are no tag-pin exceptions.
+  workflow is SHA-pinned**; there are no tag-pin exceptions.
 
 ### Release verifiability
 
 [SLSA v1.2's distributing-provenance guidance](https://slsa.dev/spec/v1.2/distributing-provenance)
 states that producers **MUST** publish attestations in at least one
-place and **SHOULD** publish in more than one — the rationale being
+place and **SHOULD** publish in more than one, the rationale being
 that independent channels give consumers more than one way to
 verify and remove any single point of failure. (The same normative
 requirements appeared in v1.0; v1.2's notable addition is the
@@ -129,24 +129,24 @@ on every release (with the third channel carrying two separate
 artifacts that target different verification tools, giving four
 attestation files in total across the three channels):
 
-1. **npm registry provenance** — emitted automatically by
+1. **npm registry provenance**: emitted automatically by
    `npm publish` because `publishConfig.provenance: true` is set in
    `package.json`. Verifiable with
    [`npm audit signatures`](https://docs.npmjs.com/generating-provenance-statements).
    The sonar job of `pr-check.yaml` runs that command on every PR so
    we notice if any of our dev-dependencies lose their provenance
    upstream.
-2. **GitHub native attestation store** — produced by
+2. **GitHub native attestation store**: produced by
    [`actions/attest@v4`](https://github.com/actions/attest) in the
    `build` job. Stored at
    [github.com/ilovepixelart/ts-migrate-mongoose/attestations](https://github.com/ilovepixelart/ts-migrate-mongoose/attestations)
-   and verifiable through `gh attestation verify` — no extra tooling
+   and verifiable through `gh attestation verify`, with no extra tooling
    install required by consumers who already have the `gh` CLI.
-3. **GitHub Release assets** — two sidecar files attached to the
+3. **GitHub Release assets**: two sidecar files attached to the
    GitHub Release, carrying the same DSSE envelope at the innermost
    layer but in different outer containers for different verification
    flows:
-   - **`<tarball>.sigstore.json`** — a straight copy of
+   - **`<tarball>.sigstore.json`**: a straight copy of
      `actions/attest`'s output, a full Sigstore bundle
      ([`application/vnd.dev.sigstore.bundle.v0.3+json`](https://github.com/sigstore/protobuf-specs/blob/main/protos/sigstore_bundle.proto),
      matches the Sigstore project's own file-format convention).
@@ -154,10 +154,10 @@ attestation files in total across the three channels):
      inline, so consumers can verify offline without querying Rekor.
      Parsed by `gh attestation verify --bundle` and other
      Sigstore-native tooling.
-   - **`<tarball>.intoto.jsonl`** — a spec-compliant
+   - **`<tarball>.intoto.jsonl`**: a spec-compliant
      [in-toto attestation v1 bundle](https://github.com/in-toto/attestation/blob/main/spec/v1/bundle.md):
      JSON Lines of DSSE envelopes, one envelope per line. Extracted
-     from the Sigstore bundle via `jq -c '.dsseEnvelope'` — this is
+     from the Sigstore bundle via `jq -c '.dsseEnvelope'`; this is
      a genuine in-toto bundle, not a renamed Sigstore bundle.
      Parsed by `slsa-verifier verify-artifact`, which queries Rekor
      for the certificate and inclusion proof via the signature hash.
@@ -165,7 +165,7 @@ attestation files in total across the three channels):
      [`releasesHaveProvenance` probe](https://github.com/ossf/scorecard/blob/main/probes/releasesHaveProvenance/impl.go)
      looks for.
 
-   The two files are **not** duplicate signing material — they are
+   The two files are **not** duplicate signing material: they are
    the same cryptographic signature presented in two different
    container formats that different verification tools understand.
    The `.sigstore.json` container embeds everything needed for
@@ -173,12 +173,13 @@ attestation files in total across the three channels):
    and requires a Rekor lookup at verify time. Neither file names
    itself as something it isn't.
 
-**Status:** the hardened pipeline was introduced in the 5.2.x
-maintenance series but the dual-sidecar release-asset channel
-reaches its final shape only **from `5.3.2` onward**:
+**Status:** the hardened pipeline was introduced in `5.3.0`, but
+the dual-sidecar release-asset channel reaches its final shape only
+**from `5.3.2` onward**:
 
-- `5.2.0` predates the new `publish.yaml` entirely — no provenance
-  in any channel.
+- `5.2.0` and earlier predate the new `publish.yaml`. Releases from
+  `4.2.1` through `5.2.0` carry npm registry provenance only; earlier
+  releases carry none.
 - `5.3.0` was released under `actions/attest@v4` but before the
   release-asset sidecar step was added, so it has only npm
   registry provenance and the GitHub attestation store.
@@ -207,18 +208,18 @@ means `5.3.0`; absence from all of these means `5.2.0` or earlier.
 
 ### Dev-environment isolation
 
-- **Dependabot is configured for `github-actions` only**, not `npm`
-  (see `.github/dependabot.yml`). Every runtime or dev-dep bump
-  requires a manual, reviewed PR — the lib never auto-merges a new
-  version of anything that reaches consumer installs. GitHub Actions
-  SHA pins do get auto-bumped weekly because those pins are meant to
-  rot fast and auto-bumping keeps Scorecard's Pinned-Dependencies at
-  maximum.
+- **Dependabot proposes updates and never merges them.** It opens
+  weekly pull requests for npm dependencies (minor and patch updates
+  grouped, majors after a 7-day cooldown, security updates without
+  delay) and for the SHA pins of GitHub Actions (see
+  `.github/dependabot.yml`). Each one passes the same CI as any other
+  change and is merged by hand; no workflow auto-merges a dependency
+  update.
 - **CI action dependencies are SHA-pinned with trailing version
   comments**, so a compromised upstream action's new tag cannot
   silently run with our privileges.
 - **Maintainer npm account uses 2FA / WebAuthn.** This is the single
-  defence that cannot be enforced from the repository — it is a
+  defence that cannot be enforced from the repository: it is a
   maintainer-side responsibility. A reviewer auditing this project's
   supply-chain posture should treat it as a documented commitment:
   if 2FA were disabled, the OIDC trusted-publishing defence above
@@ -232,11 +233,11 @@ Anyone integrating `ts-migrate-mongoose` into a production pipeline
 has four verification paths available, each exercising one of the
 distribution channels documented above. Pick the one that matches
 the tooling you already trust and the environment you're deploying
-to — the trust model is identical (all four resolve to the same
+to; the trust model is identical (all four resolve to the same
 Fulcio-issued certificate binding the signature to the exact
-GitHub Actions workflow run). For releases earlier than the
-hardened pipeline, `npm audit signatures` only verifies npm
-registry signatures without provenance.
+GitHub Actions workflow run). For releases earlier than `4.2.1`,
+`npm audit signatures` only verifies npm registry signatures,
+because those releases carry no provenance.
 
 **Primary check (no extra tooling):**
 
@@ -252,9 +253,9 @@ npm view ts-migrate-mongoose dist-tags
 **Advanced check (independent of npm):**
 
 If you want to verify the GitHub-native artifact attestation
-independently — e.g. because you're pinning to a git ref, downloading
+independently (e.g. because you're pinning to a git ref, downloading
 the tarball from the Release page, or auditing the provenance chain
-without trusting the npm registry — use the `gh` CLI, which has
+without trusting the npm registry), use the `gh` CLI, which has
 attestation verification built in:
 
 ```bash
@@ -268,7 +269,7 @@ gh attestation verify ts-migrate-mongoose-X.Y.Z.tgz \
 ```
 
 The `--signer-workflow` flag pins the verification to the exact
-workflow file that produced the attestation — a stronger claim than
+workflow file that produced the attestation, a stronger claim than
 just `--repo` alone, because it blocks any other workflow in the
 same repository from producing attestations that would pass
 verification.
@@ -296,7 +297,7 @@ gh attestation verify ts-migrate-mongoose-X.Y.Z.tgz \
 ```
 
 With `--bundle` set, `gh attestation verify` does not query the
-GitHub attestation store at all — it verifies the local file
+GitHub attestation store at all; it verifies the local file
 against the public Sigstore instance. The Fulcio certificate and
 the Rekor inclusion proof are embedded inside the Sigstore bundle,
 so no transparency-log lookup happens at verify time either. The
@@ -307,7 +308,7 @@ trust model is identical to the online check.
 For `5.3.2+` releases, a second sidecar
 (`ts-migrate-mongoose-X.Y.Z.tgz.intoto.jsonl`) ships alongside the
 Sigstore bundle. It is a spec-compliant in-toto attestation v1
-bundle — JSON Lines of DSSE envelopes, one envelope per line —
+bundle (JSON Lines of DSSE envelopes, one envelope per line),
 verifiable by
 [`slsa-verifier`](https://github.com/slsa-framework/slsa-verifier)
 (a Go CLI maintained by the SLSA project) without depending on
@@ -326,7 +327,7 @@ slsa-verifier verify-artifact ts-migrate-mongoose-X.Y.Z.tgz \
 
 `slsa-verifier` queries Rekor for the signing certificate and
 inclusion proof using the signature hash in the DSSE envelope, so
-it requires network access to the public transparency log — unlike
+it requires network access to the public transparency log, unlike
 `gh attestation verify --bundle` which is self-contained.
 
 All four verification paths end up at the same Fulcio-issued
@@ -335,7 +336,7 @@ workflow file that produced it. The split is about which tool you
 trust and which dependencies you have installed, not about which
 path is more secure.
 
-## OpenSSF Scorecard — Accepted Findings
+## OpenSSF Scorecard: Accepted Findings
 
 The project runs [OpenSSF Scorecard](https://securityscorecards.dev/) on a
 weekly schedule (see `.github/workflows/scorecard.yaml`). The following
@@ -343,28 +344,28 @@ checks intentionally stay below their maximum score; the rationale is
 documented here so future reviewers understand why they are not bugs to
 chase:
 
-- **`Code-Review`** — Scorecard requires that recent commits be approved
+- **`Code-Review`**: Scorecard requires that recent commits be approved
   by a reviewer distinct from the author. `ts-migrate-mongoose` has a
   single active maintainer, so every change is inherently self-merged
   through the branch ruleset (see `Branch-Protection` below for the
   exact merge mechanics). Requiring approvals would either block all
-  work or force self-approvals from a second account — neither offers
+  work or force self-approvals from a second account, and neither offers
   real review value. We rely on automated gates (CI status checks,
   CodeQL, Scorecard, SonarCloud, Socket, Biome, type checks) to catch
   issues instead of human review.
 
-- **`Contributors`** — Scorecard wants contributors from 3+ distinct
+- **`Contributors`**: Scorecard wants contributors from 3+ distinct
   organizations in the last 30 commits. As a personal project this is
   structurally unattainable; the score will move organically if external
   contributors join.
 
-- **`CII-Best-Practices`** — tracked at
+- **`CII-Best-Practices`**: tracked at
   [bestpractices.dev/projects/12477](https://www.bestpractices.dev/en/projects/12477).
   The project targets the "passing" tier; "silver" and "gold" require
   multiple reviewers and documented security-review processes that are
   out of reach for a single-maintainer project.
 
-- **`Branch-Protection`** — `main` is protected by a repository ruleset
+- **`Branch-Protection`**: `main` is protected by a repository ruleset
   (force-push blocked, deletion blocked, PR required, squash-only merge,
   required status checks for the full matrix, strict up-to-date policy,
   code-quality gate, thread resolution required). **Merge mechanics:**
@@ -372,19 +373,18 @@ chase:
   `required_approving_review_count: 0` lets the single maintainer merge
   their own PR once all required status checks pass. With no second
   contributor, requiring a review would block every merge. The ruleset
-  includes an Admin bypass actor so the maintainer can recover from
-  emergencies (e.g. a broken `main` that can't merge through normal
-  checks). Scorecard's Tier 2 requires at least one approving reviewer
+  has no bypass actors, so no account, the maintainer's included, can
+  push to `main` directly or merge around the required checks. Scorecard's Tier 2 requires at least one approving reviewer
   per PR, which is unreachable for a single-maintainer project without
   self-approvals from a second account. Scorecard ceiling: **4/10**
-  (confirmed by the [live scan](https://securityscorecards.dev/viewer/?uri=github.com/ilovepixelart/ts-migrate-mongoose)) —
+  (confirmed by the [live scan](https://securityscorecards.dev/viewer/?uri=github.com/ilovepixelart/ts-migrate-mongoose)),
   the maximum for a single-maintainer repo without self-review workflows.
 
-- **`Pinned-Dependencies`** — caps at ~8/10 due to a single structural
+- **`Pinned-Dependencies`**: caps at ~8/10 due to a single structural
   exception: the `npm i ${{ matrix.mongoose-version }}` step in
   `pr-check.yaml` installs a different mongoose version per matrix
   cell from the npm registry, and there is no hash-pinned lockfile
   shape that supports matrix overrides. The exception is structural
   to the CI matrix design and will persist as long as the project
   tests against multiple mongoose majors. All GitHub Actions in every
-  workflow are SHA-pinned — there are no tag-pin exceptions anywhere.
+  workflow are SHA-pinned; there are no tag-pin exceptions anywhere.

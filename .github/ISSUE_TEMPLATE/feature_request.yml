@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest an idea for ts-migrate-mongoose
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is the problem or missing behavior?
+      placeholder: I need to run migrations against a read replica before promoting it, but ...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: For example, a new CLI flag, config option, `Migrator` method, or NestJS integration change.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches, workarounds, or existing options you have tried.
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      description: Which part would this touch?
+      multiple: true
+      options:
+        - CLI (npx migrate)
+        - Programmatic (Migrator.connect)
+        - NestJS (MigrationModule)
+        - Config file (migrate.json / migrate.ts / .env)
