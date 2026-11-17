@@ -18,7 +18,9 @@ on:
   # Scorecard scan from the pre-release push to main races the publish.yaml
   # workflow and captures a stale state where release assets aren't yet
   # uploaded. See the accepted-findings rationale in SECURITY.md.
-  workflow_run:
+  # Safe here: the job checks out the default branch only, runs no code from the
+  # triggering run, and uses none of its artifacts or outputs.
+  workflow_run: # zizmor: ignore[dangerous-triggers]
     workflows: ["Publish"]
     types: [completed]
 
