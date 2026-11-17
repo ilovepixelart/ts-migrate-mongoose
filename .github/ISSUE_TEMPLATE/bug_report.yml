@@ -1,0 +1,55 @@
+name: Bug report
+description: Something in ts-migrate-mongoose is not working as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not use this form for security issues. Report those privately via a [GitHub Security Advisory](https://github.com/ilovepixelart/ts-migrate-mongoose/security/advisories/new); see SECURITY.md.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you do, and what went wrong? Include error messages and stack traces.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: For example, the migration marked as applied, a document shape, or the collection state.
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Mode
+      description: How are you running the migration?
+      multiple: true
+      options:
+        - CLI (npx migrate)
+        - Programmatic (Migrator.connect)
+        - NestJS (MigrationModule)
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: The migration file, the relevant parts of `migrate.json` / `migrate.ts` / `.env` (redact secrets), and the CLI command or programmatic call that triggers the bug.
+      render: typescript
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: ts-migrate-mongoose, mongoose, Node.js, and OS
+      placeholder: "ts-migrate-mongoose 5.4.0, mongoose 9.4.1, Node 24.11, macOS 15"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Related issues, schema peculiarities, multi-connection setup, and so on.

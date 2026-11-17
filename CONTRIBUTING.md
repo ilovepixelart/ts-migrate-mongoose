@@ -33,7 +33,7 @@ once after `npm install` to register the hooks locally:
 1. Run the full check: `npm run type:check && npm run type:check:tests && npm run biome && npm test && npm run build`
 2. Ensure no test regressions
 3. Follow the existing code style (Biome handles formatting)
-4. Keep changes focused — one feature or fix per PR
+4. Keep changes focused: one feature or fix per PR
 
 ## How to Contribute
 
