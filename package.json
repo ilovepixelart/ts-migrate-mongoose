@@ -84,6 +84,7 @@
     "pretest": "cd examples/config-file-usage/src && npx tsc",
     "test": "vitest run --coverage",
     "test:e2e": "npm run build && tsx tests/e2e/run.ts",
+    "test:laws": "bend tests/laws/names/PROOF.bend && bend tests/laws/migrations/PROOF.bend && bend tests/laws/names/main.bend -o tests/laws/names/main.mjs && bend tests/laws/migrations/main.bend -o tests/laws/migrations/main.mjs && git diff --exit-code -- tests/laws/names/main.mjs tests/laws/migrations/main.mjs",
     "test:open": "vitest run --coverage && open-cli coverage/lcov-report/index.html",
     "clean": "rm -rf ./dist",
     "type:check": "tsc --noEmit",
