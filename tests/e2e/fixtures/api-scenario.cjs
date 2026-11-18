@@ -37,6 +37,7 @@ const exercise = async (Migrator, migrationsPath, uri, closedUri, out, logged) =
   out.sync = summary(await migrator.sync())
   fs.rmSync(path.join(migrationsPath, `${second.filename}.ts`))
   out.prune = summary(await migrator.prune())
+  out.pruneNothing = summary(await migrator.prune())
 
   const verbose = await Migrator.connect({ uri, migrationsPath, autosync: true, cli: true })
   await verbose.list()

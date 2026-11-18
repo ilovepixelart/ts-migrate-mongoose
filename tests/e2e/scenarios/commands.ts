@@ -124,6 +124,7 @@ export const commandScenarios: Scenario[] = [
       write('migrations/1700000000001-seeded.ts', people('seeded'))
       write('migrations/notes.md', '# not a migration\n')
       write('migrations/1700000000002-README.txt', 'not a migration\n')
+      write('migrations/old_1700000000003-legacy.ts', people('legacy'))
       const steps = [await cli(['list', '-a', 'true', '-d', uri])]
       write('migrations/1700000000003-later.ts', people('later'))
       steps.push(await cli(['list', '--autosync', 'false', '-d', uri]))
@@ -166,6 +167,30 @@ export const commandScenarios: Scenario[] = [
       // 10 rows leave a page of 6 choices; wrapping up to the last choice scrolls, and 30 rows fit all 18 again.
       // 14 rows fit 10 choices, a window that still holds the cursor without moving it.
       const steps = [await tty(['list', '-d', uri], ['\u001b[A', ' ', '<resize:30>', '\r'], { rows: 10 }), await tty(['list', '-d', uri, '-c', 'grown'], ['\u001b[A', '<resize:14>', '\r'], { rows: 10 })]
+      return { steps, db: await db() }
+    },
+  },
+  {
+    // 10 rows leave a page of 6 choices. Each run has its own folder of choices and its own collection.
+    name: 'interactive-boundaries',
+    run: async (context) => {
+      const { tty, uri, write, db } = context
+      const folder = (name: string, count: number) => {
+        for (let index = 1; index <= count; index++) write(`${name}/${String(1700000000000 + index)}-${name}-${String(index).padStart(2, '0')}.ts`, people(`${name}-${String(index)}`))
+        return ['list', '-d', uri, '-m', `./${name}`, '-c', name]
+      }
+      const down = '\u001b[B'
+      const up = '\u001b[A'
+      const steps = [
+        // Exactly a page: no range hint. c without Ctrl is an unknown key.
+        await tty(folder('exact', 6), ['c', '\r'], { rows: 10 }),
+        // One over a page: the window scrolls when the cursor leaves it, at either edge.
+        await tty(folder('over', 7), [down, down, down, down, down, down, up, up, up, up, up, up, '\r'], { rows: 10 }),
+        // Nothing new to import: no prompt at all.
+        await tty(folder('empty', 0), ['\r'], { rows: 10 }),
+        // Selected in reverse: the summary still lists the choices in their order (10 sorts before 2 as text).
+        await tty(folder('order', 11), [down, down, down, down, down, down, down, down, down, down, ' ', up, up, up, up, up, up, up, up, ' ', '\r'], { rows: 24 }),
+      ]
       return { steps, db: await db() }
     },
   },

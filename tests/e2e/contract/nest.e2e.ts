@@ -34,7 +34,7 @@ describe('NestJS integration', () => {
       'log: Applied 1 migration(s)',
       'log: Connected to migration database',
       'log: No migrations found',
-      ...['injected factory', 'useExisting', 'global'].flatMap(() => ['log: Connected to migration database', 'log: up: <timestamp>-nest-first', 'log: Applied 1 migration(s)']),
+      ...['injected factory', 'useExisting', 'global', 'async global'].flatMap(() => ['log: Connected to migration database', 'log: up: <timestamp>-nest-first', 'log: Applied 1 migration(s)']),
     ])
   })
 
@@ -44,10 +44,14 @@ describe('NestJS integration', () => {
     expect(Object.keys(nest.db as object)).toEqual(expect.arrayContaining(['inject_migrations', 'existing_migrations']))
   })
 
-  it('law nest-di: makes MigrationService injectable in other modules only when isGlobal is set', () => {
+  it('law nest-di: makes MigrationService injectable in other modules only when isGlobal is set, for forRoot and forRootAsync', () => {
     expect(result.globalServiceInjectedElsewhere).toBe(true)
-    const refused = (result.nonGlobalServiceInjectedElsewhere as { rejected?: { name: string; message: string } }).rejected
-    expect(refused?.message).toMatch(/^Nest can't resolve dependencies of the PROBE \(\?\)\. Please make sure that the argument MigrationService at index \[0\] is available in the FeatureModule module\./)
+    expect(result.asyncGlobalServiceInjectedElsewhere).toBe(true)
+    // isGlobal: false and isGlobal left out both keep the service to the module that imports MigrationModule.
+    for (const key of ['nonGlobalServiceInjectedElsewhere', 'defaultServiceInjectedElsewhere']) {
+      const refused = (result[key] as { rejected?: { name: string; message: string } }).rejected
+      expect(refused?.message).toMatch(/^Nest can't resolve dependencies of the PROBE \(\?\)\. Please make sure that the argument MigrationService at index \[0\] is available in the FeatureModule module\./)
+    }
   })
 
   it('law nest-di: fails bootstrap when forRootAsync is given no way to build the options', () => {

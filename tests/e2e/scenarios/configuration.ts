@@ -160,6 +160,21 @@ export const configurationScenarios: Scenario[] = [
     },
   },
   {
+    // Config file shapes besides a default export, each in its own working directory.
+    name: 'config-shapes',
+    run: async ({ cli, uri, write, db }) => {
+      write('named-exports/migrate.ts', `export const uri = '${uri}'\nexport const collection = 'named_exports'\n`)
+      // What tsc emits for `export default { ... }` compiled to CommonJS.
+      write('tsc-commonjs/package.json', json({ type: 'commonjs' }))
+      write('tsc-commonjs/migrate.js', `'use strict'\nObject.defineProperty(exports, '__esModule', { value: true })\nexports.default = { uri: '${uri}', collection: 'tsc_commonjs' }\n`)
+      write('throws-non-error/migrate.ts', "throw 'not an Error'\n")
+      return {
+        steps: [await cli(['create', 'named-exports'], { cwd: 'named-exports' }), await cli(['create', 'tsc-commonjs'], { cwd: 'tsc-commonjs' }), await cli(['list', '-f', './migrate.ts'], { cwd: 'throws-non-error' }), await cli(['create', 'missing-mode-file', '-d', uri, '--mode', 'absent'])],
+        db: await db(),
+      }
+    },
+  },
+  {
     name: 'config-errors',
     run: async ({ cli, write }) => {
       write('migrate.yaml', 'uri: mongodb://127.0.0.1/never\n')
@@ -191,6 +206,31 @@ export const configurationScenarios: Scenario[] = [
       write('migrate.json', json({ uri, collection: 'from_file' }))
       write('.env', 'MIGRATE_MONGO_COLLECTION=\n')
       return { steps: [await cli(['create', 'empty-env-value'])], db: await db() }
+    },
+  },
+  {
+    // One .env per case, each in its own working directory; the value becomes a collection or a migrations folder.
+    name: 'env-quoting',
+    run: async ({ cli, uri, write, tree, db }) => {
+      const cases: Record<string, string> = {
+        'cr-only': 'MIGRATE_MONGO_COLLECTION=cr_only\rMIGRATE_MIGRATIONS_PATH=./cr-path\r',
+        'export-spaces': 'export   MIGRATE_MONGO_COLLECTION=exported\n',
+        'equals-spaces': 'MIGRATE_MONGO_COLLECTION=   equals_spaced\n',
+        'colon-spaces': 'MIGRATE_MONGO_COLLECTION:   colon_spaced\n',
+        'single-after-spaces': "MIGRATE_MONGO_COLLECTION=   'single # kept'\n",
+        'double-after-spaces': 'MIGRATE_MONGO_COLLECTION=   "double # kept"\n',
+        'double-escapes': 'MIGRATE_MIGRATIONS_PATH="./dq\\nline\\rend"\n',
+        'single-escapes': "MIGRATE_MIGRATIONS_PATH='./sq\\nline'\n",
+        'backtick-escapes': 'MIGRATE_MIGRATIONS_PATH=`./bt\\nline`\n',
+        'quote-at-start': 'MIGRATE_MONGO_COLLECTION="mid"post\n',
+        'quote-at-end': 'MIGRATE_MIGRATIONS_PATH=./pre"mid"\n',
+      }
+      const steps = []
+      for (const [dir, env] of Object.entries(cases)) {
+        write(`${dir}/.env`, env)
+        steps.push(await cli(['create', dir, '-d', uri], { cwd: dir }))
+      }
+      return { steps, tree: tree(), db: await db() }
     },
   },
   {

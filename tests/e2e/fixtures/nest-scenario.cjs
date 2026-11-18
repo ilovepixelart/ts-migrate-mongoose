@@ -84,6 +84,14 @@ const exercise = async ({ Migrator, MigrationModule, MigrationService, MIGRATION
   out.globalServiceInjectedElsewhere = app.get('PROBE').service === app.get(MigrationService)
   await app.close()
   out.nonGlobalServiceInjectedElsewhere = await attempt(() => boot(rootWith(false)).then((context) => context.close()))
+  out.defaultServiceInjectedElsewhere = await attempt(() => boot(rootWith(undefined)).then((context) => context.close()))
+
+  const asyncGlobal = nestModule('AsyncGlobalRoot', {
+    imports: [MigrationModule.forRootAsync({ isGlobal: true, useFactory: () => ({ uri, migrationsPath, collection: 'async_global_migrations', autosync: true }) }), FeatureModule],
+  })
+  app = await boot(asyncGlobal)
+  out.asyncGlobalServiceInjectedElsewhere = app.get('PROBE').service === app.get(MigrationService)
+  await app.close()
 
   out.asyncWithoutFactory = await attempt(() => boot(MigrationModule.forRootAsync({})).then((context) => context.close()))
 

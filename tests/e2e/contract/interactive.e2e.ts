@@ -98,6 +98,37 @@ describe('CLI interactive prompt on a TTY', () => {
     ])
   })
 
+  describe('law prompt: page boundaries and selection order (a page holds 6 choices at 10 rows)', () => {
+    const [exact, over, empty, order] = steps('interactive-boundaries')
+    const ranges = (step?: Step, of = 7) => [...(step?.stdout ?? '').matchAll(new RegExp(`(\\d+-\\d+)/${String(of)} • `, 'g'))].map((match) => match[1])
+    const firstFrameChoices = (step?: Step) => ((step?.stdout ?? '').split('↑↓ navigate')[0] ?? '').match(/^[❯ ] [◯◉] (.+)$/gm)?.map((line) => line.slice(4)) ?? []
+
+    it('law prompt: shows exactly a page of choices without a range, and treats c without Ctrl as an unknown key', () => {
+      expect(exact?.exitCode).toBe(0)
+      expect(ranges(exact, 6)).toEqual([])
+      expect(summary(exact)).toBe('none')
+      expect(imported('exact', 'interactive-boundaries')).toEqual([])
+    })
+
+    it('law prompt: does not ask when there is nothing new to import', () => {
+      expect(empty?.exitCode).toBe(0)
+      expect(empty?.stdout).not.toContain('? The following')
+      expect(empty?.stdout).toContain('There are no migrations to list')
+    })
+
+    it('law prompt: scrolls when the cursor leaves the page and back when it returns, one choice at a time', () => {
+      expect(over?.exitCode).toBe(0)
+      expect(ranges(over)).toEqual([...Array(6).fill('1-6'), ...Array(6).fill('2-7'), '1-6'])
+    })
+
+    it('law prompt: lists the selected choices in their order, whatever order they were selected in', () => {
+      const choices = firstFrameChoices(order)
+      expect(choices).toHaveLength(11)
+      expect(summary(order)).toBe(`${choices[2] ?? ''}, ${choices[10] ?? ''}`)
+      expect(imported('order', 'interactive-boundaries')).toEqual([choices[2], choices[10]].map((choice) => (choice ?? '').replace('<timestamp>-', '')).sort())
+    })
+  })
+
   it('law prompt: imports nothing when terminated or hung up at the prompt', () => {
     expect(imported('terminated', 'interactive-signals')).toEqual([])
     expect(imported('hung_up', 'interactive-signals')).toEqual([])

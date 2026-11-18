@@ -49,6 +49,7 @@ describe('programmatic API', () => {
     expect(result.items).toEqual([])
     expect(result.sync).toEqual([{ name: 'seeded', state: 'down', filename: '<timestamp>-seeded' }])
     expect(summary('prune')).toEqual(['second'])
+    expect(result.pruneNothing).toEqual([])
   })
 
   it('law run-input: rejects a migration name that is not a string, including query operator objects', () => {

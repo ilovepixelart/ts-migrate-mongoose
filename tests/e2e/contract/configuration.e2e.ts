@@ -96,4 +96,55 @@ describe('CLI configuration', () => {
     expect(steps('env-unreadable')).toEqual([ok('migrate create env-file-is-a-directory -d <mongo>/env_unreadable', created('env-file-is-a-directory', `${work('env-unreadable')}/migrations`))])
     expect(names(db('env-unreadable').migrations)).toEqual(['env-file-is-a-directory'])
   })
+
+  it('law env-files: reads .env values with dotenv quoting, spacing and line endings', () => {
+    expect(steps('env-quoting').map((step) => [step.command, step.exitCode, step.stderr])).toEqual(
+      ['cr-only', 'export-spaces', 'equals-spaces', 'colon-spaces', 'single-after-spaces', 'double-after-spaces', 'double-escapes', 'single-escapes', 'backtick-escapes', 'quote-at-start', 'quote-at-end'].map((name) => [`migrate create ${name} -d <mongo>/env_quoting`, 0, '']),
+    )
+    // The collection each case's value names: CR-only line endings, extra spaces after export, around = and after a
+    // colon, quotes after spaces (# inside them is not a comment), and quotes that do not wrap the whole value.
+    expect(Object.fromEntries(Object.entries(db('env-quoting')).map(([collection, docs]) => [collection, names(docs).sort()]))).toEqual({
+      cr_only: ['cr-only'],
+      exported: ['export-spaces'],
+      equals_spaced: ['equals-spaces'],
+      colon_spaced: ['colon-spaces'],
+      'single # kept': ['single-after-spaces'],
+      'double # kept': ['double-after-spaces'],
+      '"mid"post': ['quote-at-start'],
+      migrations: ['backtick-escapes', 'double-escapes', 'quote-at-end', 'single-escapes'],
+    })
+    // The migrations folder each case's value names: only double quotes turn \n and \r into line breaks.
+    const files = Object.keys(scenario('env-quoting').tree as object).filter((file) => file.endsWith('.ts'))
+    expect(files.sort()).toEqual(
+      [
+        'cr-only/cr-path/<timestamp>-cr-only.ts',
+        'export-spaces/migrations/<timestamp>-export-spaces.ts',
+        'equals-spaces/migrations/<timestamp>-equals-spaces.ts',
+        'colon-spaces/migrations/<timestamp>-colon-spaces.ts',
+        'single-after-spaces/migrations/<timestamp>-single-after-spaces.ts',
+        'double-after-spaces/migrations/<timestamp>-double-after-spaces.ts',
+        'double-escapes/dq\nline\rend/<timestamp>-double-escapes.ts',
+        'single-escapes/sq\\nline/<timestamp>-single-escapes.ts',
+        'backtick-escapes/bt\\nline/<timestamp>-backtick-escapes.ts',
+        'quote-at-start/migrations/<timestamp>-quote-at-start.ts',
+        'quote-at-end/pre"mid"/<timestamp>-quote-at-end.ts',
+      ].sort(),
+    )
+  })
+
+  it('law config-file: reads named exports and the default export tsc emits for CommonJS', () => {
+    const [named, tsc] = steps('config-shapes')
+    expect(named).toEqual(ok('migrate create named-exports', created('named-exports', `${work('config-shapes')}/named-exports/migrations`)))
+    expect(tsc).toEqual(ok('migrate create tsc-commonjs', created('tsc-commonjs', `${work('config-shapes')}/tsc-commonjs/migrations`)))
+    expect(names(db('config-shapes').named_exports)).toEqual(['named-exports'])
+    expect(names(db('config-shapes').tsc_commonjs)).toEqual(['tsc-commonjs'])
+  })
+
+  it('law config-file: reports only the missing URI when the config file throws something that is not an Error', () => {
+    expect(steps('config-shapes')[2]).toEqual(fail('migrate list -f ./migrate.ts', URI_REQUIRED))
+  })
+
+  it('law env-files: says nothing when --mode names a .env file that does not exist', () => {
+    expect(steps('config-shapes')[3]).toEqual(ok('migrate create missing-mode-file -d <mongo>/config_shapes --mode absent', created('missing-mode-file', `${work('config-shapes')}/migrations`)))
+  })
 })

@@ -3,7 +3,12 @@
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["src/**/*.ts", "tests/**/*.ts"]
+    "includes": [
+      "src/**/*.ts",
+      "tests/**/*.ts",
+      "!!**/.stryker-tmp",
+      "!!**/.stryker-e2e"
+    ]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2 },
   "assist": {

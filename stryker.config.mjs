@@ -7,7 +7,7 @@ export default {
   reporters: ['clear-text', 'progress', 'html'],
   htmlReporter: { fileName: 'reports/mutation/unit.html' },
   tempDirName: '.stryker-tmp',
-  // A failed run otherwise leaves its sandbox, whose biome.json then breaks `biome check` as a second root config.
+  // A failed run otherwise leaves its sandbox behind.
   cleanTempDir: 'always',
   // MongoDB data written by a test run (tests/mongo/<db>/) can change while the sandbox is being copied.
   ignorePatterns: ['reports', 'tests/mongo/*/'],
