@@ -1,15 +1,12 @@
-import fs from 'node:fs/promises'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
 
 export const create = async (dbName: string): Promise<{ uri: string; destroy: () => Promise<void> }> => {
-  const dbPath = `./tests/mongo/${dbName}`
-  await fs.mkdir(dbPath, { recursive: true })
-
+  // No dbPath: each server gets a fresh temporary directory, which stop({ doCleanup }) removes. A fixed dbPath
+  // outlives a run whose teardown never finished, and the next run starts on that run's data.
   const server = await MongoMemoryServer.create({
     instance: {
       dbName,
-      dbPath,
     },
   })
 
