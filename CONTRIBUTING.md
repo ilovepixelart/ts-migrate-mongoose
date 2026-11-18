@@ -14,6 +14,7 @@ npx simple-git-hooks  # one-time: install the git hooks defined in package.json
 ```bash
 npm run build              # Build with pkgroll
 npm test                   # Run tests with vitest + coverage
+npm run test:e2e           # Pack, install into a fresh consumer, run the e2e suite
 npm run type:check         # TypeScript type checking (src)
 npm run type:check:tests   # TypeScript type checking (tests)
 npm run biome              # Lint check
@@ -26,7 +27,7 @@ The project uses `simple-git-hooks`. Contributors run `npx simple-git-hooks`
 once after `npm install` to register the hooks locally:
 
 - **pre-commit**: runs `npm run type:check`
-- **pre-push**: runs `npm run biome:fix`
+- **pre-push**: runs `npm run biome`
 
 ## Before Submitting a PR
 
@@ -34,6 +35,22 @@ once after `npm install` to register the hooks locally:
 2. Ensure no test regressions
 3. Follow the existing code style (Biome handles formatting)
 4. Keep changes focused: one feature or fix per PR
+
+## End-to-end tests
+
+`npm run test:e2e` builds and packs the package, installs the tarball into a fresh consumer project
+in the system temp directory, and runs every scenario in `tests/e2e/scenarios.ts` against a real
+MongoDB: the `migrate` binary, the API through `require` and `import`, the NestJS module, and a
+consumer type check. The same scenarios run against the published version named in
+`tests/e2e/allowlist.json`, and the suite fails on any difference that is not listed there.
+
+- `tests/e2e/contract.e2e.ts` pins the expected output, exit codes, files and database state.
+- A pull request that changes user-visible behaviour adds one entry per changed observation path
+  to `changes` in `tests/e2e/allowlist.json`, with its PR number and reason.
+- After a release, set `baseline` to the released version and empty `changes`.
+- `E2E_MONGOOSE=<version>` picks the mongoose version installed in the consumer (default: the
+  lockfile's). `E2E_CANDIDATE` and `E2E_BASELINE` take any npm install spec (a tarball path or
+  `name@version`) in place of the packed build and the baseline.
 
 ## How to Contribute
 

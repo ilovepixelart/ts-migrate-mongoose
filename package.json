@@ -83,6 +83,7 @@
     "lint:package": "publint --strict && attw --pack .",
     "pretest": "cd examples/config-file-usage/src && npx tsc",
     "test": "vitest run --coverage",
+    "test:e2e": "npm run build && tsx tests/e2e/run.ts",
     "test:open": "vitest run --coverage && open-cli coverage/lcov-report/index.html",
     "clean": "rm -rf ./dist",
     "type:check": "tsc --noEmit",
