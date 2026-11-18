@@ -109,7 +109,7 @@ export class Migrator {
    * Close the underlying connection to mongo
    */
   async close(): Promise<void> {
-    await this.connection.close()
+    await this.connection.destroy()
   }
 
   /**
