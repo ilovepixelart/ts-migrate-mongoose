@@ -11,6 +11,8 @@ export const fixturesDir = path.join(import.meta.dirname, 'fixtures')
 
 export const PACKAGE_NAME = 'ts-migrate-mongoose'
 const PROCESS_TIMEOUT_MS = 60_000
+// The checkbox prompt's hint line closes every frame it renders.
+const PROMPT_MARKER = 'enter submit'
 
 export interface RunResult {
   exitCode: number | null
@@ -26,6 +28,7 @@ export interface Step {
   stdout: string
   stderr: string
   timedOut?: true
+  aliveAfterSignal?: true
 }
 
 export interface Consumer {
@@ -43,6 +46,7 @@ export interface ScenarioContext {
   closedUri: string
   cli: (args: string[], options?: { env?: Record<string, string>; cwd?: string }) => Promise<Step>
   node: (script: string, args: string[]) => Promise<RunResult>
+  tty: (args: string[], keys: string[], options?: { rows?: number; env?: Record<string, string>; cwd?: string }) => Promise<Step>
   write: (relative: string, content: string) => void
   remove: (relative: string) => void
   tree: () => Record<string, string | null>
@@ -183,6 +187,8 @@ export const snapshotDb = async (uri: string): Promise<Record<string, unknown[]>
     const snapshot: Record<string, unknown[]> = {}
     for (const name of names) {
       const docs = await db.collection(name).find().toArray()
+      // mongoose creates collections in the background; whether an empty one exists when a process exits is a race.
+      if (!docs.length) continue
       snapshot[name] = docs.map(normalizeValue).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
     }
     return snapshot
@@ -207,11 +213,12 @@ export const createNormalizer = (replacements: Replacement[]): ((value: unknown)
 
 export const escapeRegExp = (text: string): string => text.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)
 
-export const pool = async <T, R>(items: T[], size: number, worker: (item: T) => Promise<R>): Promise<R[]> => {
+// Runs worker over items with at most size in flight; once stop() returns true no further item starts, and results stay sparse.
+export const pool = async <T, R>(items: T[], size: number, worker: (item: T) => Promise<R>, stop: () => boolean = () => false): Promise<R[]> => {
   const results: R[] = new Array(items.length)
   let next = 0
   const lanes = Array.from({ length: Math.min(size, items.length) }, async () => {
-    while (next < items.length) {
+    while (next < items.length && !stop()) {
       const index = next++
       results[index] = await worker(items[index] as T)
     }
@@ -244,6 +251,18 @@ export const createContext = (consumer: Consumer, scenario: string, mongoUri: st
       return step
     },
     node: (script, args) => runProcess(process.execPath, [script, ...args], { cwd: dir }),
+    tty: async (args, keys, options = {}) => {
+      const env = { ...options.env, PTY_ROWS: String(options.rows ?? 24) }
+      const cwd = options.cwd ? path.join(dir, options.cwd) : dir
+      const result = await runProcess('python3', [path.join(fixturesDir, 'pty_drive.py'), JSON.stringify(keys), PROMPT_MARKER, consumer.bin, ...args], { cwd, env })
+      if (result.exitCode !== 0) throw new Error(`pty_drive.py failed (${String(result.exitCode)}): ${result.stderr}`)
+      const driven = JSON.parse(result.stdout) as { exitCode: number | null; output: string; timedOut: boolean; aliveAfterSignal: boolean }
+      // A terminal merges stdout and stderr into one stream, escape codes included.
+      const step: Step = { command: ['migrate', ...args].join(' '), exitCode: driven.exitCode, stdout: driven.output, stderr: '' }
+      if (driven.timedOut) step.timedOut = true
+      if (driven.aliveAfterSignal) step.aliveAfterSignal = true
+      return step
+    },
     write: (relative, content) => {
       const file = path.join(dir, relative)
       fs.mkdirSync(path.dirname(file), { recursive: true })

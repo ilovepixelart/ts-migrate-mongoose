@@ -46,9 +46,6 @@ describe(`differential against ts-migrate-mongoose@${allowlist.baseline}`, () =>
   })
 
   it('names the pull request and reason for every allowlisted change', () => {
-    for (const change of allowlist.changes) {
-      expect(Number.isInteger(change.pr) && change.pr > 0).toBe(true)
-      expect(change.reason.length).toBeGreaterThan(0)
-    }
+    expect(allowlist.changes.filter((change) => !(Number.isInteger(change.pr) && change.pr > 0 && change.reason.length > 0))).toEqual([])
   })
 })
