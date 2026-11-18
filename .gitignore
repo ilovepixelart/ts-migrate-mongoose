@@ -31,3 +31,8 @@ npm-debug.log
 # Claude Code
 .claude/
 CLAUDE.md
+
+# Mutation testing
+.stryker-tmp
+.stryker-e2e
+reports

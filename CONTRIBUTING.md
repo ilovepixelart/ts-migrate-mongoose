@@ -39,18 +39,56 @@ once after `npm install` to register the hooks locally:
 ## End-to-end tests
 
 `npm run test:e2e` builds and packs the package, installs the tarball into a fresh consumer project
-in the system temp directory, and runs every scenario in `tests/e2e/scenarios.ts` against a real
-MongoDB: the `migrate` binary, the API through `require` and `import`, the NestJS module, and a
-consumer type check. The same scenarios run against the published version named in
-`tests/e2e/allowlist.json`, and the suite fails on any difference that is not listed there.
+in the system temp directory, and runs every scenario in `tests/e2e/scenarios/` against a real
+MongoDB: the `migrate` binary, its interactive prompt in a pseudo-terminal, the API through
+`require` and `import`, the NestJS module, and a consumer type check. The same scenarios run
+against the published version named in `tests/e2e/allowlist.json`, and the suite fails on any
+difference that is not listed there. The prompt scenarios drive the terminal with `python3`'s
+`pty` module, so the suite needs Python 3 on macOS or Linux.
 
-- `tests/e2e/contract.e2e.ts` pins the expected output, exit codes, files and database state.
+- `tests/e2e/contract/` pins the expected output, exit codes, files and database state, one file
+  per area. Empty collections are left out of database snapshots: whether mongoose has created
+  one when a process exits is a race.
+- `tests/e2e/contract/inventory.e2e.ts` fails when a command or option in the README help, or a
+  key of the exported `Env` enum, has no scenario exercising it.
+- `tests/e2e/laws.ts` states the laws of the public surface. `tests/e2e/contract/laws.e2e.ts` fails
+  when a command, option, `Env` key, export or public class member (read from the published
+  declarations) is in no law, or when a law has no contract test titled `law <id>: ...`. A new
+  public feature therefore needs a law and a test before the suite passes.
+- A known defect is pinned by a test titled `known defect: ...` that asserts today's exact
+  behaviour, so fixing it fails that test, which is then replaced by one asserting the law.
+
+## Laws in Bend
+
+`tests/laws/` holds two Bend (https://bend-lang.com) projects laid out as Bend's demos are:
+`names/` (what `Migrator.create` accepts) and `migrations/` (a model of what `run`, `sync` and
+`prune` do). In each, `main.bend` is the program, `SPEC.bend` the specification it is held to,
+`LAWS.bend` the laws relating the two and `PROOF.bend` their proofs. Change `SPEC.bend` and
+`LAWS.bend` only to change what the program must do. `main.bend` compiles to `main.mjs`, the
+oracle the tests in `tests/laws/` and the e2e `laws` scenario compare the real code with; the
+`.mjs` is committed so the tests run without Bend.
+
+`npm run test:laws` checks every proof, recompiles both `main.mjs` and fails if a committed one
+is out of date. It needs Bend 2.0.40 (`curl -fsSL https://bend-lang.com/install.sh | sh`).
 - A pull request that changes user-visible behaviour adds one entry per changed observation path
   to `changes` in `tests/e2e/allowlist.json`, with its PR number and reason.
 - After a release, set `baseline` to the released version and empty `changes`.
 - `E2E_MONGOOSE=<version>` picks the mongoose version installed in the consumer (default: the
   lockfile's). `E2E_CANDIDATE` and `E2E_BASELINE` take any npm install spec (a tarball path or
   `name@version`) in place of the packed build and the baseline.
+
+## Mutation testing
+
+Mutation testing changes `src/` one small edit at a time and checks that a test fails for each.
+
+- `npm run test:mutation` runs it against the unit and integration suite (`stryker.config.mjs`).
+- `npm run test:mutation:e2e` runs it against the end-to-end suite on the packed package
+  (`stryker.e2e.config.mjs`, `tests/e2e/mutant.ts`). A mutant counts as killed when any scenario's
+  observation differs from the unmutated build. A full run takes hours, so scope it while working on
+  one area: `npm run test:mutation:e2e -- --mutate src/prompts.ts` or `--mutate src/index.ts:150-185`.
+  The observation that killed each mutant is saved in `reports/mutation/e2e-kills/`.
+- Reports are written to `reports/mutation/`. A surviving mutant needs a test, or, when no input can
+  tell it apart from the original, a `// Stryker disable next-line <mutator>: <reason>` comment.
 
 ## How to Contribute
 
