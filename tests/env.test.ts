@@ -7,11 +7,12 @@ import { Env } from '../src/types'
 config({ path: '.env.test', quiet: true })
 
 describe('Environment Variable Utilities', () => {
+  // unstubEnvs (vite.config.mts) restores every stubbed variable after each test.
   beforeEach(() => {
-    delete process.env.MIGRATE_MODE
-    delete process.env.migrateMode
-    delete process.env.MIGRATE_CONFIG_PATH
-    delete process.env.migrateConfigPath
+    for (const key of [Env.MIGRATE_MODE, Env.MIGRATE_CONFIG_PATH, Env.MIGRATE_AUTOSYNC]) {
+      vi.stubEnv(key, undefined)
+      vi.stubEnv(toCamelCase(key), undefined)
+    }
   })
 
   describe('toCamelCase', () => {
@@ -23,12 +24,12 @@ describe('Environment Variable Utilities', () => {
 
   describe('getEnv', () => {
     it('should return the value of the environment variable', () => {
-      process.env.MIGRATE_MODE = 'development'
+      vi.stubEnv(Env.MIGRATE_MODE, 'development')
       expect(getEnv(Env.MIGRATE_MODE)).toBe('development')
     })
 
     it('should return the value of the camelCase environment variable', () => {
-      process.env.migrateMode = 'development'
+      vi.stubEnv('migrateMode', 'development')
       expect(getEnv(Env.MIGRATE_MODE)).toBe('development')
     })
 
@@ -39,12 +40,12 @@ describe('Environment Variable Utilities', () => {
 
   describe('getEnvBoolean', () => {
     it('should return true if the environment variable is set to "true"', () => {
-      process.env.MIGRATE_AUTOSYNC = 'true'
+      vi.stubEnv(Env.MIGRATE_AUTOSYNC, 'true')
       expect(getEnvBoolean(Env.MIGRATE_AUTOSYNC)).toBe(true)
     })
 
     it('should return undefined if the environment variable is not set to "true"', () => {
-      process.env.MIGRATE_AUTOSYNC = 'false'
+      vi.stubEnv(Env.MIGRATE_AUTOSYNC, 'false')
       expect(getEnvBoolean(Env.MIGRATE_AUTOSYNC)).toBeUndefined()
     })
 
