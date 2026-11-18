@@ -1,5 +1,5 @@
-// Model-based check of a Migrator against migrations/main.bend, whose behaviour migrations/LAWS.bend states and
-// migrations/PROOF.bend proves.
+// Model-based check of a Migrator against migrations/main.bend: every command fast-check generates is sent to the
+// real Migrator and, as a Cmd, to the model's step, whose behaviour migrations/LAWS.bend states and PROOF.bend proves.
 // Plain JS on purpose: the vitest suite runs it against src/, and the e2e suite runs it inside a consumer project
 // against the installed package. It asserts with node:assert, so it needs neither vitest nor TypeScript.
 import assert from 'node:assert/strict'
@@ -11,7 +11,6 @@ import Model from './migrations/main.mjs'
 const EPOCH = 1_700_000_000_000
 // Few distinct timestamps, so createdAt ties (ordered by _id) are common.
 const TIMES = [1, 2, 3]
-const NONE = 1_000_000
 const NIL = { $: 'Nil' }
 
 export const toArray = (list) => {
@@ -66,6 +65,13 @@ const agree = async (real, model, ran, ranIds, direction) => {
 const command = (label, check, run) => ({ check, run, toString: () => label })
 const some = (model) => model.migs.$ === 'Con'
 
+// The model's answer to cmd: model.migs becomes the state after it, and the ids it ran are returned.
+const step = (model, cmd) => {
+  const { fst, snd } = Model.step(model.migs, cmd)
+  model.migs = fst
+  return toArray(snd)
+}
+
 const add = (t) =>
   command(
     `sync new migration at t=${String(t)}`,
@@ -74,7 +80,7 @@ const add = (t) =>
       const m = { $: 'M', id: model.nextId++, t, up: false }
       fs.writeFileSync(migrationFile(real.dir, m), migrationSource(real.effects, migrationName(m.id)))
       const synced = await real.migrator.sync()
-      model.migs = Model.insert(model.migs, m)
+      step(model, { $: 'Add', id: m.id, t })
       assert.deepEqual(
         synced.map((doc) => doc.name),
         [migrationName(m.id)],
@@ -88,7 +94,7 @@ const remove = (pick) =>
     const m = nth(model, pick)
     fs.rmSync(migrationFile(real.dir, m))
     const pruned = await real.migrator.prune()
-    model.migs = Model.remove(model.migs, m.id)
+    step(model, { $: 'Remove', id: m.id })
     assert.deepEqual(
       pruned.map((doc) => doc.name),
       [migrationName(m.id)],
@@ -99,16 +105,14 @@ const remove = (pick) =>
 const upTo = (pick) =>
   command(`up to #${String(pick)}`, some, async (model, real) => {
     const m = nth(model, pick)
-    const ranIds = toArray(Model.up_to_ran(model.migs, m.t))
-    model.migs = Model.up_to_state(model.migs, m.t)
+    const ranIds = step(model, { $: 'UpTo', c: m.t })
     await agree(real, model, await real.migrator.run('up', migrationName(m.id)), ranIds, 'up')
   })
 
 const downTo = (pick) =>
   command(`down to #${String(pick)}`, some, async (model, real) => {
     const m = nth(model, pick)
-    const ranIds = toArray(Model.down_to_ran(model.migs, m.t, NIL))
-    model.migs = Model.down_to_state(model.migs, m.t)
+    const ranIds = step(model, { $: 'DownTo', c: m.t })
     await agree(real, model, await real.migrator.run('down', migrationName(m.id)), ranIds, 'down')
   })
 
@@ -117,8 +121,7 @@ const upAll = () =>
     'up',
     () => true,
     async (model, real) => {
-      const ranIds = toArray(Model.up_all_ran(model.migs))
-      model.migs = Model.up_all_state(model.migs)
+      const ranIds = step(model, { $: 'UpAll' })
       await agree(real, model, await real.migrator.run('up'), ranIds, 'up')
     },
   )
@@ -128,8 +131,7 @@ const downAll = () =>
     'down',
     () => true,
     async (model, real) => {
-      const ranIds = toArray(Model.down_all_ran(model.migs, NIL))
-      model.migs = Model.down_all_state(model.migs)
+      const ranIds = step(model, { $: 'DownAll' })
       await agree(real, model, await real.migrator.run('down'), ranIds, 'down')
     },
   )
@@ -142,8 +144,7 @@ const single = (pick, up) =>
     (model) => some(model) && nth(model, pick).up !== up,
     async (model, real) => {
       const m = nth(model, pick)
-      const ranIds = toArray(Model.single_ran(model.migs, m.id, up))
-      model.migs = Model.single_state(model.migs, m.id, up)
+      const ranIds = step(model, { $: 'Single', id: m.id, up })
       await agree(real, model, await real.migrator.run(up ? 'up' : 'down', migrationName(m.id), true), ranIds, up ? 'up' : 'down')
     },
   )
@@ -153,9 +154,7 @@ const nextSingle = (up) =>
     `${up ? 'up' : 'down'} --single`,
     () => true,
     async (model, real) => {
-      const id = up ? Model.first_down(model.migs, NONE) : Model.last_up(model.migs, NONE)
-      const ranIds = id === NONE ? [] : toArray(Model.single_ran(model.migs, id, up))
-      if (id !== NONE) model.migs = Model.single_state(model.migs, id, up)
+      const ranIds = step(model, up ? { $: 'NextUp' } : { $: 'LastDown' })
       await agree(real, model, await real.migrator.run(up ? 'up' : 'down', undefined, true), ranIds, up ? 'up' : 'down')
     },
   )
@@ -195,6 +194,13 @@ export const checkAgainstModel = async (fc, connect, { numRuns, seed } = {}) => 
   return runs
 }
 
+// The model's answer to the same history: sync m, run('up', its name), then the named single step again.
+const modelRerun = (m) => {
+  const model = { migs: NIL }
+  for (const cmd of [{ $: 'Add', id: m.id, t: m.t }, { $: 'UpTo', c: m.t }]) step(model, cmd)
+  return step(model, { $: 'Single', id: m.id, up: true })
+}
+
 // A named single step on a migration already in the target state: what the model runs, and what the Migrator runs.
 export const singleRerun = async (connect) => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tmm-model-'))
@@ -207,7 +213,7 @@ export const singleRerun = async (connect) => {
     await executed(real)
     const ran = (await migrator.run('up', migrationName(m.id), true)).map((doc) => doc.name)
     return {
-      model: toArray(Model.single_ran(Model.up_all_state(Model.insert(NIL, m)), m.id, true)),
+      model: modelRerun(m),
       ran,
       executed: await executed(real),
     }

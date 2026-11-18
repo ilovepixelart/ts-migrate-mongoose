@@ -196,14 +196,14 @@ function $SPEC_is_slash(_c_0) {
 }
 
 function $SPEC_whitelisted(_c_0) {
-  const _x_0 = $$SPEC_is_code(_c_0, 95);
-  const _x_1 = $$SPEC_is_code(_c_0, 45);
-  const _x_2 = $$SPEC_is_code(_c_0, 46);
-  const _x_3 = (_x_0 || _x_1);
-  const _x_4 = $$Char_is_digit(_c_0);
-  const _x_5 = (_x_2 || _x_3);
-  const _x_6 = $$Char_is_alpha(_c_0);
-  const _x_7 = (_x_4 || _x_5);
+  const _x_0 = $$Char_is_alpha(_c_0);
+  const _x_1 = $$Char_is_digit(_c_0);
+  const _x_2 = (_x_0 || _x_1);
+  const _x_3 = $$SPEC_is_code(_c_0, 46);
+  const _x_4 = (_x_2 || _x_3);
+  const _x_5 = $$SPEC_is_code(_c_0, 95);
+  const _x_6 = (_x_4 || _x_5);
+  const _x_7 = $$SPEC_is_code(_c_0, 45);
   return (_x_6 || _x_7);
 }
 

@@ -1,13 +1,24 @@
-# Migrations: the laws. The human states them; PROOF.bend must prove them. For each run variant they pin the
-# result completely: the target is reached, nothing outside the range moves, the reported ids are exactly the
-# migrations whose state changed (in the order they ran), the migrations themselves stay the same, and a second run
-# runs nothing.
+# Migrations: the laws. The human states them; PROOF.bend must prove them.
+#
+# Each run variant is pinned completely: it reaches its target, leaves migrations outside its range alone, reports
+# exactly the migrations whose state changed (in the order it ran them), keeps the migrations themselves, and runs
+# nothing when run again. sync and prune keep every history in the order the collection sorts by.
 
 import Base
 import ./main.bend as Main
 import ./SPEC.bend as Spec
 
-# run('up', name), the named migration created at c.
+# History
+# -------
+
+# LAW: whatever the commands, replayed from no migrations, the migrations stay in createdAt order
+law replay_ordered:
+  for +cmds: List<&2, Main.Cmd>
+  migrations = Main.replay(cmds, Nil{})
+  {Spec.ordered(migrations) == True{} : Bool}
+
+# run('up', name): the named migration created at c
+# -------------------------------------------------
 
 # LAW: every migration created at or before c is up afterwards
 law up_to_reaches:
@@ -39,7 +50,8 @@ law up_to_idempotent:
   for +c: Nat
   {Main.up_to_ran(Main.up_to_state(xs, c), c) == Nil{} : List<&2, Nat>}
 
-# run('down', name), the named migration created at c.
+# run('down', name): the named migration created at c
+# ---------------------------------------------------
 
 # LAW: every migration created at or after c is down afterwards
 law down_to_reaches:
@@ -73,7 +85,8 @@ law down_to_idempotent:
   for +acc: List<&2, Nat>
   {Main.down_to_ran(Main.down_to_state(xs, c), c, acc) == acc : List<&2, Nat>}
 
-# run('up') and run('down') without a name.
+# run('up') and run('down')
+# -------------------------
 
 # LAW: after run('up'), every migration is up
 law up_all_reaches:
@@ -106,35 +119,36 @@ law down_all_keeps_ids:
   for +xs: List<&2, Spec.Mig>
   {Spec.ids(Main.down_all_state(xs)) == Spec.ids(xs) : List<&2, Nat>}
 
-# run(direction, name, true), the named migration's id, to state v.
+# run(direction, name, true): the named migration's id, to state v
+# ----------------------------------------------------------------
 
 # LAW: every migration with the id ends in state v
 law single_reaches:
   for +xs: List<&2, Spec.Mig>
   for +id: Nat
   for +v: Bool
-  {Spec.all_with_id(Main.single_state(xs, id, v), id, v) == True{} : Bool}
+  {Spec.all_with_id(Main.set_state(xs, id, v), id, v) == True{} : Bool}
 
 # LAW: every other migration keeps its state
 law single_frame:
   for +xs: List<&2, Spec.Mig>
   for +id: Nat
   for +v: Bool
-  {Spec.frame_id(xs, Main.single_state(xs, id, v), id) == True{} : Bool}
+  {Spec.frame_id(xs, Main.set_state(xs, id, v), id) == True{} : Bool}
 
 # LAW: the same migrations remain, in the same order
 law single_keeps_ids:
   for +xs: List<&2, Spec.Mig>
   for +id: Nat
   for +v: Bool
-  {Spec.ids(Main.single_state(xs, id, v)) == Spec.ids(xs) : List<&2, Nat>}
+  {Spec.ids(Main.set_state(xs, id, v)) == Spec.ids(xs) : List<&2, Nat>}
 
 # LAW: running it again runs nothing, whether or not the id is present
 law single_idempotent:
   for +xs: List<&2, Spec.Mig>
   for +id: Nat
   for +v: Bool
-  {Main.single_ran(Main.single_state(xs, id, v), id, v) == Nil{} : List<&2, Nat>}
+  {Main.single_ran(Main.set_state(xs, id, v), id, v) == Nil{} : List<&2, Nat>}
 
 # LAW: when no migration has the id, it reports nothing
 law single_absent_runs_nothing:
@@ -144,9 +158,21 @@ law single_absent_runs_nothing:
   {False{} == Spec.has_id(xs, id) : Bool} -> {Main.single_ran(xs, id, v) == Nil{} : List<&2, Nat>}
 
 # prune
+# -----
 
 # LAW: after remove, no migration with the id is left
 law remove_gone:
   for +xs: List<&2, Spec.Mig>
   for +id: Nat
   {Spec.has_id(Main.remove(xs, id), id) == False{} : Bool}
+
+# sync
+# ----
+
+# LAW: a new migration created at s goes after every migration created at or before s, and right before the first
+# one created after s
+law insert_placed:
+  for +xs: List<&2, Spec.Mig>
+  for +id: Nat
+  for +s: Nat
+  {False{} == Spec.has_id(xs, id) : Bool} -> {Spec.placed(Main.insert(xs, Spec.M{id, s, False{}}), id, s) == True{} : Bool}
