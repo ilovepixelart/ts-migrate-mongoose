@@ -151,6 +151,7 @@
     "mutator": "Regex",
     "replacement": "/(?:^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm",
     "line": "const LINE = /(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm // NOSONAR",
+    "occurrence": 2,
     "reason": "The two alternatives are the same anchor."
   },
   {
@@ -172,6 +173,7 @@
     "mutator": "Regex",
     "replacement": "/(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$)/gm",
     "line": "const LINE = /(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm // NOSONAR",
+    "occurrence": 2,
     "reason": "The two alternatives are the same anchor."
   },
   {
@@ -277,6 +279,7 @@
     "mutator": "ConditionalExpression",
     "replacement": "true",
     "line": "if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {",
+    "occurrence": 2,
     "reason": "runMigrations returns every migration it is given or throws, and run returns earlier when there is none."
   },
   {
@@ -284,6 +287,7 @@
     "mutator": "ConditionalExpression",
     "replacement": "true",
     "line": "if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {",
+    "occurrence": 3,
     "reason": "runMigrations returns every migration it is given or throws, and run returns earlier when there is none."
   },
   {
@@ -361,6 +365,7 @@
     "mutator": "EqualityOperator",
     "replacement": "lastRenderedLines >= 0",
     "line": "if (lastRenderedLines > 0) {",
+    "occurrence": 2,
     "reason": "lastRenderedLines is set to at least 2 before the first render."
   },
   {
@@ -375,6 +380,7 @@
     "mutator": "ConditionalExpression",
     "replacement": "true",
     "line": "if (lastRenderedLines > 0) {",
+    "occurrence": 2,
     "reason": "lastRenderedLines is set to at least 2 before the first render."
   },
   {
@@ -418,5 +424,75 @@
     "replacement": "\"\"",
     "line": "process.stdout.removeListener('resize', onResize)",
     "reason": "Observable only by resizing the terminal between the prompt and the exit, a window too short to hit deterministically."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "line": "if (extension === '.ts') {",
+    "reason": "Both branches import the same URL the same way."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "line": "if (this.migrator instanceof Migrator) {",
+    "reason": "process.exit follows and ends the connection with the process."
+  },
+  {
+    "file": "src/env.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "line": "} catch (error) {",
+    "reason": "Every caller of config() passes options with a path and quiet: true and ignores the return value."
+  },
+  {
+    "file": "src/env.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "line": "if (!options?.quiet) {",
+    "reason": "Every caller of config() passes options with a path and quiet: true and ignores the return value."
+  },
+  {
+    "file": "src/env.ts",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "line": "console.error(err.message)",
+    "reason": "Every caller of config() passes options with a path and quiet: true and ignores the return value."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "line": "if (fs.existsSync(basePath)) {",
+    "reason": "Recorded filenames have no extension and no file without one is a migration, so the bare path does not exist and the fallback returns it unchanged."
+  },
+  {
+    "file": "src/loader.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "line": ".then(() => {",
+    "reason": "import() caches tsx, so importing it again changes nothing."
+  },
+  {
+    "file": "src/loader.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "line": ".catch(() => {",
+    "reason": "loaded is still false when the import fails, so resetting it changes nothing."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "line": "process.stdin.resume()",
+    "reason": "The CLI shows at most one prompt per process, and on the first one the keypress listener makes readline attach a data listener, which starts stdin flowing."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "line": "process.stdin.pause()",
+    "reason": "The CLI shows at most one prompt per process and ends with process.exit, so stdin left flowing never holds the process open."
   }
 ]
