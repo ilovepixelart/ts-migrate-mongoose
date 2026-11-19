@@ -87,8 +87,12 @@ Mutation testing changes `src/` one small edit at a time and checks that a test 
   observation differs from the unmutated build. A full run takes hours, so scope it while working on
   one area: `npm run test:mutation:e2e -- --mutate src/prompts.ts` or `--mutate src/index.ts:150-185`.
   The observation that killed each mutant is saved in `reports/mutation/e2e-kills/`.
-- Reports are written to `reports/mutation/`. A surviving mutant needs a test, or, when no input can
-  tell it apart from the original, a `// Stryker disable next-line <mutator>: <reason>` comment.
+- Reports are written to `reports/mutation/`. A surviving mutant needs a test, or, when nothing the
+  suite can observe tells it apart from the original, an entry with the reason in
+  `tests/mutation/equivalent-<suite>.json`. `npm run test:mutation:survivors -- e2e` (or `unit`) checks
+  the last report of that suite: it fails on a survivor that is not listed and on a listed mutant that
+  was killed. A mutant the end-to-end suite cannot reach through the package may still be killable by
+  a unit test, so each suite keeps its own list.
 
 ## How to Contribute
 

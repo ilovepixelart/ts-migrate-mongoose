@@ -20,5 +20,5 @@ export default {
   reporters: ['clear-text', 'progress', 'html', 'json'],
   htmlReporter: { fileName: 'reports/mutation/e2e.html' },
   jsonReporter: { fileName: 'reports/mutation/e2e.json' },
-  ignorePatterns: [...base.ignorePatterns, '.stryker-e2e'],
+  ignorePatterns: base.ignorePatterns,
 }

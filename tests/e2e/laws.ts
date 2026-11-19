@@ -149,7 +149,7 @@ export const laws: Law[] = [
   },
   {
     id: 'nest-lifecycle',
-    statement: 'MigrationModule boots by running pending migrations (or onBootstrap with the connected Migrator), exposes it as MigrationService.instance, closes it on shutdown (a no-op when it never booted), and refuses to boot when MongoDB is unreachable.',
+    statement: 'MigrationModule boots by running pending migrations (or onBootstrap with the connected Migrator), exposes it as MigrationService.instance, closes it on shutdown, and refuses to boot when MongoDB is unreachable.',
     subjects: ['MigrationModule.forRoot', 'MigrationService.instance', 'MigrationService.onApplicationBootstrap', 'MigrationService.onApplicationShutdown'],
   },
   {

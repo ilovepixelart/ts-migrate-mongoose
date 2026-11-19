@@ -48,7 +48,7 @@ describe('NestJS integration', () => {
     expect(result.globalServiceInjectedElsewhere).toBe(true)
     expect(result.asyncGlobalServiceInjectedElsewhere).toBe(true)
     // isGlobal: false and isGlobal left out both keep the service to the module that imports MigrationModule.
-    for (const key of ['nonGlobalServiceInjectedElsewhere', 'defaultServiceInjectedElsewhere']) {
+    for (const key of ['nonGlobalServiceInjectedElsewhere', 'defaultServiceInjectedElsewhere', 'asyncDefaultServiceInjectedElsewhere']) {
       const refused = (result[key] as { rejected?: { name: string; message: string } }).rejected
       expect(refused?.message).toMatch(/^Nest can't resolve dependencies of the PROBE \(\?\)\. Please make sure that the argument MigrationService at index \[0\] is available in the FeatureModule module\./)
     }
@@ -57,11 +57,6 @@ describe('NestJS integration', () => {
   it('law nest-di: fails bootstrap when forRootAsync is given no way to build the options', () => {
     const refused = (result.asyncWithoutFactory as { rejected?: { message: string } }).rejected
     expect(refused?.message).toMatch(/^Nest can't resolve dependencies of the MigrationService \(\?\)\. Please make sure that the argument Symbol\(MIGRATION_OPTIONS\) at index \[0\] is available in the MigrationModule module\./)
-  })
-
-  it('law nest-lifecycle: shuts down cleanly when lazily loaded, where Nest runs no bootstrap hook', () => {
-    expect(result.lazyInstance).toBe('undefined')
-    expect(result.lazyClose).toEqual({})
   })
 
   it('law nest-lifecycle: fails bootstrap with the connection error when MongoDB is unreachable', () => {

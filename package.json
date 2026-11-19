@@ -87,6 +87,7 @@
     "test:laws": "bend tests/laws/names/PROOF.bend && bend tests/laws/migrations/PROOF.bend && bend tests/laws/names/main.bend -o tests/laws/names/main.mjs && bend tests/laws/migrations/main.bend -o tests/laws/migrations/main.mjs && git diff --exit-code -- tests/laws/names/main.mjs tests/laws/migrations/main.mjs",
     "test:mutation": "stryker run",
     "test:mutation:e2e": "stryker run stryker.e2e.config.mjs",
+    "test:mutation:survivors": "tsx tests/mutation/survivors.ts",
     "test:open": "vitest run --coverage && open-cli coverage/lcov-report/index.html",
     "clean": "rm -rf ./dist",
     "type:check": "tsc --noEmit",

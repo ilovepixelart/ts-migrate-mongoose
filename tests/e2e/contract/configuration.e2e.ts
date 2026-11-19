@@ -166,12 +166,20 @@ describe('CLI configuration', () => {
     expect(db('empty-values')).not.toHaveProperty('from_env_undefined')
   })
 
-  it('law config-file: reads named exports and the default export tsc emits for CommonJS', () => {
-    const [named, tsc] = steps('config-shapes')
+  it('law config-file: reads named exports (TypeScript and ES module) and the default export tsc emits for CommonJS', () => {
+    const [named, tsc, , , esmNamed] = steps('config-shapes')
     expect(named).toEqual(ok('migrate create named-exports', created('named-exports', `${work('config-shapes')}/named-exports/migrations`)))
     expect(tsc).toEqual(ok('migrate create tsc-commonjs', created('tsc-commonjs', `${work('config-shapes')}/tsc-commonjs/migrations`)))
+    expect(esmNamed).toEqual(ok('migrate create esm-named-exports', created('esm-named-exports', `${work('config-shapes')}/esm-named-exports/migrations`)))
     expect(names(db('config-shapes').named_exports)).toEqual(['named-exports'])
     expect(names(db('config-shapes').tsc_commonjs)).toEqual(['tsc-commonjs'])
+    expect(names(db('config-shapes').esm_named_exports)).toEqual(['esm-named-exports'])
+  })
+
+  it('law config-file: treats a config file whose default export is undefined as no options', () => {
+    const dir = 'default-undefined'
+    expect(steps('config-shapes')[5]).toEqual(ok(`migrate create ${dir} -d <mongo>/config_shapes`, created(dir, `${work('config-shapes')}/${dir}/migrations`)))
+    expect(names(db('config-shapes').migrations)).toContain(dir)
   })
 
   it('law config-file: reports only the missing URI when the config file throws something that is not an Error', () => {

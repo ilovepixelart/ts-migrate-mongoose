@@ -168,8 +168,18 @@ export const configurationScenarios: Scenario[] = [
       write('tsc-commonjs/package.json', json({ type: 'commonjs' }))
       write('tsc-commonjs/migrate.js', `'use strict'\nObject.defineProperty(exports, '__esModule', { value: true })\nexports.default = { uri: '${uri}', collection: 'tsc_commonjs' }\n`)
       write('throws-non-error/migrate.ts', "throw 'not an Error'\n")
+      write('esm-named-exports/package.json', json({ type: 'module' }))
+      write('esm-named-exports/migrate.js', `export const uri = '${uri}'\nexport const collection = 'esm_named_exports'\n`)
+      write('default-undefined/migrate.ts', 'export default undefined\n')
       return {
-        steps: [await cli(['create', 'named-exports'], { cwd: 'named-exports' }), await cli(['create', 'tsc-commonjs'], { cwd: 'tsc-commonjs' }), await cli(['list', '-f', './migrate.ts'], { cwd: 'throws-non-error' }), await cli(['create', 'missing-mode-file', '-d', uri, '--mode', 'absent'])],
+        steps: [
+          await cli(['create', 'named-exports'], { cwd: 'named-exports' }),
+          await cli(['create', 'tsc-commonjs'], { cwd: 'tsc-commonjs' }),
+          await cli(['list', '-f', './migrate.ts'], { cwd: 'throws-non-error' }),
+          await cli(['create', 'missing-mode-file', '-d', uri, '--mode', 'absent']),
+          await cli(['create', 'esm-named-exports'], { cwd: 'esm-named-exports' }),
+          await cli(['create', 'default-undefined', '-d', uri], { cwd: 'default-undefined' }),
+        ],
         db: await db(),
       }
     },
