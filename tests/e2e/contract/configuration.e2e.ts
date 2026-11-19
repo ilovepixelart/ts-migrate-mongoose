@@ -99,10 +99,15 @@ describe('CLI configuration', () => {
 
   it('law env-files: reads .env values with dotenv quoting, spacing and line endings', () => {
     expect(steps('env-quoting').map((step) => [step.command, step.exitCode, step.stderr])).toEqual(
-      ['cr-only', 'export-spaces', 'equals-spaces', 'colon-spaces', 'single-after-spaces', 'double-after-spaces', 'double-escapes', 'single-escapes', 'backtick-escapes', 'quote-at-start', 'quote-at-end'].map((name) => [`migrate create ${name} -d <mongo>/env_quoting`, 0, '']),
+      ['cr-only', 'export-spaces', 'equals-spaces', 'colon-spaces', 'single-after-spaces', 'double-after-spaces', 'double-escapes', 'single-escapes', 'backtick-escapes', 'quote-at-start', 'quote-at-end', 'backtick-hash', 'backtick-after-text', 'no-final-newline'].map((name) => [
+        `migrate create ${name} -d <mongo>/env_quoting`,
+        0,
+        '',
+      ]),
     )
     // The collection each case's value names: CR-only line endings, extra spaces after export, around = and after a
-    // colon, quotes after spaces (# inside them is not a comment), and quotes that do not wrap the whole value.
+    // colon, quotes after spaces (# inside them is not a comment), quotes that do not wrap the whole value, and a last
+    // line without a line break.
     expect(Object.fromEntries(Object.entries(db('env-quoting')).map(([collection, docs]) => [collection, names(docs).sort()]))).toEqual({
       cr_only: ['cr-only'],
       exported: ['export-spaces'],
@@ -111,9 +116,11 @@ describe('CLI configuration', () => {
       'single # kept': ['single-after-spaces'],
       'double # kept': ['double-after-spaces'],
       '"mid"post': ['quote-at-start'],
-      migrations: ['backtick-escapes', 'double-escapes', 'quote-at-end', 'single-escapes'],
+      no_final_newline: ['no-final-newline'],
+      migrations: ['backtick-after-text', 'backtick-escapes', 'backtick-hash', 'double-escapes', 'quote-at-end', 'single-escapes'],
     })
-    // The migrations folder each case's value names: only double quotes turn \n and \r into line breaks.
+    // The migrations folder each case's value names: only double quotes turn \n and \r into line breaks, and a backtick
+    // starts a quote only at the start of the value (# inside it is not a comment).
     const files = Object.keys(scenario('env-quoting').tree as object).filter((file) => file.endsWith('.ts'))
     expect(files.sort()).toEqual(
       [
@@ -128,8 +135,35 @@ describe('CLI configuration', () => {
         'backtick-escapes/bt\\nline/<timestamp>-backtick-escapes.ts',
         'quote-at-start/migrations/<timestamp>-quote-at-start.ts',
         'quote-at-end/pre"mid"/<timestamp>-quote-at-end.ts',
+        'backtick-hash/bt # kept/<timestamp>-backtick-hash.ts',
+        'backtick-after-text/pre`a/<timestamp>-backtick-after-text.ts',
+        'no-final-newline/migrations/<timestamp>-no-final-newline.ts',
       ].sort(),
     )
+  })
+
+  it('law option-precedence: takes an empty value on the command line, in MIGRATE_CONFIG_PATH or as the mode as unset', () => {
+    const cases = ['empty-uri', 'empty-collection', 'empty-migrations-path', 'empty-template-path', 'empty-mode', 'empty-config-path', 'empty-config-path-env', 'no-mode']
+    expect(steps('empty-values').map((step) => [step.command.split(' ')[2], step.exitCode, step.stderr])).toEqual(cases.map((name) => [name, 0, '']))
+    // The next source decides: the environment for a flag, the default config file for -f, MIGRATE_MODE for --mode.
+    expect(Object.fromEntries(Object.entries(db('empty-values')).map(([collection, docs]) => [collection, names(docs).sort()]))).toEqual({
+      from_env: ['empty-collection'],
+      from_mode: ['empty-mode'],
+      from_file: ['empty-config-path'],
+      migrations: ['empty-config-path-env', 'empty-migrations-path', 'empty-template-path', 'empty-uri', 'no-mode'],
+    })
+    const tree = scenario('empty-values').tree as Record<string, string | null>
+    expect(
+      Object.keys(tree)
+        .filter((file) => file.endsWith('.ts') && !file.endsWith('tpl.ts'))
+        .sort(),
+    ).toEqual(cases.map((name) => `${name}/${name === 'empty-migrations-path' ? 'from-env' : 'migrations'}/<timestamp>-${name}.ts`).sort())
+    expect(tree['empty-template-path/migrations/<timestamp>-empty-template-path.ts']).toBe('// template from MIGRATE_TEMPLATE_PATH\n')
+  })
+
+  it('law env-files: reads no .env.[mode] file without a mode, not even .env.undefined', () => {
+    expect(names(db('empty-values').migrations)).toContain('no-mode')
+    expect(db('empty-values')).not.toHaveProperty('from_env_undefined')
   })
 
   it('law config-file: reads named exports and the default export tsc emits for CommonJS', () => {

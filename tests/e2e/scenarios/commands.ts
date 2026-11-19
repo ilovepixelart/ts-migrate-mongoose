@@ -182,8 +182,8 @@ export const commandScenarios: Scenario[] = [
       const down = '\u001b[B'
       const up = '\u001b[A'
       const steps = [
-        // Exactly a page: no range hint. c without Ctrl is an unknown key.
-        await tty(folder('exact', 6), ['c', '\r'], { rows: 10 }),
+        // Exactly a page: no range hint. Ctrl with another key, and c without Ctrl, are unknown keys.
+        await tty(folder('exact', 6), ['\u000e', 'c', '\r'], { rows: 10 }),
         // One over a page: the window scrolls when the cursor leaves it, at either edge.
         await tty(folder('over', 7), [down, down, down, down, down, down, up, up, up, up, up, up, '\r'], { rows: 10 }),
         // Nothing new to import: no prompt at all.

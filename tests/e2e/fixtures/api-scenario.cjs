@@ -9,6 +9,11 @@ const exercise = async (Migrator, migrationsPath, uri, closedUri, out, logged) =
   out.isMigrator = migrator instanceof Migrator
   out.listEmpty = summary(await migrator.list())
   out.modelCollection = migrator.migrationModel.collection.collectionName
+  await migrator.migrationModel.init()
+  out.modelIndexes = (await migrator.migrationModel.collection.indexes()).map((index) => Object.keys(index.key).join(',')).sort()
+  const documents = [{}, { name: 'sideways', state: 'sideways' }, { name: 'up', state: 'up' }, { name: 'down', state: 'down' }]
+  out.modelValidation = await Promise.all(documents.map((doc) => attempt(() => new migrator.migrationModel(doc).validate())))
+  out.modelDefaultState = new migrator.migrationModel({ name: 'defaulted' }).state
 
   const first = await migrator.create('first')
   const second = await migrator.create('second')

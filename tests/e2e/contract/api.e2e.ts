@@ -52,6 +52,12 @@ describe('programmatic API', () => {
     expect(result.pruneNothing).toEqual([])
   })
 
+  it('law create: the migration model requires a name, accepts only the states down and up, defaults to down and indexes createdAt', () => {
+    expect(result.modelValidation).toEqual([{ rejected: { name: 'ValidationError', message: 'migrations validation failed: name: Path `name` is required.' } }, { rejected: { name: 'ValidationError', message: 'migrations validation failed: state: `sideways` is not a valid enum value for path `state`.' } }, {}, {}])
+    expect(result.modelDefaultState).toBe('down')
+    expect(result.modelIndexes).toEqual(['_id', 'createdAt'])
+  })
+
   it('law run-input: rejects a migration name that is not a string, including query operator objects', () => {
     expect(rejected('upNonString')).toEqual({ name: 'Error', message: 'migrationName must be a string, received number' })
     expect(rejected('upOperator')).toEqual({ name: 'Error', message: 'migrationName must be a string, received object' })

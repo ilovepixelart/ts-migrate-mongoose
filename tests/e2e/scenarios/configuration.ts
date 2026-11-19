@@ -224,11 +224,41 @@ export const configurationScenarios: Scenario[] = [
         'backtick-escapes': 'MIGRATE_MIGRATIONS_PATH=`./bt\\nline`\n',
         'quote-at-start': 'MIGRATE_MONGO_COLLECTION="mid"post\n',
         'quote-at-end': 'MIGRATE_MIGRATIONS_PATH=./pre"mid"\n',
+        'backtick-hash': 'MIGRATE_MIGRATIONS_PATH=`./bt # kept`\n',
+        'backtick-after-text': 'MIGRATE_MIGRATIONS_PATH=./pre`a # b`\n',
+        'no-final-newline': 'MIGRATE_MONGO_COLLECTION=no_final_newline',
       }
       const steps = []
       for (const [dir, env] of Object.entries(cases)) {
         write(`${dir}/.env`, env)
         steps.push(await cli(['create', dir, '-d', uri], { cwd: dir }))
+      }
+      return { steps, tree: tree(), db: await db() }
+    },
+  },
+  {
+    // An empty value on the command line, in MIGRATE_CONFIG_PATH or as the mode counts as unset: the next source
+    // decides. Without a mode no .env.<mode> file is read, not even one named .env.undefined.
+    name: 'empty-values',
+    run: async ({ cli, uri, write, tree, db }) => {
+      write('empty-template-path/tpl.ts', '// template from MIGRATE_TEMPLATE_PATH\n')
+      write('empty-mode/.env.staging', 'MIGRATE_MONGO_COLLECTION=from_mode\n')
+      write('empty-config-path/migrate.json', json({ collection: 'from_file' }))
+      write('no-mode/.env.undefined', 'MIGRATE_MONGO_COLLECTION=from_env_undefined\n')
+      const cases: [string, string[], Record<string, string>][] = [
+        ['empty-uri', ['--uri', ''], { MIGRATE_MONGO_URI: uri }],
+        ['empty-collection', ['-d', uri, '-c', ''], { MIGRATE_MONGO_COLLECTION: 'from_env' }],
+        ['empty-migrations-path', ['-d', uri, '-m', ''], { MIGRATE_MIGRATIONS_PATH: './from-env' }],
+        ['empty-template-path', ['-d', uri, '-t', ''], { MIGRATE_TEMPLATE_PATH: './tpl.ts' }],
+        ['empty-mode', ['-d', uri, '--mode', ''], { MIGRATE_MODE: 'staging' }],
+        ['empty-config-path', ['-d', uri, '-f', ''], {}],
+        ['empty-config-path-env', ['-d', uri], { MIGRATE_CONFIG_PATH: '' }],
+        ['no-mode', ['-d', uri], {}],
+      ]
+      const steps = []
+      for (const [name, args, env] of cases) {
+        write(`${name}/.keep`, '')
+        steps.push(await cli(['create', name, ...args], { env, cwd: name }))
       }
       return { steps, tree: tree(), db: await db() }
     },

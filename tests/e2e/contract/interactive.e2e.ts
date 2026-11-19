@@ -103,7 +103,7 @@ describe('CLI interactive prompt on a TTY', () => {
     const ranges = (step?: Step, of = 7) => [...(step?.stdout ?? '').matchAll(new RegExp(`(\\d+-\\d+)/${String(of)} • `, 'g'))].map((match) => match[1])
     const firstFrameChoices = (step?: Step) => ((step?.stdout ?? '').split('↑↓ navigate')[0] ?? '').match(/^[❯ ] [◯◉] (.+)$/gm)?.map((line) => line.slice(4)) ?? []
 
-    it('law prompt: shows exactly a page of choices without a range, and treats c without Ctrl as an unknown key', () => {
+    it('law prompt: shows exactly a page of choices without a range, and treats Ctrl+N, and c without Ctrl, as unknown keys', () => {
       expect(exact?.exitCode).toBe(0)
       expect(ranges(exact, 6)).toEqual([])
       expect(summary(exact)).toBe('none')

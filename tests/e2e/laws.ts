@@ -28,7 +28,7 @@ export const laws: Law[] = [
   },
   {
     id: 'option-precedence',
-    statement: 'Every option comes from the command line, else the environment (MIGRATE_* or camelCase, set in the process or a .env file), else the config file, else its default: uri, collection, migrations path, template path, autosync, mode and config path.',
+    statement: 'Every option comes from the command line, else the environment (MIGRATE_* or camelCase, set in the process or a .env file), else the config file, else its default: uri, collection, migrations path, template path, autosync, mode and config path. An empty value on the command line counts as unset.',
     subjects: [
       '-d',
       '--uri',
@@ -84,7 +84,7 @@ export const laws: Law[] = [
   },
   {
     id: 'create',
-    statement: 'create writes <timestamp>-<name>.ts from the template into the migrations folder, creating it, and records the migration down; a name already recorded is refused.',
+    statement: 'create writes <timestamp>-<name>.ts from the template into the migrations folder, creating it, and records the migration down; a name already recorded is refused. The migration model requires a name, allows only the states down and up, and indexes createdAt.',
     subjects: ['cli:create', 'Migrator.create', 'Migrator.migrationModel'],
   },
   {
@@ -149,7 +149,7 @@ export const laws: Law[] = [
   },
   {
     id: 'nest-lifecycle',
-    statement: 'MigrationModule boots by running pending migrations (or onBootstrap with the connected Migrator), exposes it as MigrationService.instance, closes it on shutdown, and refuses to boot when MongoDB is unreachable.',
+    statement: 'MigrationModule boots by running pending migrations (or onBootstrap with the connected Migrator), exposes it as MigrationService.instance, closes it on shutdown (a no-op when it never booted), and refuses to boot when MongoDB is unreachable.',
     subjects: ['MigrationModule.forRoot', 'MigrationService.instance', 'MigrationService.onApplicationBootstrap', 'MigrationService.onApplicationShutdown'],
   },
   {

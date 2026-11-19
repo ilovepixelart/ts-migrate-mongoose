@@ -59,6 +59,11 @@ describe('NestJS integration', () => {
     expect(refused?.message).toMatch(/^Nest can't resolve dependencies of the MigrationService \(\?\)\. Please make sure that the argument Symbol\(MIGRATION_OPTIONS\) at index \[0\] is available in the MigrationModule module\./)
   })
 
+  it('law nest-lifecycle: shuts down cleanly when lazily loaded, where Nest runs no bootstrap hook', () => {
+    expect(result.lazyInstance).toBe('undefined')
+    expect(result.lazyClose).toEqual({})
+  })
+
   it('law nest-lifecycle: fails bootstrap with the connection error when MongoDB is unreachable', () => {
     expect(result.bootRefused).toEqual({ rejected: { name: 'MongooseServerSelectionError', message: 'connect ECONNREFUSED 127.0.0.1:<closed-port>' } })
   })
