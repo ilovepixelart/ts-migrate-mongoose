@@ -84,7 +84,7 @@ export const laws: Law[] = [
   },
   {
     id: 'create',
-    statement: 'create writes <timestamp>-<name>.ts from the template into the migrations folder, creating it, and records the migration down; a name already recorded is refused. The migration model requires a name, allows only the states down and up, and indexes createdAt.',
+    statement: 'create writes <timestamp>-<name>.ts from the template into the migrations folder, creating it, and records the migration down; a name already recorded is refused. The migration model requires a name, allows only the states down and up, stores createdAt and updatedAt as dates, and indexes createdAt.',
     subjects: ['cli:create', 'Migrator.create', 'Migrator.migrationModel'],
   },
   {

@@ -23,14 +23,15 @@ describe('CLI configuration', () => {
     expect(states(db('config-path').custom_config)).toEqual({ 'by-env': 'down', 'by-flag': 'down', 'by-long-flag': 'down' })
   })
 
-  it('law config-file: reports an unusable explicit config file and then the missing URI', () => {
-    const [yaml, missing, broken, brokenDefault] = steps('config-errors')
+  it('law config-file: reports an unusable explicit config file, or none found for a path without extension, and then the missing URI', () => {
+    const [yaml, missing, broken, noExtension, brokenDefault] = steps('config-errors')
     expect(yaml).toEqual(fail('migrate list -f ./migrate.yaml', `Config file must have an extension of .ts, .js, .json\n${URI_REQUIRED}`))
     expect(missing?.exitCode).toBe(1)
     expect(missing?.stderr).toMatch(new RegExp(`^Cannot find module '${work('config-errors')}/missing.json'[^\\n]*\\n${URI_REQUIRED.replaceAll('.', '\\.')}$`))
     expect(broken?.exitCode).toBe(1)
     expect(broken?.stderr).toContain(`${work('config-errors')}/broken.json`)
     expect(broken?.stderr.endsWith(URI_REQUIRED)).toBe(true)
+    expect(noExtension).toEqual(fail('migrate list -f ./missing', `Config file must have an extension of .ts, .js, .json\n${URI_REQUIRED}`))
     expect(brokenDefault).toEqual(fail('migrate list', URI_REQUIRED))
   })
 

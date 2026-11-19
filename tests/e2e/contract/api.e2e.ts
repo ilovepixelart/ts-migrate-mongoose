@@ -52,8 +52,14 @@ describe('programmatic API', () => {
     expect(result.pruneNothing).toEqual([])
   })
 
-  it('law create: the migration model requires a name, accepts only the states down and up, defaults to down and indexes createdAt', () => {
-    expect(result.modelValidation).toEqual([{ rejected: { name: 'ValidationError', message: 'migrations validation failed: name: Path `name` is required.' } }, { rejected: { name: 'ValidationError', message: 'migrations validation failed: state: `sideways` is not a valid enum value for path `state`.' } }, {}, {}])
+  it('law create: the migration model requires a name, accepts only the states down and up, defaults to down, types createdAt and updatedAt as dates and indexes createdAt', () => {
+    expect(result.modelValidation).toEqual([
+      { rejected: { name: 'ValidationError', message: 'migrations validation failed: name: Path `name` is required.' } },
+      { rejected: { name: 'ValidationError', message: 'migrations validation failed: state: `sideways` is not a valid enum value for path `state`.' } },
+      {},
+      {},
+      { rejected: { name: 'ValidationError', message: 'migrations validation failed: createdAt: Cast to date failed for value "never" (type string) at path "createdAt" for model "migrations", updatedAt: Cast to date failed for value "never" (type string) at path "updatedAt" for model "migrations"' } },
+    ])
     expect(result.modelDefaultState).toBe('down')
     expect(result.modelIndexes).toEqual(['_id', 'createdAt'])
   })

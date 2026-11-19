@@ -11,7 +11,7 @@ const exercise = async (Migrator, migrationsPath, uri, closedUri, out, logged) =
   out.modelCollection = migrator.migrationModel.collection.collectionName
   await migrator.migrationModel.init()
   out.modelIndexes = (await migrator.migrationModel.collection.indexes()).map((index) => Object.keys(index.key).join(',')).sort()
-  const documents = [{}, { name: 'sideways', state: 'sideways' }, { name: 'up', state: 'up' }, { name: 'down', state: 'down' }]
+  const documents = [{}, { name: 'sideways', state: 'sideways' }, { name: 'up', state: 'up' }, { name: 'down', state: 'down' }, { name: 'dates', createdAt: 'never', updatedAt: 'never' }]
   out.modelValidation = await Promise.all(documents.map((doc) => attempt(() => new migrator.migrationModel(doc).validate())))
   out.modelDefaultState = new migrator.migrationModel({ name: 'defaulted' }).state
 

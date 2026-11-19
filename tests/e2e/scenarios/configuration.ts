@@ -189,7 +189,7 @@ export const configurationScenarios: Scenario[] = [
     run: async ({ cli, write }) => {
       write('migrate.yaml', 'uri: mongodb://127.0.0.1/never\n')
       write('broken.json', '{ "uri": ')
-      const explicit = [await cli(['list', '-f', './migrate.yaml']), await cli(['list', '-f', './missing.json']), await cli(['list', '-f', './broken.json'])]
+      const explicit = [await cli(['list', '-f', './migrate.yaml']), await cli(['list', '-f', './missing.json']), await cli(['list', '-f', './broken.json']), await cli(['list', '-f', './missing'])]
       write('migrate.json', '{ "uri": ')
       return { steps: [...explicit, await cli(['list'])] }
     },
