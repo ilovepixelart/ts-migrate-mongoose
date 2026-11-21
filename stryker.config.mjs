@@ -10,9 +10,8 @@ export default {
   tempDirName: '.stryker-tmp',
   // A failed run otherwise leaves its sandbox behind.
   cleanTempDir: 'always',
-  // MongoDB data written by a test run (tests/mongo/<db>/) can change while the sandbox is being copied, and
   // .stryker-e2e holds the end-to-end run's installed consumer.
-  ignorePatterns: ['reports', 'tests/mongo/*/', '.stryker-e2e'],
+  ignorePatterns: ['reports', '.stryker-e2e'],
   // The sandbox tsconfig rewrite calls the TypeScript compiler API, which the native typescript 7 package does not
   // ship. The rewrite only fixes extends/references that leave the project; ours stay inside, so it is skipped by
   // naming a file that does not exist.

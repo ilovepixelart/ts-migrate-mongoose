@@ -76,10 +76,12 @@ const runMutant = async (): Promise<number> => {
   const reference = JSON.parse(fs.readFileSync(REFERENCE, 'utf8')) as Record<string, Observation>
   const consumer = cloneTemplate()
   let killedBy: string | undefined
+  let harnessFailed = false
   try {
     await observe(consumer, (name, observation) => {
       if (killedBy || canonical(observation) === canonical(reference[name])) return false
       killedBy = name
+      harnessFailed = 'harnessError' in observation
       recordKill(name, observation, reference[name])
       return true
     })
@@ -90,8 +92,14 @@ const runMutant = async (): Promise<number> => {
   } finally {
     fs.rmSync(consumer.dir, { recursive: true, force: true })
   }
-  console.log(killedBy ? `killed by ${killedBy}` : 'survived')
-  return killedBy ? 1 : 0
+  if (!killedBy) {
+    console.log('survived')
+    return 0
+  }
+  // A scenario the harness itself failed in (pty driver, database snapshot) is not evidence the mutant changed
+  // anything; the survivors check refuses this line as a kill and asks for a rerun.
+  console.log(harnessFailed ? `harness error in ${killedBy}` : `killed by ${killedBy}`)
+  return 1
 }
 
 const [mode] = process.argv.slice(2)

@@ -21,7 +21,7 @@ import sys
 import termios
 import time
 
-TIMEOUT_S = 60
+TIMEOUT_S = 50  # below harness.ts PROCESS_TIMEOUT_MS, so a hung prompt reports a timed-out step
 # The prompt writes its frame, then switches the terminal to raw mode; a key typed in between
 # would go through the line discipline (\r becomes \n, Ctrl+C becomes SIGINT).
 SETTLE_S = 0.3
