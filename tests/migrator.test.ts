@@ -618,7 +618,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should get migration .ts files', async () => {
-    const config = await getConfig('./examples/config-file-usage/src/migrate.ts')
+    const config = await getConfig('./examples/config-file-usage/src/migrate.ts', false)
     const migrator = await Migrator.connect({ ...config, uri, migrationsPath: './examples/config-file-usage/src/migrations' })
     // @ts-expect-error - private method
     const { migrationsInFs } = await migrator.getMigrations()
@@ -630,7 +630,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should get migration .js files', async () => {
-    const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
+    const config = await getConfig('./examples/config-file-usage/dist/migrate.js', false)
     const migrator = await Migrator.connect({ ...config, uri, migrationsPath: './examples/config-file-usage/dist/migrations' })
     // @ts-expect-error - private method
     const { migrationsInFs } = await migrator.getMigrations()
@@ -642,7 +642,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should same filename when migrate using .ts files', async () => {
-    const config = await getConfig('./examples/config-file-usage/src/migrate.ts')
+    const config = await getConfig('./examples/config-file-usage/src/migrate.ts', false)
     const migrator = await Migrator.connect({
       ...config,
       uri,
@@ -661,7 +661,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should same filename when migrate using .js files', async () => {
-    const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
+    const config = await getConfig('./examples/config-file-usage/dist/migrate.js', false)
     const migrator = await Migrator.connect({
       ...config,
       uri,
@@ -680,7 +680,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should run up/down when migrate using .ts files', async () => {
-    const config = await getConfig('./examples/config-file-usage/src/migrate.ts')
+    const config = await getConfig('./examples/config-file-usage/src/migrate.ts', false)
     const migrator = await Migrator.connect({
       ...config,
       uri,
@@ -736,7 +736,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should run up/down when migrate using .js files', async () => {
-    const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
+    const config = await getConfig('./examples/config-file-usage/dist/migrate.js', false)
     const migrator = await Migrator.connect({
       ...config,
       uri,

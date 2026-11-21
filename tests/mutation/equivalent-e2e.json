@@ -8,20 +8,6 @@
   },
   {
     "file": "src/commander.ts",
-    "mutator": "StringLiteral",
-    "replacement": "\"\"",
-    "line": "config({ path: '.env', quiet: true })",
-    "reason": "config() reads .env in the working directory when the path is empty."
-  },
-  {
-    "file": "src/commander.ts",
-    "mutator": "BooleanLiteral",
-    "replacement": "true",
-    "line": "export const getConfig = async (configPath: string, quiet = false): Promise<ConfigOptions> => {",
-    "reason": "The only caller passes quiet."
-  },
-  {
-    "file": "src/commander.ts",
     "mutator": "ConditionalExpression",
     "replacement": "true",
     "line": "if (connectOptions) {",
@@ -120,27 +106,6 @@
   },
   {
     "file": "src/env.ts",
-    "mutator": "StringLiteral",
-    "replacement": "\"\"",
-    "line": "const envPath = options?.path ? path.resolve(options.path) : path.resolve(process.cwd(), '.env')",
-    "reason": "Every caller of config() passes options with a path and quiet: true and ignores the return value."
-  },
-  {
-    "file": "src/env.ts",
-    "mutator": "OptionalChaining",
-    "replacement": "options.path",
-    "line": "const envPath = options?.path ? path.resolve(options.path) : path.resolve(process.cwd(), '.env')",
-    "reason": "Every caller of config() passes options with a path and quiet: true and ignores the return value."
-  },
-  {
-    "file": "src/env.ts",
-    "mutator": "StringLiteral",
-    "replacement": "\"\"",
-    "line": "const err = error instanceof Error ? error : new Error('Failed to read .env file')",
-    "reason": "readFileSync only throws Errors."
-  },
-  {
-    "file": "src/env.ts",
     "mutator": "Regex",
     "replacement": "/(?:^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm",
     "line": "const LINE = /(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm // NOSONAR",
@@ -189,41 +154,6 @@
     "replacement": "/\\r\\n/gm",
     "line": "const lines = src.replaceAll(/\\r\\n?/gm, '\\n')",
     "reason": "A lone \\r already ends a line for the multiline anchors and the value character class."
-  },
-  {
-    "file": "src/env.ts",
-    "mutator": "ConditionalExpression",
-    "replacement": "false",
-    "line": "if (!options?.quiet) {",
-    "reason": "Every caller of config() passes options with a path and quiet: true and ignores the return value."
-  },
-  {
-    "file": "src/env.ts",
-    "mutator": "OptionalChaining",
-    "replacement": "options.quiet",
-    "line": "if (!options?.quiet) {",
-    "reason": "Every caller of config() passes options with a path and quiet: true and ignores the return value."
-  },
-  {
-    "file": "src/env.ts",
-    "mutator": "OptionalChaining",
-    "replacement": "options.override",
-    "line": "populate(parsed, options?.override)",
-    "reason": "Every caller of config() passes options with a path and quiet: true and ignores the return value."
-  },
-  {
-    "file": "src/env.ts",
-    "mutator": "ObjectLiteral",
-    "replacement": "{}",
-    "line": "return { parsed }",
-    "reason": "Every caller of config() passes options with a path and quiet: true and ignores the return value."
-  },
-  {
-    "file": "src/env.ts",
-    "mutator": "ObjectLiteral",
-    "replacement": "{}",
-    "line": "return { parsed: {}, error: err }",
-    "reason": "Every caller of config() passes options with a path and quiet: true and ignores the return value."
   },
   {
     "file": "src/index.ts",
@@ -438,27 +368,6 @@
     "replacement": "{}",
     "line": "if (this.migrator instanceof Migrator) {",
     "reason": "process.exit follows and ends the connection with the process."
-  },
-  {
-    "file": "src/env.ts",
-    "mutator": "BlockStatement",
-    "replacement": "{}",
-    "line": "} catch (error) {",
-    "reason": "Every caller of config() passes options with a path and quiet: true and ignores the return value."
-  },
-  {
-    "file": "src/env.ts",
-    "mutator": "BlockStatement",
-    "replacement": "{}",
-    "line": "if (!options?.quiet) {",
-    "reason": "Every caller of config() passes options with a path and quiet: true and ignores the return value."
-  },
-  {
-    "file": "src/env.ts",
-    "mutator": "CallExpression",
-    "replacement": ";",
-    "line": "console.error(err.message)",
-    "reason": "Every caller of config() passes options with a path and quiet: true and ignores the return value."
   },
   {
     "file": "src/index.ts",

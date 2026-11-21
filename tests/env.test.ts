@@ -4,8 +4,6 @@ import { getEnv, getEnvBoolean, toCamelCase } from '../src/commander'
 import { config, parse } from '../src/env'
 import { Env } from '../src/types'
 
-config({ path: '.env.test', quiet: true })
-
 describe('Environment Variable Utilities', () => {
   // unstubEnvs (vite.config.mts) restores every stubbed variable after each test.
   beforeEach(() => {
@@ -226,36 +224,13 @@ describe('config', () => {
     }
   })
 
-  it('should return error for non-existent file in quiet mode', () => {
-    const result = config({ path: 'nonexistent.env', quiet: true })
-    expect(result.error).toBeDefined()
-    expect(result.parsed).toEqual({})
-  })
-
-  it('should not override existing env vars by default', () => {
-    process.env.TEST_CONFIG_VAR = 'original'
-    config({ path: '.env.test', quiet: true })
-    expect(process.env.TEST_CONFIG_VAR).toBe('original')
-  })
-
-  it('should override existing env vars when override is true', () => {
-    process.env.TEST_CONFIG_VAR = 'original'
-    const src = 'TEST_CONFIG_VAR=overridden'
-    const parsed = parse(src)
-    expect(parsed.TEST_CONFIG_VAR).toBe('overridden')
-  })
-
-  it('should log error for non-existent file when not quiet', () => {
+  it('adds nothing and logs nothing for a missing file', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const result = config({ path: 'nonexistent.env' })
-    expect(result.error).toBeDefined()
-    expect(consoleSpy).toHaveBeenCalled()
+    const before = { ...process.env }
+    config('nonexistent.env')
+    expect(process.env).toEqual(before)
+    expect(consoleSpy).not.toHaveBeenCalled()
     consoleSpy.mockRestore()
-  })
-
-  it('should use default .env path when no path is provided', () => {
-    const result = config({ quiet: true })
-    expect(result).toBeDefined()
   })
 
   it('should populate env vars from a valid file', async () => {
@@ -265,8 +240,7 @@ describe('config', () => {
     fs.writeFileSync(tmpFile, 'TEST_POPULATE_VAR=hello')
     try {
       delete process.env.TEST_POPULATE_VAR
-      const result = config({ path: tmpFile, quiet: true })
-      expect(result.parsed.TEST_POPULATE_VAR).toBe('hello')
+      config(tmpFile)
       expect(process.env.TEST_POPULATE_VAR).toBe('hello')
     } finally {
       delete process.env.TEST_POPULATE_VAR
@@ -281,7 +255,7 @@ describe('config', () => {
     fs.writeFileSync(tmpFile, 'TEST_OVERRIDE_VAR=new_value')
     try {
       process.env.TEST_OVERRIDE_VAR = 'old_value'
-      config({ path: tmpFile, quiet: true, override: true })
+      config(tmpFile, true)
       expect(process.env.TEST_OVERRIDE_VAR).toBe('new_value')
     } finally {
       delete process.env.TEST_OVERRIDE_VAR
@@ -296,7 +270,7 @@ describe('config', () => {
     fs.writeFileSync(tmpFile, 'TEST_NO_OVERRIDE_VAR=new_value')
     try {
       process.env.TEST_NO_OVERRIDE_VAR = 'old_value'
-      config({ path: tmpFile, quiet: true })
+      config(tmpFile)
       expect(process.env.TEST_NO_OVERRIDE_VAR).toBe('old_value')
     } finally {
       delete process.env.TEST_NO_OVERRIDE_VAR
