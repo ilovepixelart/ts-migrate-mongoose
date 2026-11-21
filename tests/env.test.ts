@@ -280,6 +280,23 @@ describe('config', () => {
     }
   })
 
+  it('reads the env file of a working directory that is the filesystem root', async () => {
+    const fs = await import('node:fs')
+    const path = await import('node:path')
+    const root = path.parse(process.cwd()).root
+    vi.spyOn(process, 'cwd').mockReturnValue(root)
+    const read = vi.spyOn(fs.default, 'readFileSync').mockReturnValue('TEST_ROOT_VAR=root\n')
+    try {
+      delete process.env.TEST_ROOT_VAR
+      config('.env')
+      expect(read).toHaveBeenCalledWith(path.join(root, '.env'), 'utf8')
+      expect(process.env.TEST_ROOT_VAR).toBe('root')
+    } finally {
+      delete process.env.TEST_ROOT_VAR
+      vi.restoreAllMocks()
+    }
+  })
+
   it('should not override env vars when override is false', async () => {
     const fs = await import('node:fs')
     const path = await import('node:path')

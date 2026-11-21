@@ -41,7 +41,9 @@ const populate = (parsed: Record<string, string>, override = false): void => {
 // comes from --mode or MIGRATE_MODE.
 export const config = (envPath: string, override = false): void => {
   const resolved = path.resolve(envPath)
-  if (!resolved.startsWith(`${process.cwd()}${path.sep}`)) return
+  const cwd = process.cwd()
+  // A root working directory (/, C:\) already ends with the separator.
+  if (!resolved.startsWith(cwd.endsWith(path.sep) ? cwd : `${cwd}${path.sep}`)) return
   let src: string
   try {
     src = fs.readFileSync(resolved, 'utf8')
