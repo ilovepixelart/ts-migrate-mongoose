@@ -124,6 +124,12 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
     }
   })
 
+  it('rejects an empty collection name without opening a connection', async () => {
+    const open = mongoose.connections.length
+    await expect(Migrator.connect({ uri, collection: '' })).rejects.toThrow(new TypeError('Collection name cannot be empty'))
+    expect(mongoose.connections.length).toBe(open)
+  })
+
   it.each([
     [{ $ne: null }, 'operator object'],
     [{ $gt: '' }, 'comparison operator'],

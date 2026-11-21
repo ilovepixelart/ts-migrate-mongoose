@@ -4,9 +4,6 @@ import type { Connection, Model } from 'mongoose'
 import type { Migration } from './types'
 
 export const getMigrationModel = (connection: Connection, collection: string): Model<Migration> => {
-  // mongoose 8 and later reject an empty name with this error; earlier versions store the migrations in a collection named "s".
-  if (collection === '') throw new TypeError('Collection name cannot be empty')
-
   const MigrationSchema = new Schema<Migration>(
     {
       name: {
