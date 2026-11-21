@@ -403,5 +403,19 @@
     "replacement": ";",
     "line": "process.stdin.pause()",
     "reason": "The CLI shows at most one prompt per process and ends with process.exit, so stdin left flowing never holds the process open."
+  },
+  {
+    "file": "src/model.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "line": "if (collection === '') throw new TypeError('Collection name cannot be empty')",
+    "reason": "The mutation runs install mongoose 9, which rejects an empty name with the same TypeError; the e2e matrix on mongoose 6 and 7 fails without the check."
+  },
+  {
+    "file": "src/model.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"Stryker was here!\"",
+    "line": "if (collection === '') throw new TypeError('Collection name cannot be empty')",
+    "reason": "The mutation runs install mongoose 9, which rejects an empty name with the same TypeError; the e2e matrix on mongoose 6 and 7 fails without the check."
   }
 ]

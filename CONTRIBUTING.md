@@ -71,7 +71,8 @@ oracle the tests in `tests/laws/` and the e2e `laws` scenario compare the real c
 `npm run test:laws` checks every proof, recompiles both `main.mjs` and fails if a committed one
 is out of date. It needs Bend 2.0.40 (`curl -fsSL https://bend-lang.com/install.sh | sh`).
 - A pull request that changes user-visible behaviour adds one entry per changed observation path
-  to `changes` in `tests/e2e/allowlist.json`, with its PR number and reason.
+  to `changes` in `tests/e2e/allowlist.json`, with its PR number and reason. A change that shows
+  on some mongoose versions only lists their majors in `mongoose`, e.g. `[6, 7]`.
 - After a release, set `baseline` to the released version and empty `changes`.
 - `E2E_MONGOOSE=<version>` picks the mongoose version installed in the consumer (default: the
   lockfile's). `E2E_CANDIDATE` and `E2E_BASELINE` take any npm install spec (a tarball path or

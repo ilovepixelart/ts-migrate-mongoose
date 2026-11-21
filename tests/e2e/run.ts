@@ -48,7 +48,7 @@ const main = async (): Promise<number> => {
     const vitest = spawnSync(process.execPath, [path.join(repoRoot, 'node_modules', 'vitest', 'vitest.mjs'), 'run', '--config', 'vitest.e2e.config.mts'], {
       cwd: repoRoot,
       stdio: 'inherit',
-      env: { ...process.env, E2E_OBSERVATIONS: outDir, E2E_CANDIDATE_SPEC: candidate, E2E_BASELINE_SPEC: baseline },
+      env: { ...process.env, E2E_OBSERVATIONS: outDir, E2E_CANDIDATE_SPEC: candidate, E2E_BASELINE_SPEC: baseline, E2E_MONGOOSE_VERSION: mongooseVersion },
     })
     return vitest.status ?? 1
   } finally {
