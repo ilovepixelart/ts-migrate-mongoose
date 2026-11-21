@@ -53,12 +53,14 @@ describe('programmatic API', () => {
   })
 
   it('law create: the migration model requires a name, accepts only the states down and up, defaults to down, types createdAt and updatedAt as dates and indexes createdAt', () => {
+    // Newer mongoose versions end a cast error with the model it happened in.
+    const castFailed = (path: string) => `${path}: Cast to date failed for value "never" \\(type string\\) at path "${path}"(?: for model "migrations")?`
     expect(result.modelValidation).toEqual([
       { rejected: { name: 'ValidationError', message: 'migrations validation failed: name: Path `name` is required.' } },
       { rejected: { name: 'ValidationError', message: 'migrations validation failed: state: `sideways` is not a valid enum value for path `state`.' } },
       {},
       {},
-      { rejected: { name: 'ValidationError', message: 'migrations validation failed: createdAt: Cast to date failed for value "never" (type string) at path "createdAt" for model "migrations", updatedAt: Cast to date failed for value "never" (type string) at path "updatedAt" for model "migrations"' } },
+      { rejected: { name: 'ValidationError', message: expect.stringMatching(new RegExp(`^migrations validation failed: ${castFailed('createdAt')}, ${castFailed('updatedAt')}$`)) } },
     ])
     expect(result.modelDefaultState).toBe('down')
     expect(result.modelIndexes).toEqual(['_id', 'createdAt'])
