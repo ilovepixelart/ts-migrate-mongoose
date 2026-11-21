@@ -1,6 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import fs from 'node:fs'
+import os from 'node:os'
 import mongoose, { type Connection, Types } from 'mongoose'
 import { getConfig } from '../src/commander'
 import { MIGRATION_FILE_REGEX } from '../src/constants'
@@ -304,6 +305,19 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
     expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('creates a missing migrations path with every missing parent folder', async () => {
+    const root = fs.mkdtempSync(`${os.tmpdir()}/tmm-nested-`)
+    const migrationsPath = `${root}/db/migrations`
+    const migrator = await Migrator.connect({ uri, migrationsPath, collection: 'nested_path' })
+    try {
+      expect(fs.statSync(migrationsPath).isDirectory()).toBe(true)
+      expect(fs.readdirSync(migrationsPath)).toEqual([])
+    } finally {
+      await migrator.close()
+      fs.rmSync(root, { recursive: true, force: true })
+    }
   })
 
   it('should throw "Failed to run migration"', async () => {
