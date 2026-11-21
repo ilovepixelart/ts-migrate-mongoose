@@ -36,6 +36,16 @@
         6,
         7
       ]
+    },
+    {
+      "path": "/env-mode-outside/db/leaked",
+      "pr": 526,
+      "reason": "An env file named by a --mode that leads outside the working directory was read; it is now ignored like a missing one."
+    },
+    {
+      "path": "/env-mode-outside/db/migrations",
+      "pr": 526,
+      "reason": "An env file named by a --mode that leads outside the working directory was read; it is now ignored like a missing one."
     }
   ]
 }

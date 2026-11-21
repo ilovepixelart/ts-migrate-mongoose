@@ -59,7 +59,7 @@ export const laws: Law[] = [
   },
   {
     id: 'env-files',
-    statement: '.env, .env.local, .env.<mode> and .env.<mode>.local load in that order of precedence, with dotenv syntax, below the process environment; --mode or MIGRATE_MODE picks the mode.',
+    statement: '.env, .env.local, .env.<mode> and .env.<mode>.local load in that order of precedence, with dotenv syntax, below the process environment; --mode or MIGRATE_MODE picks the mode, and no env file outside the working directory is read.',
     subjects: ['--mode', 'env:MIGRATE_MODE'],
   },
   {

@@ -263,6 +263,23 @@ describe('config', () => {
     }
   })
 
+  it('reads no env file outside the working directory, as a mode with ../ would name', async () => {
+    const fs = await import('node:fs')
+    const os = await import('node:os')
+    const path = await import('node:path')
+    const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'env-outside-'))
+    fs.writeFileSync(path.join(outside, '.env'), 'TEST_OUTSIDE_VAR=read\n')
+    try {
+      delete process.env.TEST_OUTSIDE_VAR
+      config(path.relative(process.cwd(), path.join(outside, '.env')))
+      config(path.join(outside, '.env'))
+      expect(process.env.TEST_OUTSIDE_VAR).toBeUndefined()
+    } finally {
+      delete process.env.TEST_OUTSIDE_VAR
+      fs.rmSync(outside, { recursive: true, force: true })
+    }
+  })
+
   it('should not override env vars when override is false', async () => {
     const fs = await import('node:fs')
     const path = await import('node:path')

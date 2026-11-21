@@ -93,6 +93,11 @@ describe('CLI configuration', () => {
     expect(db('env-edge-cases')).toEqual({})
   })
 
+  it('law env-files: reads no env file outside the working directory, as a --mode with ../ names', () => {
+    expect(steps('env-mode-outside')).toEqual([ok('migrate create mode-outside -d <mongo>/env_mode_outside --mode x/../../env-mode-outside-target/leak', created('mode-outside', `${work('env-mode-outside')}/migrations`))])
+    expect(Object.keys(db('env-mode-outside'))).toEqual(['migrations'])
+  })
+
   it('law env-files: ignores a .env file it cannot read', () => {
     expect(steps('env-unreadable')).toEqual([ok('migrate create env-file-is-a-directory -d <mongo>/env_unreadable', created('env-file-is-a-directory', `${work('env-unreadable')}/migrations`))])
     expect(names(db('env-unreadable').migrations)).toEqual(['env-file-is-a-directory'])

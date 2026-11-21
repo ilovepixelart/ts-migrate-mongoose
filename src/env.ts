@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import path from 'node:path'
 
 // Regex from dotenv; it only parses the user's own .env file, so backtracking cost is not attacker-controlled
 const LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/gm // NOSONAR
@@ -36,11 +37,14 @@ const populate = (parsed: Record<string, string>, override = false): void => {
   }
 }
 
-// A missing or unreadable env file adds no variables.
+// A missing or unreadable env file adds no variables, and neither does one outside the working directory: the name
+// comes from --mode or MIGRATE_MODE.
 export const config = (envPath: string, override = false): void => {
+  const resolved = path.resolve(envPath)
+  if (!resolved.startsWith(`${process.cwd()}${path.sep}`)) return
   let src: string
   try {
-    src = fs.readFileSync(envPath, 'utf8')
+    src = fs.readFileSync(resolved, 'utf8')
   } catch {
     return
   }

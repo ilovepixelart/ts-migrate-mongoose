@@ -281,6 +281,15 @@ export const configurationScenarios: Scenario[] = [
     },
   },
   {
+    // .env.<mode> with a mode that climbs out of the working directory, here to a sibling folder.
+    name: 'env-mode-outside',
+    run: async ({ cli, uri, write, db }) => {
+      write('.env.x/placeholder', 'lets .env.x/.. resolve on disk\n')
+      write('../env-mode-outside-target/leak', 'MIGRATE_MONGO_COLLECTION=leaked\n')
+      return { steps: [await cli(['create', 'mode-outside', '-d', uri, '--mode', 'x/../../env-mode-outside-target/leak'])], db: await db() }
+    },
+  },
+  {
     name: 'env-vars',
     run: async ({ cli, uri, write, tree, db }) => {
       write('tpl.ts', '// template from MIGRATE_TEMPLATE_PATH\n')
