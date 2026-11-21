@@ -75,9 +75,10 @@ difference that is not listed there. The prompt scenarios drive the terminal wit
 oracle the tests in `tests/laws/` and the e2e `laws` scenario compare the real code with; the
 `.mjs` is committed so the tests run without Bend.
 
-`npm run test:laws` checks every proof, a second time with Bend's proven kernel (`--verdict`),
-recompiles both `main.mjs` and fails if a committed one is out of date. It needs Bend 2.0.40
-(`curl -fsSL https://bend-lang.com/install.sh | sh`).
+`npm run test:laws` checks every proof, recompiles both `main.mjs` and fails if a committed one
+is out of date. It needs Bend 2.0.40 (`curl -fsSL https://bend-lang.com/install.sh | sh`).
+`npm run test:laws:verdict` checks the proofs a second time with Bend's kernel that has a proof in
+Lean; building that kernel needs the Lean v4.34.0 toolchain, which CI does not install.
 
 ## Mutation testing
 
