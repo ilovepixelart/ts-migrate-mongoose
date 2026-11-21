@@ -303,7 +303,8 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should ensure migrations path', async () => {
-    fs.rmSync('migrations', { recursive: true })
+    // Shuffled, this can be the first test, before anything has created the folder.
+    fs.rmSync('migrations', { recursive: true, force: true })
     const migrator = await Migrator.connect({ uri })
     expect(migrator).toBeInstanceOf(Migrator)
     expect(fs.existsSync('migrations')).toBe(true)
