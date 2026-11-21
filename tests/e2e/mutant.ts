@@ -83,6 +83,10 @@ const runMutant = async (): Promise<number> => {
       recordKill(name, observation, reference[name])
       return true
     })
+  } catch (error) {
+    // A scenario that differed decides the verdict; MongoDB failing to stop afterwards does not undo it. Any other
+    // error is the harness failing, and Stryker counts that exit as a kill, which the survivors check refuses.
+    if (!killedBy) throw error
   } finally {
     fs.rmSync(consumer.dir, { recursive: true, force: true })
   }

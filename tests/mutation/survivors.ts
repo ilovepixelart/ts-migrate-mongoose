@@ -16,6 +16,7 @@ interface Mutant {
   mutatorName: string
   replacement: string
   status: string
+  statusReason?: string
   location: { start: { line: number; column: number } }
 }
 
@@ -36,6 +37,8 @@ interface Outcome {
   where: string
   status: string
   survived: boolean
+  // Counted as killed by the e2e run without a scenario that differed: the harness failed, so nothing was verified.
+  unverified: boolean
 }
 
 const mode = process.argv[2]
@@ -66,7 +69,8 @@ const outcomesOf = (suite: string): Map<string, Outcome> => {
       // A mutant no test reaches survives too.
       const survived = mutant.status === 'Survived' || mutant.status === 'NoCoverage'
       const where = `${relative}:${String(mutant.location.start.line)} ${mutant.mutatorName} -> ${mutant.replacement}`
-      outcomes.set(keyOf({ file: relative, mutator: mutant.mutatorName, replacement: mutant.replacement, line, occurrence }), { where, status: mutant.status, survived })
+      const unverified = suite === 'e2e' && mutant.status === 'Killed' && !/^killed by \S+$/.test((mutant.statusReason ?? '').trim().split('\n').at(-1) ?? '')
+      outcomes.set(keyOf({ file: relative, mutator: mutant.mutatorName, replacement: mutant.replacement, line, occurrence }), { where, status: mutant.status, survived, unverified })
     }
   }
   return outcomes
@@ -76,19 +80,22 @@ const outcomes = outcomesOf('e2e')
 if (mode === 'all') {
   for (const [key, unit] of outcomesOf('unit')) {
     const e2e = outcomes.get(key)
-    if (e2e && !unit.survived) outcomes.set(key, { ...e2e, survived: false })
+    if (e2e && !unit.survived) outcomes.set(key, { ...e2e, survived: false, unverified: false })
   }
 }
 
 const unlisted: string[] = []
 const killed: string[] = []
-for (const [key, { where, status, survived }] of outcomes) {
+const unverified: string[] = []
+for (const [key, { where, status, survived, unverified: harnessFailed }] of outcomes) {
+  if (harnessFailed) unverified.push(where)
   if (survived && !listed.has(key)) unlisted.push(`${where} (${status})`)
   if (mode === 'e2e' && !survived && listed.has(key)) killed.push(`${where} (${status})`)
 }
 
 for (const where of unlisted) console.error(`survived, not listed as equivalent: ${where}`)
 for (const where of killed) console.error(`listed as equivalent, but ${where}`)
-if (unlisted.length || killed.length) process.exit(1)
+for (const where of unverified) console.error(`killed by a harness failure, not a scenario; rerun it with --mutate: ${where}`)
+if (unlisted.length || killed.length || unverified.length) process.exit(1)
 const scope = mode === 'all' ? 'the unit and e2e runs both miss' : 'survives the e2e run'
 console.log(`Every mutant that ${scope} is listed in ${path.relative(root, listFile)} (${String(equivalents.length)} entries).`)

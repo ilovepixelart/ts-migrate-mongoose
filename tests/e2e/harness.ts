@@ -127,7 +127,8 @@ export const installConsumer = (root: string, spec: string, mongooseVersion: str
 }
 
 export const startMongo = async (): Promise<{ uri: string; stop: () => Promise<void> }> => {
-  const server = await MongoMemoryServer.create()
+  // The default 10 s start limit fails on a busy machine, and in a mutation run that failure would count as a kill.
+  const server = await MongoMemoryServer.create({ instance: { launchTimeout: 60_000 } })
   return { uri: server.getUri(), stop: async () => void (await server.stop({ doCleanup: true, force: true })) }
 }
 

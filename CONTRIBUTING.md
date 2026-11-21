@@ -90,7 +90,9 @@ Mutation testing changes `src/` one small edit at a time and checks that a test 
 - Reports are written to `reports/mutation/`. A surviving mutant needs a test, or, when nothing
   observable through the package tells it apart from the original, an entry with the reason in
   `tests/mutation/equivalent-e2e.json`. `npm run test:mutation:survivors -- e2e` checks the last e2e
-  report: it fails on a survivor that is not listed and on a listed mutant that was killed.
+  report: it fails on a survivor that is not listed, on a listed mutant that was killed, and on a mutant
+  counted as killed because the harness failed (MongoDB not starting, for example) rather than because
+  a scenario differed. Rerun those with `--mutate`; a busy machine is the usual cause.
   `npm run test:mutation:survivors -- all` checks the last unit and e2e reports together: a mutant
   counts as surviving only when both suites miss it, since either one failing catches the change.
 
