@@ -69,7 +69,8 @@ const outcomesOf = (suite: string): Map<string, Outcome> => {
       // A mutant no test reaches survives too.
       const survived = mutant.status === 'Survived' || mutant.status === 'NoCoverage'
       const where = `${relative}:${String(mutant.location.start.line)} ${mutant.mutatorName} -> ${mutant.replacement}`
-      const unverified = suite === 'e2e' && mutant.status === 'Killed' && !/^killed by \S+$/.test((mutant.statusReason ?? '').trim().split('\n').at(-1) ?? '')
+      // A timeout is as likely a busy machine as a mutant that hangs the CLI.
+      const unverified = suite === 'e2e' && (mutant.status === 'Timeout' || (mutant.status === 'Killed' && !/^killed by \S+$/.test((mutant.statusReason ?? '').trim().split('\n').at(-1) ?? '')))
       outcomes.set(keyOf({ file: relative, mutator: mutant.mutatorName, replacement: mutant.replacement, line, occurrence }), { where, status: mutant.status, survived, unverified })
     }
   }
