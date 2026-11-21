@@ -5,8 +5,10 @@ export const create = async (dbName: string): Promise<{ uri: string; destroy: ()
   // No dbPath: each server gets a fresh temporary directory, which stop({ doCleanup }) removes. A fixed dbPath
   // outlives a run whose teardown never finished, and the next run starts on that run's data.
   const server = await MongoMemoryServer.create({
+    // The default 10 s start limit fails on a busy machine, failing a whole test file before any test runs.
     instance: {
       dbName,
+      launchTimeout: 60_000,
     },
   })
 
