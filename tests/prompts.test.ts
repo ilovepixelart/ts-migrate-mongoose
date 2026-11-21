@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import readline from 'node:readline'
 import { checkbox } from '../src/prompts'
 
 const choices = [
@@ -204,6 +205,11 @@ describe('checkbox prompt screen', () => {
 
   beforeEach(() => {
     setupTTY()
+    // The first keypress listener in a process makes readline resume stdin once more; keep that out of the counts.
+    const warmUp = () => undefined
+    readline.emitKeypressEvents(process.stdin)
+    process.stdin.on('keypress', warmUp).removeListener('keypress', warmUp)
+    vi.mocked(process.stdin.resume).mockClear()
   })
 
   afterEach(() => {
