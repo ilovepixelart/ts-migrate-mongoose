@@ -184,3 +184,182 @@ describe('checkbox prompt', () => {
     expect(removeSpy).toHaveBeenCalledWith('keypress', expect.any(Function))
   })
 })
+
+// Expected screens, written out by hand: ANSI codes for the colours and cursor moves the prompt uses.
+const green = (text: string) => `\x1b[32m${text}\x1b[0m`
+const cyan = (text: string) => `\x1b[36m${text}\x1b[0m`
+const dim = (text: string) => `\x1b[2m${text}\x1b[0m`
+const bold = (text: string) => `\x1b[1m${text}\x1b[0m`
+const HINTS = '↑↓ navigate • space select • a all • enter submit'
+
+const written = (): string[] => (process.stdout.write as unknown as ReturnType<typeof vi.fn>).mock.calls.map((call) => String(call[0]))
+const named = (count: number) => Array.from({ length: count }, (_, i) => ({ name: `M${String(i + 1)}`, value: `m${String(i + 1)}` }))
+const setRows = (rows: number | undefined) => Object.defineProperty(process.stdout, 'rows', { value: rows, writable: true, configurable: true })
+// The last frame the prompt drew, as the visible text without colours.
+const COLOURS = ['\x1b[32m', '\x1b[36m', '\x1b[2m', '\x1b[1m', '\x1b[0m']
+const lastFrame = (): string => COLOURS.reduce((frame, code) => frame.replaceAll(code, ''), written().at(-1) ?? '')
+
+describe('checkbox prompt screen', () => {
+  const rows = process.stdout.rows
+
+  beforeEach(() => {
+    setupTTY()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    setRows(rows)
+    Object.defineProperty(process.stdin, 'isTTY', { value: false, writable: true, configurable: true })
+  })
+
+  it('reserves the lines, then draws the message, every choice with the pointer on the first, and the hints', async () => {
+    setRows(24)
+    const promise = checkbox({ message: 'Select', choices })
+    expect(written()).toEqual(['\x1b[?25l', '\n\n\n\n\n', '\x1b[5A', '\x1b[J', `${green('?')} ${bold('Select')}\n${cyan('❯')} ${dim('◯')} Migration 1\n  ${dim('◯')} Migration 2\n  ${dim('◯')} Migration 3\n${dim(HINTS)}`])
+    emitKey('return')
+    await promise
+  })
+
+  it('redraws over the previous frame with the pointer and the checked marks where the keys put them', async () => {
+    setRows(24)
+    const promise = checkbox({ message: 'Select', choices })
+    emitKey('down')
+    emitKey('space')
+    expect(written().slice(-3)).toEqual(['\x1b[5A', '\x1b[J', `${green('?')} ${bold('Select')}\n  ${dim('◯')} Migration 1\n${cyan('❯')} ${green('◉')} Migration 2\n  ${dim('◯')} Migration 3\n${dim(HINTS)}`])
+    emitKey('return')
+    await promise
+  })
+
+  it('redraws with every choice checked when a selects all', async () => {
+    setRows(24)
+    const promise = checkbox({ message: 'Select', choices })
+    emitKey('a')
+    expect(lastFrame()).toBe(`? Select\n❯ ◉ Migration 1\n  ◉ Migration 2\n  ◉ Migration 3\n${HINTS}`)
+    emitKey('return')
+    await promise
+  })
+
+  it('replaces the prompt with a one-line summary of the chosen names in list order and shows the cursor', async () => {
+    setRows(24)
+    const promise = checkbox({ message: 'Select', choices })
+    emitKey('up')
+    emitKey('space')
+    emitKey('up')
+    emitKey('up')
+    emitKey('space')
+    emitKey('return')
+    expect(await promise).toEqual(['migration-1', 'migration-3'])
+    expect(written().slice(-4)).toEqual(['\x1b[5A', '\x1b[J', `${green('✔')} ${bold('Select')} ${cyan('Migration 1, Migration 3')}\n`, '\x1b[?25h'])
+  })
+
+  it('shows every choice and no position when they fit the page exactly', async () => {
+    setRows(9) // a page is rows - 4 = 5 choices
+    const promise = checkbox({ message: 'Pick', choices: named(5) })
+    expect(written()[1]).toBe('\n'.repeat(7))
+    expect(lastFrame()).toBe(`? Pick\n❯ ◯ M1\n  ◯ M2\n  ◯ M3\n  ◯ M4\n  ◯ M5\n${HINTS}`)
+    emitKey('return')
+    await promise
+  })
+
+  it('pages one more choice than fits and shows the visible range first in the hints', async () => {
+    setRows(9)
+    const promise = checkbox({ message: 'Pick', choices: named(6) })
+    expect(written()[1]).toBe('\n'.repeat(7))
+    expect(lastFrame()).toBe(`? Pick\n❯ ◯ M1\n  ◯ M2\n  ◯ M3\n  ◯ M4\n  ◯ M5\n1-5/6 • ${HINTS}`)
+    emitKey('return')
+    await promise
+  })
+
+  it('scrolls only when the pointer leaves the page, by as little as keeps it visible', async () => {
+    setRows(9)
+    const promise = checkbox({ message: 'Pick', choices: named(7) })
+    for (let i = 0; i < 4; i++) emitKey('down')
+    expect(lastFrame()).toBe(`? Pick\n  ◯ M1\n  ◯ M2\n  ◯ M3\n  ◯ M4\n❯ ◯ M5\n1-5/7 • ${HINTS}`)
+    emitKey('down')
+    expect(lastFrame()).toBe(`? Pick\n  ◯ M2\n  ◯ M3\n  ◯ M4\n  ◯ M5\n❯ ◯ M6\n2-6/7 • ${HINTS}`)
+    emitKey('up')
+    // Scrolled, the frame is still 5 choices and 2 more lines, so the redraw moves up 7 lines.
+    expect(written().slice(-3, -1)).toEqual(['\x1b[7A', '\x1b[J'])
+    expect(lastFrame()).toBe(`? Pick\n  ◯ M2\n  ◯ M3\n  ◯ M4\n❯ ◯ M5\n  ◯ M6\n2-6/7 • ${HINTS}`)
+    for (let i = 0; i < 4; i++) emitKey('up')
+    expect(lastFrame()).toBe(`? Pick\n❯ ◯ M1\n  ◯ M2\n  ◯ M3\n  ◯ M4\n  ◯ M5\n1-5/7 • ${HINTS}`)
+    emitKey('return')
+    await promise
+  })
+
+  it('wraps from the first choice to the last page and back', async () => {
+    setRows(9)
+    const promise = checkbox({ message: 'Pick', choices: named(7) })
+    emitKey('up')
+    expect(lastFrame()).toBe(`? Pick\n  ◯ M3\n  ◯ M4\n  ◯ M5\n  ◯ M6\n❯ ◯ M7\n3-7/7 • ${HINTS}`)
+    emitKey('down')
+    expect(lastFrame()).toBe(`? Pick\n❯ ◯ M1\n  ◯ M2\n  ◯ M3\n  ◯ M4\n  ◯ M5\n1-5/7 • ${HINTS}`)
+    emitKey('return')
+    await promise
+  })
+
+  it('sizes the page to the terminal rows less 4, at least 5, and to 16 when the rows are unknown', async () => {
+    for (const [terminalRows, count, range] of [
+      [10, 7, '1-6/7'],
+      [6, 6, '1-5/6'],
+      [undefined, 17, '1-16/17'],
+    ] as const) {
+      setRows(terminalRows)
+      const promise = checkbox({ message: 'Pick', choices: named(count) })
+      expect(lastFrame().split('\n').at(-1)).toBe(`${range} • ${HINTS}`)
+      emitKey('return')
+      await promise
+    }
+  })
+
+  it('redraws for the new page size when the terminal is resized', async () => {
+    setRows(9)
+    const promise = checkbox({ message: 'Pick', choices: named(7) })
+    setRows(30)
+    process.stdout.emit('resize')
+    expect(written().slice(-3)).toEqual(['\x1b[7A', '\x1b[J', `${green('?')} ${bold('Pick')}\n${cyan('❯')} ${dim('◯')} M1\n${['M2', 'M3', 'M4', 'M5', 'M6', 'M7'].map((name) => `  ${dim('◯')} ${name}\n`).join('')}${dim(HINTS)}`])
+    emitKey('return')
+    await promise
+  })
+
+  it('shows the cursor again if the process exits or is signalled while the prompt is open, and stops listening once it closes', async () => {
+    const counts = () => [process.listenerCount('exit'), process.listenerCount('SIGTERM'), process.listenerCount('SIGHUP'), process.stdout.listenerCount('resize'), process.stdin.listenerCount('keypress')]
+    const before = counts()
+    const promise = checkbox({ message: 'Select', choices })
+    expect(counts()).toEqual(before.map((count) => count + 1))
+    for (const restore of [process.listeners('exit').at(-1), process.listeners('SIGTERM').at(-1), process.listeners('SIGHUP').at(-1)] as (() => void)[]) {
+      restore()
+      expect(written().at(-1)).toBe('\x1b[?25h')
+    }
+    emitKey('return')
+    await promise
+    expect(counts()).toEqual(before)
+    expect(process.stdin.resume).toHaveBeenCalledTimes(1)
+    expect(process.stdin.pause).toHaveBeenCalledTimes(1)
+  })
+
+  it('on Ctrl+C restores the terminal, stops listening, shows the cursor on a new line and exits with 130', async () => {
+    const counts = () => [process.listenerCount('exit'), process.listenerCount('SIGTERM'), process.listenerCount('SIGHUP'), process.stdout.listenerCount('resize'), process.stdin.listenerCount('keypress')]
+    const before = counts()
+    const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+    void checkbox({ message: 'Select', choices })
+    emitKey('c', true)
+    expect(written().at(-1)).toBe('\x1b[?25h\n')
+    expect(exit).toHaveBeenCalledWith(130)
+    expect(process.stdin.setRawMode).toHaveBeenLastCalledWith(false)
+    expect(counts()).toEqual(before)
+  })
+
+  it('treats c without Ctrl and Ctrl with another key as unknown keys', async () => {
+    const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+    setRows(24)
+    const promise = checkbox({ message: 'Select', choices })
+    const drawn = written().length
+    emitKey('c')
+    emitKey('n', true)
+    expect(written()).toHaveLength(drawn)
+    expect(exit).not.toHaveBeenCalled()
+    emitKey('return')
+    expect(await promise).toEqual([])
+  })
+})
