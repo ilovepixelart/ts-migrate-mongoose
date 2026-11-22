@@ -44,6 +44,7 @@ CI tests on Node.js `22.x` and `24.x` against mongoose `6.12.2`, `7.6.4`, `8.23.
 - Prune old migrations and sync new migrations
 - Create custom templates for migrations
 - Run individual migration up/down using -s, --single
+- Migration lock: processes started together (parallel deploy jobs, NestJS replicas) run each migration once
 - Supports ESM and CommonJS
 
 ## Installation
@@ -141,6 +142,9 @@ MIGRATE_CONFIG_PATH=./migrate
 MIGRATE_MIGRATIONS_PATH=./migrations
 MIGRATE_TEMPLATE_PATH=./migrations/template.ts
 MIGRATE_AUTOSYNC=false
+MIGRATE_LOCK=true
+MIGRATE_LOCK_TIMEOUT=300000
+MIGRATE_LOCK_COLLECTION=migrations_lock
 ```
 
 | Config file          | `.env` / export          | Default      | Required | Description                                      |
@@ -152,6 +156,9 @@ MIGRATE_AUTOSYNC=false
 | migrationsPath       | MIGRATE_MIGRATIONS_PATH  | ./migrations | No       | path to the migration files                      |
 | templatePath         | MIGRATE_TEMPLATE_PATH    | -            | No       | template file to use when creating a migration   |
 | autosync             | MIGRATE_AUTOSYNC         | false        | No       | automatically sync new migrations without prompt |
+| lock                 | MIGRATE_LOCK             | true         | No       | take the migration lock, see [Migration lock](#migration-lock) |
+| lockTimeout          | MIGRATE_LOCK_TIMEOUT     | 300000       | No       | milliseconds to wait for another process to release the lock |
+| lockCollection       | MIGRATE_LOCK_COLLECTION  | `<collection>_lock` | No | collection that holds the lock               |
 | connectOptions       | -                        | -            | No       | mongoose connection options (config file only)   |
 
 ## Getting started with the CLI
@@ -185,6 +192,9 @@ Options:
   -m, --migrations-path <path>    path to the migration files
   -t, --template-path <path>      template file to use when creating a migration
       --mode <string>             environment mode to use .env.[mode] file
+      --lock <boolean>            take the migration lock before changing migration state (default true)
+      --lock-timeout <ms>         how long to wait for another process to release the lock (default 300000)
+      --lock-collection <name>    collection that holds the lock (default <collection>_lock)
   -s, --single                    run single migration (up/down only)
   -h, --help                      display help
   -v, --version                   display version
@@ -212,6 +222,19 @@ npx migrate up -s # will migrate up first-migration
 Note that options are overridden in the following order:
 
 - Command line args > Env vars > Config file
+
+## Migration lock
+
+`up` and `down` (when there is something to import or run), `create`, `prune`, `sync` and `list` (when there are new files to import) take a lock in MongoDB before they change migration state. When several processes start at once, such as parallel deploy jobs or NestJS replicas that all migrate on bootstrap, one runs the pending migrations and the others wait, then re-read the state and skip what is already applied. A process with no competition takes the lock immediately and does not wait. An `up`, `down` or `list` with nothing to change only reads: it neither waits for nor writes the lock.
+
+- The lock is one document per migrations collection in `<collection>_lock` (for the default collection, `migrations_lock`). It records the holder (`host:pid:id`), when it was taken, and when its lease expires. The holder renews the 60 second lease every 20 seconds and removes the document when it finishes.
+- A waiting process retries every 500 ms for up to `lockTimeout` milliseconds (default 300000, 5 minutes), then fails with an error naming the holder. The CLI prints one line naming the holder when it starts waiting. `lockTimeout: 0` fails at once instead of waiting. In NestJS that error fails the bootstrap.
+- If a holder crashes, is killed, or is interrupted with Ctrl+C at an import or prune prompt, its lock expires one lease (at most 60 seconds) after its last renewal and the next process takes it over. A TTL index on `expiresAt` also removes the leftover document. To clear a stale lock sooner, run the command printed in the timeout error, for example `db.getCollection("migrations_lock").deleteOne({ _id: "migrations" })`.
+- The lease is renewed by a timer, so a migration that blocks the event loop (synchronous work, no `await`) for more than 60 seconds can lose the lock to a waiting process. Before each migration the holder confirms with MongoDB that it still holds the lock; if not, it stops with an error instead of running alongside the new holder. The migration that was running when the lease lapsed is not recorded as applied, so the new holder runs it again. Expiry compares clocks across hosts, so keep them in sync (NTP).
+- `list` without new files to import only reads, so a status check does not wait behind a running migration.
+- Changing migration state needs read and write access to the lock collection; creating the TTL index is attempted and skipped if not permitted. `--lock` and `MIGRATE_LOCK` accept only `true` or `false`. Set `lock: false` (`--lock false`, `MIGRATE_LOCK=false`) to run without the lock, as in 5.4.0 and earlier, if your database user cannot write to that collection or you already serialize migrations yourself.
+
+Databases used by earlier versions with concurrent runs can hold two state documents for the same migration file. When both copies are pending, `up` and `down` run the file once, and the CLI prints `Found 2 state documents for <file>; running it once`. Both documents are kept; delete the extra one yourself if you want `list` to show it once.
 
 ## Migration files
 
@@ -359,7 +382,7 @@ import { MigrationModule } from 'ts-migrate-mongoose/nest'
 export class AppModule {}
 ```
 
-Runs all pending up migrations on application bootstrap. For custom control:
+Runs all pending up migrations on application bootstrap. Replicas that start together take turns through the [migration lock](#migration-lock), so each migration runs once. For custom control:
 
 ```typescript
 MigrationModule.forRoot({

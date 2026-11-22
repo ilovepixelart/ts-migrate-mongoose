@@ -3,14 +3,16 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import mongoose from 'mongoose'
 import { chalk } from './chalk'
-import { MIGRATION_FILE_EXTENSIONS, MIGRATION_FILE_REGEX, MIGRATION_NAME_REGEX } from './constants'
+import { LOCK_LEASE_MS, MIGRATION_FILE_EXTENSIONS, MIGRATION_FILE_REGEX, MIGRATION_NAME_REGEX } from './constants'
 import { defaults } from './defaults'
 import { loader } from './loader'
+import { MigrationLock } from './lock'
 import { getMigrationModel } from './model'
 import { checkbox } from './prompts'
 import { template } from './template'
 
 import type { Connection, HydratedDocument, Model } from 'mongoose'
+import type { Lease } from './lock'
 import type { Migration, MigrationFile, MigrationFunctions, MigrationFunctionsDefault, MigratorOptions } from './types'
 
 /**
@@ -50,6 +52,8 @@ export class Migrator {
   private readonly collection: string
   private readonly autosync: boolean
   private readonly cli: boolean
+  private readonly lock: MigrationLock | undefined
+  private lease: Lease | undefined
 
   private constructor(options: MigratorOptions) {
     // Documented API contract: consumer migration files often query via
@@ -73,6 +77,15 @@ export class Migrator {
     this.autosync = options.autosync ?? defaults.MIGRATE_AUTOSYNC
     this.cli = options.cli ?? defaults.MIGRATE_CLI
 
+    const lockTimeout = options.lockTimeout ?? defaults.MIGRATE_LOCK_TIMEOUT
+    if (!Number.isFinite(lockTimeout) || lockTimeout < 0) {
+      throw new Error(`lockTimeout must be a non-negative number of milliseconds, received ${lockTimeout}`)
+    }
+    const lockCollection = options.lockCollection ?? `${this.collection}_lock`
+    if (lockCollection === this.collection) {
+      throw new Error(`lockCollection must differ from the migrations collection '${this.collection}'`)
+    }
+
     this.ensureMigrationsPath()
 
     if (options.uri) {
@@ -86,6 +99,7 @@ export class Migrator {
     }
 
     this.migrationModel = getMigrationModel(this.connection, this.collection)
+    this.lock = (options.lock ?? defaults.MIGRATE_LOCK) ? new MigrationLock(this.connection, lockCollection, this.collection, lockTimeout, LOCK_LEASE_MS, (message) => this.log(chalk.yellow(message))) : undefined
   }
 
   /**
@@ -119,7 +133,20 @@ export class Migrator {
    * Lists all migrations in the database and their status
    */
   async list(): Promise<HydratedDocument<Migration>[]> {
-    await this.sync()
+    // With nothing to import, listing only reads, so it does not wait for a
+    // migration another process is running.
+    if (this.lock && !(await this.hasMigrationsToImport())) {
+      return this.logMigrations()
+    }
+    return this.withLock(() => this.syncAndList())
+  }
+
+  private async syncAndList(): Promise<HydratedDocument<Migration>[]> {
+    await this.syncFromFs()
+    return this.logMigrations()
+  }
+
+  private async logMigrations(): Promise<HydratedDocument<Migration>[]> {
     const migrations = await this.migrationModel.find().sort({ createdAt: 1, _id: 1 }).exec()
     if (!migrations.length) this.log(chalk.yellow('There are no migrations to list'))
     return migrations.map((migration: HydratedDocument<Migration>) => {
@@ -136,12 +163,16 @@ export class Migrator {
       throw new Error(`Invalid migration name '${migrationName}'. Allowed characters: letters, digits, underscore, hyphen, and non-consecutive dots.`)
     }
 
+    return this.withLock(() => this.createMigration(migrationName))
+  }
+
+  private async createMigration(migrationName: string): Promise<HydratedDocument<Migration>> {
     const existingMigration = await this.migrationModel.findOne({ name: migrationName }).exec()
     if (existingMigration) {
       throw new Error(`There is already a migration with name '${migrationName}' in the database`)
     }
 
-    await this.sync()
+    await this.syncFromFs()
     const now = Date.now()
     const newMigrationFile = `${now.toString()}-${migrationName}.ts`
     fs.writeFileSync(path.join(this.migrationsPath, newMigrationFile), this.template)
@@ -161,8 +192,34 @@ export class Migrator {
       throw new Error(`migrationName must be a string, received ${typeof migrationName}`)
     }
 
-    await this.sync()
+    // With no files to import and nothing pending, run only reads, so an
+    // up-to-date process neither waits for nor writes the lock.
+    if (this.lock && !(await this.hasMigrationsToImport()) && !(await this.findPending(direction, migrationName, single)).length) {
+      return this.noPendingMigrations(false)
+    }
 
+    return this.withLock(() => this.runUntil(direction, migrationName, single))
+  }
+
+  private async runUntil(direction: 'up' | 'down', migrationName: string | undefined, single: boolean): Promise<HydratedDocument<Migration>[]> {
+    await this.syncFromFs()
+
+    const migrationsToRun = this.oncePerFile(await this.findPending(direction, migrationName, single))
+    if (!migrationsToRun.length) {
+      return this.noPendingMigrations()
+    }
+
+    const migrationsRan = await this.runMigrations(migrationsToRun, direction)
+    if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {
+      this.log(chalk.green('All migrations finished successfully'))
+    }
+    return migrationsRan
+  }
+
+  /**
+   * The migrations `run()` would execute, in order.
+   */
+  private async findPending(direction: 'up' | 'down', migrationName: string | undefined, single: boolean): Promise<HydratedDocument<Migration>[]> {
     const isUp = direction === 'up'
     const state = isUp ? 'down' : 'up'
     const key = isUp ? '$lte' : '$gte'
@@ -173,19 +230,9 @@ export class Migrator {
       if (migrationName) {
         throw new Error(`Could not find migration with name '${migrationName}' in the database`)
       }
-      return this.noPendingMigrations()
+      return []
     }
-
-    const migrationsToRun = await this.collectMigrationsToRun(untilMigration, key, state, single, sort)
-    if (!migrationsToRun.length) {
-      return this.noPendingMigrations()
-    }
-
-    const migrationsRan = await this.runMigrations(migrationsToRun, direction)
-    if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {
-      this.log(chalk.green('All migrations finished successfully'))
-    }
-    return migrationsRan
+    return this.collectMigrationsToRun(untilMigration, key, state, single, sort)
   }
 
   /**
@@ -219,12 +266,34 @@ export class Migrator {
   }
 
   /**
+   * Keeps the first state document of each file. Concurrent syncs before the
+   * lock existed could store a file twice; running it once per document would
+   * apply it twice. Every copy is still updated, as state is set by name.
+   */
+  private oncePerFile(migrations: HydratedDocument<Migration>[]): HydratedDocument<Migration>[] {
+    const copies = new Map<string, number>()
+    const unique = migrations.filter((migration) => {
+      const seen = (copies.get(migration.filename) ?? 0) + 1
+      copies.set(migration.filename, seen)
+      return seen === 1
+    })
+    for (const [filename, count] of copies) {
+      if (count > 1) this.log(chalk.yellow(`Found ${count} state documents for ${filename}; running it once`))
+    }
+    return unique
+  }
+
+  /**
    * Looks at the file system migrations and imports any migrations that are
    * on the file system but missing in the database into the database
    *
    * This functionality is opposite of prune()
    */
   async sync(): Promise<HydratedDocument<Migration>[]> {
+    return this.withLock(() => this.syncFromFs())
+  }
+
+  private async syncFromFs(): Promise<HydratedDocument<Migration>[]> {
     try {
       const { migrationsInFs } = await this.getMigrations()
 
@@ -246,6 +315,10 @@ export class Migrator {
    * This functionality is opposite of sync().
    */
   async prune(): Promise<HydratedDocument<Migration>[]> {
+    return this.withLock(() => this.pruneMigrations())
+  }
+
+  private async pruneMigrations(): Promise<HydratedDocument<Migration>[]> {
     try {
       let migrationsDeleted: HydratedDocument<Migration>[] = []
 
@@ -268,14 +341,42 @@ export class Migrator {
   }
 
   /**
+   * Runs an operation that changes migration state while holding the
+   * migration lock, so that concurrent processes take turns.
+   */
+  private async withLock<T>(operation: () => Promise<T>): Promise<T> {
+    if (!this.lock) {
+      return operation()
+    }
+    const lease = await this.lock.acquire()
+    this.lease = lease
+    try {
+      return await operation()
+    } finally {
+      this.lease = undefined
+      await lease.release()
+    }
+  }
+
+  private async hasMigrationsToImport(): Promise<boolean> {
+    try {
+      const { migrationsInFs } = await this.getMigrations()
+      return migrationsInFs.some((file) => !file.existsInDatabase)
+    } catch {
+      // Take the locked path, whose sync reports the failure as it always has.
+      return true
+    }
+  }
+
+  /**
    * Logs a message to the console if there are no pending migrations
    * In cli mode, it also lists all migrations and their status
    */
-  private async noPendingMigrations(): Promise<HydratedDocument<Migration>[]> {
+  private async noPendingMigrations(sync = true): Promise<HydratedDocument<Migration>[]> {
     this.log(chalk.yellow('There are no pending migrations'))
     if (this.cli) {
       this.log(chalk.cyan('Current migrations status:'))
-      await this.list()
+      await (sync ? this.syncAndList() : this.logMigrations())
     }
     return []
   }
@@ -389,6 +490,11 @@ export class Migrator {
     const migrationsRan: HydratedDocument<Migration>[] = []
     const migrationsRoot = path.resolve(this.migrationsPath) + path.sep
     for (const migration of migrationsToRun) {
+      // Migrations run one after another, so the lease is confirmed once per step
+      const held = this.lease ? await this.lease.confirm() : true // NOSONAR
+      if (!held) {
+        throw new Error(`Stopped before migration '${migration.name}': the migration lock was lost because its lease expired, so another process may be running migrations. Run the command again to continue.`)
+      }
       const baseMigrationPath = path.resolve(path.join(this.migrationsPath, migration.filename))
       if (!baseMigrationPath.startsWith(migrationsRoot)) {
         throw new Error(`Refusing to import migration '${migration.filename}' — resolved path escapes the migrations directory.`)
