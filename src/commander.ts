@@ -69,7 +69,7 @@ const logError = (error: unknown): void => {
   }
 }
 
-export const getConfig = async (configPath: string, quiet = false): Promise<ConfigOptions> => {
+export const getConfig = async (configPath: string, quiet: boolean): Promise<ConfigOptions> => {
   let configOptions: ConfigOptions = {}
   if (configPath) {
     try {
@@ -103,14 +103,14 @@ export const getEnvBoolean = (key: Env): boolean | undefined => {
 }
 
 export const getMigrator = async (options: ConfigOptions): Promise<Migrator> => {
-  config({ path: '.env', quiet: true })
-  config({ path: '.env.local', quiet: true, override: true })
+  config('.env')
+  config('.env.local', true)
 
   const mode = options.mode ?? getEnv(Env.MIGRATE_MODE)
 
   if (mode) {
-    config({ path: `.env.${mode}`, quiet: true, override: true })
-    config({ path: `.env.${mode}.local`, quiet: true, override: true })
+    config(`.env.${mode}`, true)
+    config(`.env.${mode}.local`, true)
   }
 
   const configPath = options.configPath ?? getEnv(Env.MIGRATE_CONFIG_PATH) ?? defaults.MIGRATE_CONFIG_PATH

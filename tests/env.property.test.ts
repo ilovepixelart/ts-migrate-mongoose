@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import fc from 'fast-check'
 import { parse } from '../src/env'
 
-// Keys match the /[\w.-]+/ character class the parser accepts.
-const keyArb = fc.stringMatching(/^[A-Za-z_][\w.-]{0,15}$/)
+// Keys match the /[\w.-]+/ character class the parser accepts. __proto__ is left to its own test: parse() drops it.
+const keyArb = fc.stringMatching(/^[A-Za-z_][\w.-]{0,15}$/).filter((key) => key !== '__proto__')
 
 // Safe values: no quotes, no backslashes, no line breaks, no '#' (would be
 // treated as a comment). Values are trimmed to match parse() which strips
@@ -13,23 +13,47 @@ const safeValueArb = fc.stringMatching(/^[^\r\n'"`\\#]{0,40}$/).map((s) => s.tri
 
 const envObjectArb = fc.dictionary(keyArb, safeValueArb, { maxKeys: 8 })
 
+// A .env file the parser has to cope with: assignments in every separator, quote, export and comment form,
+// mixed with arbitrary binary noise, joined by one of the three line endings.
+const quotedValueArb = fc.oneof(
+  safeValueArb,
+  safeValueArb.map((value) => `"${value}"`),
+  safeValueArb.map((value) => `'${value}'`),
+  safeValueArb.map((value) => `\`${value}\``),
+)
+const assignmentArb = fc.tuple(fc.constantFrom('', 'export '), keyArb, fc.constantFrom('=', ' = ', ': '), quotedValueArb, fc.constantFrom('', ' # note')).map(([prefix, key, separator, value, comment]) => ({ key, line: `${prefix}${key}${separator}${value}${comment}` }))
+const eolArb = fc.constantFrom('\n', '\r\n', '\r')
+const envSourceArb = fc
+  .tuple(
+    fc.array(
+      fc.oneof(
+        assignmentArb.map(({ line }) => line),
+        fc.string({ unit: 'binary', maxLength: 30 }),
+      ),
+      { maxLength: 10 },
+    ),
+    eolArb,
+  )
+  .map(([lines, eol]) => lines.join(eol))
+const anySourceArb = fc.oneof(envSourceArb, fc.string({ unit: 'binary' }))
+
 const serialize = (obj: Record<string, string>): string =>
   Object.entries(obj)
     .map(([k, v]) => `${k}=${v}`)
     .join('\n')
 
 describe('env.parse — properties', () => {
-  it('never throws on any string input', () => {
+  it('never throws on any input', () => {
     fc.assert(
-      fc.property(fc.string(), (src) => {
+      fc.property(anySourceArb, (src) => {
         expect(() => parse(src)).not.toThrow()
       }),
     )
   })
 
-  it('returns a plain object on any string input', () => {
+  it('returns a plain object on any input', () => {
     fc.assert(
-      fc.property(fc.string(), (src) => {
+      fc.property(anySourceArb, (src) => {
         const result = parse(src)
         expect(typeof result).toBe('object')
         expect(result).not.toBeNull()
@@ -40,24 +64,33 @@ describe('env.parse — properties', () => {
 
   it('every parsed key matches the /[\\w.-]+/ character class', () => {
     fc.assert(
-      fc.property(fc.string(), (src) => {
-        const result = parse(src)
-        for (const key of Object.keys(result)) {
-          expect(key).toMatch(/^[\w.-]+$/)
-        }
+      fc.property(envSourceArb, (src) => {
+        expect(Object.keys(parse(src)).filter((key) => !/^[\w.-]+$/.test(key))).toEqual([])
       }),
     )
   })
 
   it('every parsed value is a string', () => {
     fc.assert(
-      fc.property(fc.string(), (src) => {
-        const result = parse(src)
-        for (const value of Object.values(result)) {
-          expect(typeof value).toBe('string')
-        }
+      fc.property(envSourceArb, (src) => {
+        expect(Object.values(parse(src)).filter((value) => typeof value !== 'string')).toEqual([])
       }),
     )
+  })
+
+  it('parses the key of every assignment line, whatever its separator, quotes, export prefix, comment or line ending', () => {
+    fc.assert(
+      fc.property(fc.array(assignmentArb, { minLength: 1, maxLength: 10 }), eolArb, (assignments, eol) => {
+        const src = assignments.map(({ line }) => line).join(eol)
+        expect(Object.keys(parse(src)).sort()).toEqual([...new Set(assignments.map(({ key }) => key))].sort())
+      }),
+    )
+  })
+
+  // Known defect, pinned as it is: parse() assigns into a plain object, so a __proto__ key sets the prototype
+  // instead of a value. A fix fails this test; replace it with one that expects { __proto__: 'a' } kept as a key.
+  it('known defect: drops a __proto__ key', () => {
+    expect(Object.keys(parse('__proto__=a\nconstructor=b'))).toEqual(['constructor'])
   })
 
   it('round-trips simple KEY=value serialization', () => {
@@ -138,16 +171,6 @@ describe('env.parse — properties', () => {
     fc.assert(
       fc.property(keyArb, safeValueArb, (key, value) => {
         expect(parse(`export ${key}=${value}`)).toEqual({ [key]: value })
-      }),
-    )
-  })
-
-  it('does not mutate its input string (strings are immutable; assert the returned object has no aliasing of the input)', () => {
-    fc.assert(
-      fc.property(fc.string(), (src) => {
-        const before = src
-        parse(src)
-        expect(src).toBe(before)
       }),
     )
   })

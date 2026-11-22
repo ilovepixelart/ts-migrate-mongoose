@@ -141,6 +141,74 @@ jobs:
             -Dsonar.coverage.exclusions=tests/**
             -Dsonar.qualitygate.wait=true
 
+  # Installs the npm-packed build and the published baseline into a fresh consumer project and
+  # runs the CLI, the API (require and import) and the NestJS module against a real MongoDB.
+  e2e:
+    name: E2E (packed artifact, mongoose ${{ matrix.mongoose-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        mongoose-version: [6.12.2, 7.6.4, 8.23.0, 9.4.1]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.x
+          cache: npm
+
+      # No dependency install scripts; the one the tests need runs explicitly next.
+      - name: Installing dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Download the MongoDB binary
+        run: node node_modules/mongodb-memory-server/postinstall.js
+
+      - name: End-to-end tests
+        env:
+          E2E_MONGOOSE: ${{ matrix.mongoose-version }}
+        run: npm run test:e2e
+
+  # The Bend laws in tests/laws: every proof checks, and the committed main.mjs oracles are what their main.bend
+  # compiles to (npm run test:laws). Bend comes from its release archive, checked against the sha256 that
+  # https://bend-lang.com/install.sh publishes for this version.
+  laws:
+    name: Laws (Bend proofs)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      BEND_VERSION: 2.0.40
+      BEND_SHA256: c9ff8d67bd903fb6ad9a26b43d8a62c01021de82a44d55ce4a3dcd4732113d6b
+      BEND_NO_TELEMETRY: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Bend
+        run: |
+          set -euo pipefail
+          archive="bend-${BEND_VERSION}-linux-x64.tar.gz"
+          curl --proto '=https' --tlsv1.2 -fsSL -o "$RUNNER_TEMP/$archive" "https://github.com/bendlang/bend/releases/download/v${BEND_VERSION}/$archive"
+          echo "${BEND_SHA256}  $RUNNER_TEMP/$archive" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP"
+          echo "BEND_HOME=$RUNNER_TEMP/bend" >> "$GITHUB_ENV"
+          echo "$RUNNER_TEMP/bend/bin" >> "$GITHUB_PATH"
+
+      - name: Check the proofs and the compiled oracles
+        run: npm run test:laws
+
   zizmor:
     name: Workflow audit (zizmor)
     runs-on: ubuntu-latest
@@ -164,7 +232,7 @@ jobs:
   # The one check branch rules require: it fails unless every job above succeeded.
   ci:
     name: CI
-    needs: [tests, sonar, zizmor]
+    needs: [tests, sonar, e2e, laws, zizmor]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5

@@ -14,6 +14,7 @@ npx simple-git-hooks  # one-time: install the git hooks defined in package.json
 ```bash
 npm run build              # Build with pkgroll
 npm test                   # Run tests with vitest + coverage
+npm run test:e2e           # Pack, install into a fresh consumer, run the e2e suite
 npm run type:check         # TypeScript type checking (src)
 npm run type:check:tests   # TypeScript type checking (tests)
 npm run biome              # Lint check
@@ -26,7 +27,7 @@ The project uses `simple-git-hooks`. Contributors run `npx simple-git-hooks`
 once after `npm install` to register the hooks locally:
 
 - **pre-commit**: runs `npm run type:check`
-- **pre-push**: runs `npm run biome:fix`
+- **pre-push**: runs `npm run biome`
 
 ## Before Submitting a PR
 
@@ -34,6 +35,69 @@ once after `npm install` to register the hooks locally:
 2. Ensure no test regressions
 3. Follow the existing code style (Biome handles formatting)
 4. Keep changes focused: one feature or fix per PR
+
+## End-to-end tests
+
+`npm run test:e2e` builds and packs the package, installs the tarball into a fresh consumer project
+in the system temp directory, and runs every scenario in `tests/e2e/scenarios/` against a real
+MongoDB: the `migrate` binary, its interactive prompt in a pseudo-terminal, the API through
+`require` and `import`, the NestJS module, and a consumer type check. The same scenarios run
+against the published version named in `tests/e2e/allowlist.json`, and the suite fails on any
+difference that is not listed there. The prompt scenarios drive the terminal with `python3`'s
+`pty` module, so the suite needs Python 3 on macOS or Linux.
+
+- `tests/e2e/contract/` pins the expected output, exit codes, files and database state, one file
+  per area. Empty collections are left out of database snapshots: whether mongoose has created
+  one when a process exits is a race.
+- `tests/e2e/contract/inventory.e2e.ts` fails when a command or option in the README help, or a
+  key of the exported `Env` enum, has no scenario exercising it.
+- `tests/e2e/laws.ts` states the laws of the public surface. `tests/e2e/contract/laws.e2e.ts` fails
+  when a command, option, `Env` key, export or public class member (read from the published
+  declarations) is in no law, or when a law has no contract test titled `law <id>: ...`. A new
+  public feature therefore needs a law and a test before the suite passes.
+- A known defect is pinned by a test titled `known defect: ...` that asserts today's exact
+  behaviour, so fixing it fails that test, which is then replaced by one asserting the law.
+- A pull request that changes user-visible behaviour adds one entry per changed observation path
+  to `changes` in `tests/e2e/allowlist.json`, with its PR number and reason. A change that shows
+  on some mongoose versions only lists their majors in `mongoose`, e.g. `[6, 7]`.
+- After a release, set `baseline` to the released version and empty `changes`.
+- `E2E_MONGOOSE=<version>` picks the mongoose version installed in the consumer (default: the
+  lockfile's). `E2E_CANDIDATE` and `E2E_BASELINE` take any npm install spec (a tarball path or
+  `name@version`) in place of the packed build and the baseline.
+
+## Laws in Bend
+
+`tests/laws/` holds two Bend (https://bend-lang.com) projects laid out as Bend's demos are:
+`names/` (what `Migrator.create` accepts) and `migrations/` (a model of what `run`, `sync` and
+`prune` do). In each, `main.bend` is the program, `SPEC.bend` the specification it is held to,
+`LAWS.bend` the laws relating the two and `PROOF.bend` their proofs. Change `SPEC.bend` and
+`LAWS.bend` only to change what the program must do. `main.bend` compiles to `main.mjs`, the
+oracle the tests in `tests/laws/` and the e2e `laws` scenario compare the real code with; the
+`.mjs` is committed so the tests run without Bend.
+
+`npm run test:laws` checks every proof, recompiles both `main.mjs` and fails if a committed one
+is out of date. It needs Bend 2.0.40 (`curl -fsSL https://bend-lang.com/install.sh | sh`).
+`npm run test:laws:verdict` checks the proofs a second time with Bend's kernel that has a proof in
+Lean; building that kernel needs the Lean v4.34.0 toolchain, which CI does not install.
+
+## Mutation testing
+
+Mutation testing changes `src/` one small edit at a time and checks that a test fails for each.
+
+- `npm run test:mutation` runs it against the unit and integration suite (`stryker.config.mjs`).
+- `npm run test:mutation:e2e` runs it against the end-to-end suite on the packed package
+  (`stryker.e2e.config.mjs`, `tests/e2e/mutant.ts`). A mutant counts as killed when any scenario's
+  observation differs from the unmutated build. A full run takes hours, so scope it while working on
+  one area: `npm run test:mutation:e2e -- --mutate src/prompts.ts` or `--mutate src/index.ts:150-185`.
+  The observation that killed each mutant is saved in `reports/mutation/e2e-kills/`.
+- Reports are written to `reports/mutation/`. A surviving mutant needs a test, or, when nothing
+  observable through the package tells it apart from the original, an entry with the reason in
+  `tests/mutation/equivalent-e2e.json`. `npm run test:mutation:survivors -- e2e` checks the last e2e
+  report: it fails on a survivor that is not listed, on a listed mutant that was killed, and on a mutant
+  counted as killed because the harness failed (MongoDB not starting, or the terminal driver failing
+  inside a scenario) rather than because a scenario differed, or that timed out. Rerun those with `--mutate`; a busy machine is the usual cause.
+  `npm run test:mutation:survivors -- all` checks the last unit and e2e reports together: a mutant
+  counts as surviving only when both suites miss it, since either one failing catches the change.
 
 ## How to Contribute
 

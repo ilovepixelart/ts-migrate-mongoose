@@ -77,6 +77,9 @@ export class Migrator {
 
     if (options.uri) {
       this.uri = options.uri
+      // Before the connection opens, so a rejected name leaves none behind. mongoose 8 and later reject an empty name with
+      // this error once the connection exists; earlier versions store the migrations in a collection named "s".
+      if (this.collection === '') throw new TypeError('Collection name cannot be empty')
       this.connection = mongoose.createConnection(this.uri, options.connectOptions)
     } else {
       throw new Error('No mongoose connection or mongo uri provided to migrator')
