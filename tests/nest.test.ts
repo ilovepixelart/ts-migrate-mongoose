@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { MigrationModule } from '../src/nest/migration.module'
 import { MIGRATION_OPTIONS, MigrationService } from '../src/nest/migration.service'
@@ -11,9 +11,13 @@ const findFactoryProvider = (providers: Provider[], token: unknown): FactoryProv
   return hit
 }
 
+// Every line a Logger logs, prefixed with its context.
+const logs = vi.hoisted(() => [] as string[])
+
 vi.mock('@nestjs/common', () => {
   const LoggerMock = class {
-    log = vi.fn()
+    constructor(private readonly context: string) {}
+    log = (message: string) => logs.push(`${this.context}: ${message}`)
   }
   return {
     Module: () => () => {},
@@ -166,76 +170,68 @@ describe('MigrationModule', () => {
   })
 })
 
+// A connected Migrator whose list and run resolve to the given records.
+const connectTo = async (existing: { filename: string }[], applied: { filename: string }[]) => {
+  const { Migrator } = await import('../src/index')
+  const migrator = { list: vi.fn().mockResolvedValue(existing), run: vi.fn().mockResolvedValue(applied), close: vi.fn().mockResolvedValue(undefined) }
+  vi.mocked(Migrator.connect).mockResolvedValueOnce(migrator as never)
+  return { connect: vi.mocked(Migrator.connect), migrator }
+}
+
 describe('MigrationService', () => {
-  it('should store options', () => {
-    const service = new MigrationService(defaultOptions)
-    expect(service).toBeDefined()
+  beforeEach(() => {
+    logs.length = 0
   })
 
-  it('should connect and run default migrations on bootstrap', async () => {
+  it('connects with its options, runs every pending migration up and logs each one and the count', async () => {
+    const { connect, migrator } = await connectTo([], [{ filename: '1-first' }, { filename: '2-second' }])
     const service = new MigrationService(defaultOptions)
     await service.onApplicationBootstrap()
-    expect(service.instance).toBeDefined()
+    expect(connect).toHaveBeenLastCalledWith(defaultOptions)
+    expect(migrator.run).toHaveBeenCalledExactlyOnceWith('up')
+    expect(service.instance).toBe(migrator)
+    expect(logs).toEqual(['MigrationService: Connected to migration database', 'MigrationService: up: 1-first', 'MigrationService: up: 2-second', 'MigrationService: Applied 2 migration(s)'])
   })
 
-  it('should call onBootstrap callback when provided', async () => {
+  it('logs what it applied even when some migrations were already recorded', async () => {
+    await connectTo([{ filename: '1-first' }], [{ filename: '2-second' }])
+    await new MigrationService(defaultOptions).onApplicationBootstrap()
+    expect(logs).toEqual(['MigrationService: Connected to migration database', 'MigrationService: up: 2-second', 'MigrationService: Applied 1 migration(s)'])
+  })
+
+  it('logs the total when every recorded migration is already up', async () => {
+    await connectTo([{ filename: '1-first' }, { filename: '2-second' }], [])
+    await new MigrationService(defaultOptions).onApplicationBootstrap()
+    expect(logs).toEqual(['MigrationService: Connected to migration database', 'MigrationService: All migrations are up to date (2 total)'])
+  })
+
+  it('logs that there are no migrations when none are recorded or pending', async () => {
+    await connectTo([], [])
+    await new MigrationService(defaultOptions).onApplicationBootstrap()
+    expect(logs).toEqual(['MigrationService: Connected to migration database', 'MigrationService: No migrations found'])
+  })
+
+  it('hands the connected Migrator to onBootstrap instead of running migrations', async () => {
+    const { migrator } = await connectTo([], [{ filename: '1-first' }])
     const onBootstrap = vi.fn()
-    const service = new MigrationService({ ...defaultOptions, onBootstrap })
-    await service.onApplicationBootstrap()
-    expect(onBootstrap).toHaveBeenCalledWith(service.instance)
+    await new MigrationService({ ...defaultOptions, onBootstrap }).onApplicationBootstrap()
+    expect(onBootstrap).toHaveBeenCalledExactlyOnceWith(migrator)
+    expect(migrator.list).not.toHaveBeenCalled()
+    expect(migrator.run).not.toHaveBeenCalled()
+    expect(logs).toEqual(['MigrationService: Connected to migration database'])
   })
 
-  it('should log when no migrations found', async () => {
+  it('closes the Migrator on shutdown', async () => {
+    const { migrator } = await connectTo([], [])
     const service = new MigrationService(defaultOptions)
     await service.onApplicationBootstrap()
-    expect(service.instance).toBeDefined()
-  })
-
-  it('should log when migrations are up to date', async () => {
-    const { Migrator } = await import('../src/index')
-    vi.mocked(Migrator.connect).mockResolvedValueOnce({
-      run: vi.fn().mockResolvedValue([]),
-      list: vi.fn().mockResolvedValue([{ name: 'test', filename: '123-test', state: 'up' }]),
-      close: vi.fn(),
-    } as never)
-
-    const service = new MigrationService(defaultOptions)
-    await service.onApplicationBootstrap()
-    expect(service.instance).toBeDefined()
-  })
-
-  it('should log applied migrations', async () => {
-    const { Migrator } = await import('../src/index')
-    vi.mocked(Migrator.connect).mockResolvedValueOnce({
-      run: vi.fn().mockResolvedValue([{ name: 'test', filename: '123-test' }]),
-      list: vi.fn().mockResolvedValue([]),
-      close: vi.fn(),
-    } as never)
-
-    const service = new MigrationService(defaultOptions)
-    await service.onApplicationBootstrap()
-    expect(service.instance).toBeDefined()
-  })
-
-  it('should close migrator on shutdown', async () => {
-    const service = new MigrationService(defaultOptions)
-    await service.onApplicationBootstrap()
-    const closeSpy = vi.spyOn(service.instance, 'close')
     await service.onApplicationShutdown()
-    expect(closeSpy).toHaveBeenCalled()
+    expect(migrator.close).toHaveBeenCalledOnce()
   })
 
-  it('should not throw on shutdown when migrator not initialized', async () => {
+  it('shuts down without a Migrator when bootstrap never ran', async () => {
     const service = new MigrationService(defaultOptions)
-    await expect(service.onApplicationShutdown()).resolves.not.toThrow()
-  })
-
-  it('should expose migrator via instance getter', async () => {
-    const service = new MigrationService(defaultOptions)
-    await service.onApplicationBootstrap()
-    expect(service.instance).toBeDefined()
-    expect(service.instance.run).toBeDefined()
-    expect(service.instance.list).toBeDefined()
-    expect(service.instance.close).toBeDefined()
+    await expect(service.onApplicationShutdown()).resolves.toBeUndefined()
+    expect(service.instance).toBeUndefined()
   })
 })

@@ -96,7 +96,7 @@ describe('commander', async () => {
   })
 
   it('should getConfig .json options', async () => {
-    const config = await getConfig('./examples/config-file-usage/src/migrate.json')
+    const config = await getConfig('./examples/config-file-usage/src/migrate.json', false)
     expect(config).toEqual({
       uri: 'mongodb://localhost/my-db',
       migrationsPath: 'migrations',
@@ -104,7 +104,7 @@ describe('commander', async () => {
   })
 
   it('should getConfig .ts options', async () => {
-    const config = await getConfig('./examples/config-file-usage/src/migrate.ts')
+    const config = await getConfig('./examples/config-file-usage/src/migrate.ts', false)
     expect(config).toEqual({
       uri: 'mongodb://localhost/my-db',
       migrationsPath: 'migrations',
@@ -115,7 +115,7 @@ describe('commander', async () => {
   })
 
   it('should getConfig .js options', async () => {
-    const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
+    const config = await getConfig('./examples/config-file-usage/dist/migrate.js', false)
     expect(config).toEqual({
       uri: 'mongodb://localhost/my-db',
       migrationsPath: 'migrations',

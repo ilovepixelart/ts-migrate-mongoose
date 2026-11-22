@@ -1,0 +1,421 @@
+[
+  {
+    "file": "src/commander.ts",
+    "mutator": "ArrowFunction",
+    "replacement": "() => undefined",
+    "line": ".catch(() => false)",
+    "reason": "undefined is as falsy as false for the only caller, an if."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "line": "if (connectOptions) {",
+    "reason": "mongoose.createConnection treats undefined options like missing ones."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "line": "if (exit) process.exit(0)",
+    "reason": "The connection is closed by then, so the CLI ends by itself with exit code 0."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "line": "if (exit) process.exit(0)",
+    "reason": "The connection is closed by then, so the CLI ends by itself with exit code 0."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "line": "if (exit) process.exit(0)",
+    "reason": "Migrate.run is only called by the CLI entry point, with exit true."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "line": "if (exit) process.exit(1)",
+    "reason": "Migrate.run is only called by the CLI entry point, with exit true."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "line": "if (extension === '.ts') {",
+    "reason": "Both branches import the same URL the same way."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "extension !== '.ts'",
+    "line": "if (extension === '.ts') {",
+    "reason": "Both branches import the same URL the same way."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "line": "if (extension === '.ts') {",
+    "reason": "Both branches import the same URL the same way."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "line": "if (extension === '.ts') {",
+    "reason": "Both branches import the same URL the same way."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "line": "if (templatePath) {",
+    "reason": "Migrator treats an undefined templatePath like a missing one."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "line": "if (this.migrator instanceof Migrator) {",
+    "reason": "process.exit follows and ends the connection with the process."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "line": "return await this.finish(exit, error instanceof Error ? error : new Error('An unknown error occurred', { cause: error }))",
+    "reason": "Nothing the CLI calls throws a value that is not an Error: Migrator and the config loader throw or wrap Errors."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "ObjectLiteral",
+    "replacement": "{}",
+    "line": "return await this.finish(exit, error instanceof Error ? error : new Error('An unknown error occurred', { cause: error }))",
+    "reason": "Nothing the CLI calls throws a value that is not an Error: Migrator and the config loader throw or wrap Errors."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"Stryker was here!\"",
+    "line": "return str.toLocaleLowerCase().replaceAll(/_([a-z])/g, (g) => (g[1] ? g[1].toUpperCase() : ''))",
+    "reason": "The pattern captures exactly one letter, so g[1] is always set."
+  },
+  {
+    "file": "src/env.ts",
+    "mutator": "Regex",
+    "replacement": "/(?:^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm",
+    "line": "const LINE = /(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm // NOSONAR",
+    "reason": "The two alternatives are the same anchor."
+  },
+  {
+    "file": "src/env.ts",
+    "mutator": "Regex",
+    "replacement": "/(?:^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm",
+    "line": "const LINE = /(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm // NOSONAR",
+    "occurrence": 2,
+    "reason": "The two alternatives are the same anchor."
+  },
+  {
+    "file": "src/env.ts",
+    "mutator": "Regex",
+    "replacement": "/(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm",
+    "line": "const LINE = /(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm // NOSONAR",
+    "reason": "The lazy quantifier matches one whitespace character either way; the value takes the rest and is trimmed."
+  },
+  {
+    "file": "src/env.ts",
+    "mutator": "Regex",
+    "replacement": "/(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$)/gm",
+    "line": "const LINE = /(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm // NOSONAR",
+    "reason": "The two alternatives are the same anchor."
+  },
+  {
+    "file": "src/env.ts",
+    "mutator": "Regex",
+    "replacement": "/(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$)/gm",
+    "line": "const LINE = /(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm // NOSONAR",
+    "occurrence": 2,
+    "reason": "The two alternatives are the same anchor."
+  },
+  {
+    "file": "src/env.ts",
+    "mutator": "Regex",
+    "replacement": "/(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\S*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm",
+    "line": "const LINE = /(?:^|^)\\s*(?:export\\s+)?([\\w.-]+)(?:\\s*=\\s*?|:\\s+?)(\\s*'(?:\\\\'|[^'])*'|\\s*\"(?:\\\\\"|[^\"])*\"|\\s*`(?:\\\\`|[^`])*`|[^#\\r\\n]+)?\\s*(?:#.*)?(?:$|$)/gm // NOSONAR",
+    "reason": "The lazy quantifier matches nothing either way; the value group takes what follows the =."
+  },
+  {
+    "file": "src/env.ts",
+    "mutator": "Regex",
+    "replacement": "/\\r\\n/gm",
+    "line": "const lines = src.replaceAll(/\\r\\n?/gm, '\\n')",
+    "reason": "A lone \\r already ends a line for the multiline anchors and the value character class."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "line": "const [time] = filename.split('-')",
+    "reason": "The createdAt of a file entry is never read: sync computes its own from the filename."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"Stryker was here!\"",
+    "line": "const timestamp = Number.parseInt(time ?? '', 10)",
+    "reason": "The createdAt of a file entry is never read: sync computes its own from the filename."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "LogicalOperator",
+    "replacement": "time && ''",
+    "line": "const timestamp = Number.parseInt(time ?? '', 10)",
+    "reason": "The createdAt of a file entry is never read: sync computes its own from the filename."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "line": "if (fs.existsSync(basePath)) {",
+    "reason": "Recorded filenames have no extension and no file without one is a migration, so the bare path does not exist and the fallback returns it unchanged."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "migrationsRan.length >= 0",
+    "line": "if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {",
+    "reason": "runMigrations returns every migration it is given or throws, and run returns earlier when there is none."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "LogicalOperator",
+    "replacement": "migrationsToRun.length === migrationsRan.length || migrationsRan.length > 0",
+    "line": "if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {",
+    "reason": "runMigrations returns every migration it is given or throws, and run returns earlier when there is none."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "line": "if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {",
+    "reason": "runMigrations returns every migration it is given or throws, and run returns earlier when there is none."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "line": "if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {",
+    "occurrence": 2,
+    "reason": "runMigrations returns every migration it is given or throws, and run returns earlier when there is none."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "line": "if (migrationsToRun.length === migrationsRan.length && migrationsRan.length > 0) {",
+    "occurrence": 3,
+    "reason": "runMigrations returns every migration it is given or throws, and run returns earlier when there is none."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "line": "if (this.cli) {",
+    "reason": "Outside the CLI, list() logs nothing and its sync imports nothing, run() having synced just before."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "line": "return fs.readFileSync(templatePath, 'utf8')",
+    "reason": "Without an encoding the template is a Buffer, written to the new file byte for byte."
+  },
+  {
+    "file": "src/loader.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "line": "if (loaded) return",
+    "reason": "import() caches tsx, so importing it again changes nothing."
+  },
+  {
+    "file": "src/loader.ts",
+    "mutator": "BooleanLiteral",
+    "replacement": "true",
+    "line": "loaded = false",
+    "reason": "import() caches tsx, so importing it again changes nothing."
+  },
+  {
+    "file": "src/loader.ts",
+    "mutator": "BooleanLiteral",
+    "replacement": "false",
+    "line": "loaded = true",
+    "reason": "import() caches tsx, so importing it again changes nothing."
+  },
+  {
+    "file": "src/model.ts",
+    "mutator": "BooleanLiteral",
+    "replacement": "false",
+    "line": "autoCreate: true,",
+    "reason": "Building the createdAt index creates the collection anyway."
+  },
+  {
+    "file": "src/nest/migration.service.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "line": "if (this.migrator) {",
+    "reason": "Nest runs the shutdown hook only on modules whose bootstrap hook ran, which sets the migrator."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "choices.length < pageSize",
+    "line": "if (choices.length <= pageSize) {",
+    "reason": "With exactly a page of choices the scrolling branch returns the same range."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "cursor <= scrollOffset",
+    "line": "if (cursor < scrollOffset) {",
+    "reason": "When they are equal, setting scrollOffset to cursor changes nothing."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "lastRenderedLines >= 0",
+    "line": "if (lastRenderedLines > 0) {",
+    "reason": "lastRenderedLines is set to at least 2 before the first render."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "EqualityOperator",
+    "replacement": "lastRenderedLines >= 0",
+    "line": "if (lastRenderedLines > 0) {",
+    "occurrence": 2,
+    "reason": "lastRenderedLines is set to at least 2 before the first render."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "line": "if (lastRenderedLines > 0) {",
+    "reason": "lastRenderedLines is set to at least 2 before the first render."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "true",
+    "line": "if (lastRenderedLines > 0) {",
+    "occurrence": 2,
+    "reason": "lastRenderedLines is set to at least 2 before the first render."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "line": "process.on('exit', restoreCursor)",
+    "reason": "Every way out of the prompt removes the listener and shows the cursor itself, and SIGTERM or SIGHUP do not end the process at the prompt."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "line": "process.removeListener('SIGHUP', restoreCursor)",
+    "reason": "Observable only by signalling the CLI between the prompt and the exit, a window too short to hit deterministically."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "line": "process.removeListener('SIGTERM', restoreCursor)",
+    "reason": "Observable only by signalling the CLI between the prompt and the exit, a window too short to hit deterministically."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "line": "process.stdin.removeListener('keypress', onKeypress)",
+    "reason": "The CLI shows at most one prompt per process and pauses stdin after it, so the listener left behind never fires."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "BooleanLiteral",
+    "replacement": "true",
+    "line": "process.stdin.setRawMode(false)",
+    "reason": "The process exits right after, and Node restores the terminal mode on exit."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"\"",
+    "line": "process.stdout.removeListener('resize', onResize)",
+    "reason": "Observable only by resizing the terminal between the prompt and the exit, a window too short to hit deterministically."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "line": "if (extension === '.ts') {",
+    "reason": "Both branches import the same URL the same way."
+  },
+  {
+    "file": "src/commander.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "line": "if (this.migrator instanceof Migrator) {",
+    "reason": "process.exit follows and ends the connection with the process."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "line": "if (fs.existsSync(basePath)) {",
+    "reason": "Recorded filenames have no extension and no file without one is a migration, so the bare path does not exist and the fallback returns it unchanged."
+  },
+  {
+    "file": "src/loader.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "line": ".then(() => {",
+    "reason": "import() caches tsx, so importing it again changes nothing."
+  },
+  {
+    "file": "src/loader.ts",
+    "mutator": "BlockStatement",
+    "replacement": "{}",
+    "line": ".catch(() => {",
+    "reason": "loaded is still false when the import fails, so resetting it changes nothing."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "line": "process.stdin.resume()",
+    "reason": "The CLI shows at most one prompt per process, and on the first one the keypress listener makes readline attach a data listener, which starts stdin flowing."
+  },
+  {
+    "file": "src/prompts.ts",
+    "mutator": "CallExpression",
+    "replacement": ";",
+    "line": "process.stdin.pause()",
+    "reason": "The CLI shows at most one prompt per process and ends with process.exit, so stdin left flowing never holds the process open."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "ConditionalExpression",
+    "replacement": "false",
+    "line": "if (this.collection === '') throw new TypeError('Collection name cannot be empty')",
+    "reason": "The mutation runs install mongoose 9, which rejects an empty name with the same TypeError; the e2e matrix on mongoose 6 and 7 fails without the check."
+  },
+  {
+    "file": "src/index.ts",
+    "mutator": "StringLiteral",
+    "replacement": "\"Stryker was here!\"",
+    "line": "if (this.collection === '') throw new TypeError('Collection name cannot be empty')",
+    "reason": "The mutation runs install mongoose 9, which rejects an empty name with the same TypeError; the e2e matrix on mongoose 6 and 7 fails without the check."
+  }
+]

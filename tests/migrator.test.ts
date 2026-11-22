@@ -1,6 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import fs from 'node:fs'
+import os from 'node:os'
 import mongoose, { type Connection, Types } from 'mongoose'
 import { getConfig } from '../src/commander'
 import { MIGRATION_FILE_REGEX } from '../src/constants'
@@ -121,6 +122,12 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
       connectedSpy.mockRestore()
       closeSpy.mockRestore()
     }
+  })
+
+  it('rejects an empty collection name without opening a connection', async () => {
+    const open = mongoose.connections.length
+    await expect(Migrator.connect({ uri, collection: '' })).rejects.toThrow(new TypeError('Collection name cannot be empty'))
+    expect(mongoose.connections.length).toBe(open)
   })
 
   it.each([
@@ -296,7 +303,8 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should ensure migrations path', async () => {
-    fs.rmSync('migrations', { recursive: true })
+    // Shuffled, this can be the first test, before anything has created the folder.
+    fs.rmSync('migrations', { recursive: true, force: true })
     const migrator = await Migrator.connect({ uri })
     expect(migrator).toBeInstanceOf(Migrator)
     expect(fs.existsSync('migrations')).toBe(true)
@@ -304,6 +312,19 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
     expect(migrator.connection.readyState).toBe(1)
     await migrator.close()
     expect(migrator.connection.readyState).toBe(0)
+  })
+
+  it('creates a missing migrations path with every missing parent folder', async () => {
+    const root = fs.mkdtempSync(`${os.tmpdir()}/tmm-nested-`)
+    const migrationsPath = `${root}/db/migrations`
+    const migrator = await Migrator.connect({ uri, migrationsPath, collection: 'nested_path' })
+    try {
+      expect(fs.statSync(migrationsPath).isDirectory()).toBe(true)
+      expect(fs.readdirSync(migrationsPath)).toEqual([])
+    } finally {
+      await migrator.close()
+      fs.rmSync(root, { recursive: true, force: true })
+    }
   })
 
   it('should throw "Failed to run migration"', async () => {
@@ -604,7 +625,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should get migration .ts files', async () => {
-    const config = await getConfig('./examples/config-file-usage/src/migrate.ts')
+    const config = await getConfig('./examples/config-file-usage/src/migrate.ts', false)
     const migrator = await Migrator.connect({ ...config, uri, migrationsPath: './examples/config-file-usage/src/migrations' })
     // @ts-expect-error - private method
     const { migrationsInFs } = await migrator.getMigrations()
@@ -616,7 +637,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should get migration .js files', async () => {
-    const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
+    const config = await getConfig('./examples/config-file-usage/dist/migrate.js', false)
     const migrator = await Migrator.connect({ ...config, uri, migrationsPath: './examples/config-file-usage/dist/migrations' })
     // @ts-expect-error - private method
     const { migrationsInFs } = await migrator.getMigrations()
@@ -628,7 +649,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should same filename when migrate using .ts files', async () => {
-    const config = await getConfig('./examples/config-file-usage/src/migrate.ts')
+    const config = await getConfig('./examples/config-file-usage/src/migrate.ts', false)
     const migrator = await Migrator.connect({
       ...config,
       uri,
@@ -647,7 +668,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should same filename when migrate using .js files', async () => {
-    const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
+    const config = await getConfig('./examples/config-file-usage/dist/migrate.js', false)
     const migrator = await Migrator.connect({
       ...config,
       uri,
@@ -666,7 +687,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should run up/down when migrate using .ts files', async () => {
-    const config = await getConfig('./examples/config-file-usage/src/migrate.ts')
+    const config = await getConfig('./examples/config-file-usage/src/migrate.ts', false)
     const migrator = await Migrator.connect({
       ...config,
       uri,
@@ -722,7 +743,7 @@ describe('Tests for Migrator class - Programmatic approach', async () => {
   })
 
   it('should run up/down when migrate using .js files', async () => {
-    const config = await getConfig('./examples/config-file-usage/dist/migrate.js')
+    const config = await getConfig('./examples/config-file-usage/dist/migrate.js', false)
     const migrator = await Migrator.connect({
       ...config,
       uri,
