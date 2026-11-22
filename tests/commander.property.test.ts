@@ -8,6 +8,23 @@ import { Env } from '../src/types'
 // with a letter. Matches the shape of every value in the Env enum.
 const envLikeArb = fc.stringMatching(/^[A-Z][A-Z_]{0,20}$/)
 
+// Reference implementation written independently of the regex in toCamelCase: lowercase everything, then let
+// each underscore that is followed by a letter swallow it and uppercase it, scanning left to right.
+const naiveCamelCase = (input: string): string => {
+  const lower = input.toLowerCase()
+  let out = ''
+  for (let i = 0; i < lower.length; i++) {
+    const next = lower[i + 1] ?? ''
+    if (lower[i] === '_' && next >= 'a' && next <= 'z') {
+      out += next.toUpperCase()
+      i++
+    } else {
+      out += lower[i]
+    }
+  }
+  return out
+}
+
 describe('commander.toCamelCase — properties', () => {
   it('output never contains an underscore followed by a lowercase letter', () => {
     fc.assert(
@@ -29,15 +46,12 @@ describe('commander.toCamelCase — properties', () => {
     )
   })
 
-  it('preserves total length minus the underscores that were consumed', () => {
+  it('matches the naive reference implementation on letters, digits and underscores', () => {
+    // Underscores, doubled underscores and single characters in equal measure, so _<letter> pairs are common.
+    const underscoredArb = fc.array(fc.oneof(fc.constant('_'), fc.constant('__'), fc.stringMatching(/^[A-Za-z0-9]$/)), { maxLength: 16 }).map((parts) => parts.join(''))
     fc.assert(
-      fc.property(envLikeArb, (s) => {
-        // Each _<lowercase> pair collapses to 1 char (the uppercased letter),
-        // saving 1 char per match. After lowercasing, the regex matches
-        // _<any letter>, so every _X collapses.
-        const lowered = s.toLocaleLowerCase()
-        const underscoresConsumed = (lowered.match(/_[a-z]/g) ?? []).length
-        expect(toCamelCase(s as Env)).toHaveLength(s.length - underscoresConsumed)
+      fc.property(underscoredArb, (s) => {
+        expect(toCamelCase(s as Env)).toBe(naiveCamelCase(s))
       }),
     )
   })
@@ -50,13 +64,8 @@ describe('commander.toCamelCase — properties', () => {
     // pair introduced by the previous pass.
     fc.assert(
       fc.property(envLikeArb, (s) => {
-        const bound = s.length + 1
         let current = s as Env
-        for (let i = 0; i < bound; i++) {
-          const next = toCamelCase(current)
-          if (next === current) return
-          current = next as Env
-        }
+        for (let i = 0; i <= s.length && toCamelCase(current) !== current; i++) current = toCamelCase(current) as Env
         expect(toCamelCase(current)).toBe(current)
       }),
     )

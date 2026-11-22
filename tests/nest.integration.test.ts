@@ -108,6 +108,7 @@ describe('MigrationModule — real Nest DI', () => {
     }).compile()
 
     await expect(moduleRef.init()).rejects.toThrow('db unavailable')
+    await moduleRef.close()
   })
 
   it('onBootstrap callback overrides default migrations and receives the connected Migrator', async () => {
@@ -135,7 +136,6 @@ describe('MigrationModule — real Nest DI', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [MigrationModule.forRoot(defaultOptions)],
     }).compile()
-    moduleRef.enableShutdownHooks()
 
     await moduleRef.init()
     await moduleRef.close()

@@ -1,4 +1,51 @@
 {
   "baseline": "5.4.0",
-  "changes": []
+  "changes": [
+    {
+      "path": "/env-edge-cases/steps/0/exitCode",
+      "pr": 526,
+      "reason": "mongoose 6 and 7 stored the migrations of an empty collection name in a collection named \"s\"; the name is now rejected as mongoose 8 and later reject it.",
+      "mongoose": [
+        6,
+        7
+      ]
+    },
+    {
+      "path": "/env-edge-cases/steps/0/stdout",
+      "pr": 526,
+      "reason": "mongoose 6 and 7 stored the migrations of an empty collection name in a collection named \"s\"; the name is now rejected as mongoose 8 and later reject it.",
+      "mongoose": [
+        6,
+        7
+      ]
+    },
+    {
+      "path": "/env-edge-cases/steps/0/stderr",
+      "pr": 526,
+      "reason": "mongoose 6 and 7 stored the migrations of an empty collection name in a collection named \"s\"; the name is now rejected as mongoose 8 and later reject it.",
+      "mongoose": [
+        6,
+        7
+      ]
+    },
+    {
+      "path": "/env-edge-cases/db/s",
+      "pr": 526,
+      "reason": "mongoose 6 and 7 stored the migrations of an empty collection name in a collection named \"s\"; the name is now rejected as mongoose 8 and later reject it.",
+      "mongoose": [
+        6,
+        7
+      ]
+    },
+    {
+      "path": "/env-mode-outside/db/leaked",
+      "pr": 526,
+      "reason": "An env file named by a --mode that leads outside the working directory was read; it is now ignored like a missing one."
+    },
+    {
+      "path": "/env-mode-outside/db/migrations",
+      "pr": 526,
+      "reason": "An env file named by a --mode that leads outside the working directory was read; it is now ignored like a missing one."
+    }
+  ]
 }

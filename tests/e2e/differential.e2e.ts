@@ -10,6 +10,8 @@ interface Change {
   path: string
   pr: number
   reason: string
+  // The mongoose major versions the change shows on; every version when left out.
+  mongoose?: number[]
 }
 
 interface Difference {
@@ -18,8 +20,12 @@ interface Difference {
   candidate: unknown
 }
 
+const mongooseMajor = Number(process.env.E2E_MONGOOSE_VERSION?.split('.')[0])
+if (!Number.isInteger(mongooseMajor)) throw new Error('E2E_MONGOOSE_VERSION is not set: run the suite with `npm run test:e2e`')
+
 const load = (label: string): unknown => JSON.parse(fs.readFileSync(path.join(observationsDir, `${label}.json`), 'utf8'))
 const allowlist = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'allowlist.json'), 'utf8')) as { baseline: string; changes: Change[] }
+const changes = allowlist.changes.filter((change) => !change.mongoose || change.mongoose.includes(mongooseMajor))
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
 
@@ -34,7 +40,7 @@ const differences = (baseline: unknown, candidate: unknown, at = ''): Difference
 
 describe(`differential against ts-migrate-mongoose@${allowlist.baseline}`, () => {
   const found = differences(load('baseline'), load('candidate'))
-  const allowed = new Set(allowlist.changes.map((change) => change.path))
+  const allowed = new Set(changes.map((change) => change.path))
 
   it('matches the published baseline except for allowlisted changes', () => {
     expect(found.filter((difference) => !allowed.has(difference.path))).toEqual([])
@@ -42,13 +48,10 @@ describe(`differential against ts-migrate-mongoose@${allowlist.baseline}`, () =>
 
   it('has no allowlist entry that no longer matches a difference', () => {
     const paths = new Set(found.map((difference) => difference.path))
-    expect(allowlist.changes.filter((change) => !paths.has(change.path))).toEqual([])
+    expect(changes.filter((change) => !paths.has(change.path))).toEqual([])
   })
 
   it('names the pull request and reason for every allowlisted change', () => {
-    for (const change of allowlist.changes) {
-      expect(Number.isInteger(change.pr) && change.pr > 0).toBe(true)
-      expect(change.reason.length).toBeGreaterThan(0)
-    }
+    expect(allowlist.changes.filter((change) => !(Number.isInteger(change.pr) && change.pr > 0 && change.reason.length > 0))).toEqual([])
   })
 })

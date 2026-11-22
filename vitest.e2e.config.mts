@@ -5,5 +5,6 @@ export default defineConfig({
     include: ['tests/e2e/**/*.e2e.ts'],
     name: 'e2e',
     environment: 'node',
+    expect: { requireAssertions: true },
   },
 })

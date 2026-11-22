@@ -4,17 +4,6 @@ import path from 'node:path'
 // Regex from dotenv; it only parses the user's own .env file, so backtracking cost is not attacker-controlled
 const LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/gm // NOSONAR
 
-interface ConfigOutput {
-  parsed: Record<string, string>
-  error?: Error
-}
-
-interface ConfigOptions {
-  path?: string
-  override?: boolean
-  quiet?: boolean
-}
-
 export const parse = (src: string): Record<string, string> => {
   const obj: Record<string, string> = {}
 
@@ -48,19 +37,18 @@ const populate = (parsed: Record<string, string>, override = false): void => {
   }
 }
 
-export const config = (options?: ConfigOptions): ConfigOutput => {
-  const envPath = options?.path ? path.resolve(options.path) : path.resolve(process.cwd(), '.env')
-
+// A missing or unreadable env file adds no variables, and neither does one outside the working directory: the name
+// comes from --mode or MIGRATE_MODE.
+export const config = (envPath: string, override = false): void => {
+  const resolved = path.resolve(envPath)
+  const cwd = process.cwd()
+  // A root working directory (/, C:\) already ends with the separator.
+  if (!resolved.startsWith(cwd.endsWith(path.sep) ? cwd : `${cwd}${path.sep}`)) return
+  let src: string
   try {
-    const src = fs.readFileSync(envPath, 'utf8')
-    const parsed = parse(src)
-    populate(parsed, options?.override)
-    return { parsed }
-  } catch (error) {
-    const err = error instanceof Error ? error : new Error('Failed to read .env file')
-    if (!options?.quiet) {
-      console.error(err.message)
-    }
-    return { parsed: {}, error: err }
+    src = fs.readFileSync(resolved, 'utf8')
+  } catch {
+    return
   }
+  populate(parse(src), override)
 }

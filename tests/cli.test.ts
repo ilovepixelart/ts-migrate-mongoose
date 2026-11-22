@@ -33,6 +33,8 @@ describe('cli', async () => {
 
   beforeEach(async () => {
     await clearDirectory(migrationsPath)
+    // Tests write templates here before any command creates the folder, whatever order they run in.
+    fs.mkdirSync(migrationsPath, { recursive: true })
     connection = await mongoose.createConnection(uri).asPromise()
     await connection.collection('migrations').deleteMany({})
   })

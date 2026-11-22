@@ -4,14 +4,13 @@ import { getEnv, getEnvBoolean, toCamelCase } from '../src/commander'
 import { config, parse } from '../src/env'
 import { Env } from '../src/types'
 
-config({ path: '.env.test', quiet: true })
-
 describe('Environment Variable Utilities', () => {
+  // unstubEnvs (vite.config.mts) restores every stubbed variable after each test.
   beforeEach(() => {
-    delete process.env.MIGRATE_MODE
-    delete process.env.migrateMode
-    delete process.env.MIGRATE_CONFIG_PATH
-    delete process.env.migrateConfigPath
+    for (const key of [Env.MIGRATE_MODE, Env.MIGRATE_CONFIG_PATH, Env.MIGRATE_AUTOSYNC]) {
+      vi.stubEnv(key, undefined)
+      vi.stubEnv(toCamelCase(key), undefined)
+    }
   })
 
   describe('toCamelCase', () => {
@@ -23,12 +22,12 @@ describe('Environment Variable Utilities', () => {
 
   describe('getEnv', () => {
     it('should return the value of the environment variable', () => {
-      process.env.MIGRATE_MODE = 'development'
+      vi.stubEnv(Env.MIGRATE_MODE, 'development')
       expect(getEnv(Env.MIGRATE_MODE)).toBe('development')
     })
 
     it('should return the value of the camelCase environment variable', () => {
-      process.env.migrateMode = 'development'
+      vi.stubEnv('migrateMode', 'development')
       expect(getEnv(Env.MIGRATE_MODE)).toBe('development')
     })
 
@@ -39,12 +38,12 @@ describe('Environment Variable Utilities', () => {
 
   describe('getEnvBoolean', () => {
     it('should return true if the environment variable is set to "true"', () => {
-      process.env.MIGRATE_AUTOSYNC = 'true'
+      vi.stubEnv(Env.MIGRATE_AUTOSYNC, 'true')
       expect(getEnvBoolean(Env.MIGRATE_AUTOSYNC)).toBe(true)
     })
 
     it('should return undefined if the environment variable is not set to "true"', () => {
-      process.env.MIGRATE_AUTOSYNC = 'false'
+      vi.stubEnv(Env.MIGRATE_AUTOSYNC, 'false')
       expect(getEnvBoolean(Env.MIGRATE_AUTOSYNC)).toBeUndefined()
     })
 
@@ -225,36 +224,13 @@ describe('config', () => {
     }
   })
 
-  it('should return error for non-existent file in quiet mode', () => {
-    const result = config({ path: 'nonexistent.env', quiet: true })
-    expect(result.error).toBeDefined()
-    expect(result.parsed).toEqual({})
-  })
-
-  it('should not override existing env vars by default', () => {
-    process.env.TEST_CONFIG_VAR = 'original'
-    config({ path: '.env.test', quiet: true })
-    expect(process.env.TEST_CONFIG_VAR).toBe('original')
-  })
-
-  it('should override existing env vars when override is true', () => {
-    process.env.TEST_CONFIG_VAR = 'original'
-    const src = 'TEST_CONFIG_VAR=overridden'
-    const parsed = parse(src)
-    expect(parsed.TEST_CONFIG_VAR).toBe('overridden')
-  })
-
-  it('should log error for non-existent file when not quiet', () => {
+  it('adds nothing and logs nothing for a missing file', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const result = config({ path: 'nonexistent.env' })
-    expect(result.error).toBeDefined()
-    expect(consoleSpy).toHaveBeenCalled()
+    const before = { ...process.env }
+    config('nonexistent.env')
+    expect(process.env).toEqual(before)
+    expect(consoleSpy).not.toHaveBeenCalled()
     consoleSpy.mockRestore()
-  })
-
-  it('should use default .env path when no path is provided', () => {
-    const result = config({ quiet: true })
-    expect(result).toBeDefined()
   })
 
   it('should populate env vars from a valid file', async () => {
@@ -264,8 +240,7 @@ describe('config', () => {
     fs.writeFileSync(tmpFile, 'TEST_POPULATE_VAR=hello')
     try {
       delete process.env.TEST_POPULATE_VAR
-      const result = config({ path: tmpFile, quiet: true })
-      expect(result.parsed.TEST_POPULATE_VAR).toBe('hello')
+      config(tmpFile)
       expect(process.env.TEST_POPULATE_VAR).toBe('hello')
     } finally {
       delete process.env.TEST_POPULATE_VAR
@@ -280,11 +255,45 @@ describe('config', () => {
     fs.writeFileSync(tmpFile, 'TEST_OVERRIDE_VAR=new_value')
     try {
       process.env.TEST_OVERRIDE_VAR = 'old_value'
-      config({ path: tmpFile, quiet: true, override: true })
+      config(tmpFile, true)
       expect(process.env.TEST_OVERRIDE_VAR).toBe('new_value')
     } finally {
       delete process.env.TEST_OVERRIDE_VAR
       fs.unlinkSync(tmpFile)
+    }
+  })
+
+  it('reads no env file outside the working directory, as a mode with ../ would name', async () => {
+    const fs = await import('node:fs')
+    const os = await import('node:os')
+    const path = await import('node:path')
+    const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'env-outside-'))
+    fs.writeFileSync(path.join(outside, '.env'), 'TEST_OUTSIDE_VAR=read\n')
+    try {
+      delete process.env.TEST_OUTSIDE_VAR
+      config(path.relative(process.cwd(), path.join(outside, '.env')))
+      config(path.join(outside, '.env'))
+      expect(process.env.TEST_OUTSIDE_VAR).toBeUndefined()
+    } finally {
+      delete process.env.TEST_OUTSIDE_VAR
+      fs.rmSync(outside, { recursive: true, force: true })
+    }
+  })
+
+  it('reads the env file of a working directory that is the filesystem root', async () => {
+    const fs = await import('node:fs')
+    const path = await import('node:path')
+    const root = path.parse(process.cwd()).root
+    vi.spyOn(process, 'cwd').mockReturnValue(root)
+    const read = vi.spyOn(fs.default, 'readFileSync').mockReturnValue('TEST_ROOT_VAR=root\n')
+    try {
+      delete process.env.TEST_ROOT_VAR
+      config('.env')
+      expect(read).toHaveBeenCalledWith(path.join(root, '.env'), 'utf8')
+      expect(process.env.TEST_ROOT_VAR).toBe('root')
+    } finally {
+      delete process.env.TEST_ROOT_VAR
+      vi.restoreAllMocks()
     }
   })
 
@@ -295,7 +304,7 @@ describe('config', () => {
     fs.writeFileSync(tmpFile, 'TEST_NO_OVERRIDE_VAR=new_value')
     try {
       process.env.TEST_NO_OVERRIDE_VAR = 'old_value'
-      config({ path: tmpFile, quiet: true })
+      config(tmpFile)
       expect(process.env.TEST_NO_OVERRIDE_VAR).toBe('old_value')
     } finally {
       delete process.env.TEST_NO_OVERRIDE_VAR
